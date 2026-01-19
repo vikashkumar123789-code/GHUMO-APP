@@ -225,4 +225,214 @@ window.onload = () => {
 function hideAll() { ['authScreen','homeScreen','mainApp','profileScreen'].forEach(id => document.getElementById(id).style.display='none'); }
 function showLogin() { hideAll(); document.getElementById('authScreen').style.display='flex'; document.getElementById('loginForm').style.display='block'; document.getElementById('regForm').style.display='none'; }
 function showReg() { document.getElementById('loginForm').style.display='none'; document.getElementById('regForm').style.display='block'; }
-function showHome() { hideAll(); document.getElementById('homeScreen').style.display='block'; loadTrips();
+function showHome() { hideAll(); document.getElementById('homeScreen').style.display='block'; loadTrips(); loadGlobal(); stopTracking(); }
+function toggleMenu() { const m = document.getElementById('menuOverlay'); m.style.display = m.style.display==='flex' ? 'none' : 'flex'; }
+
+// AUTH
+function doRegister() {
+    const n=document.getElementById('r_name').value, m=document.getElementById('r_mobile').value, a=document.getElementById('r_address').value, p=document.getElementById('r_pass').value;
+    if(n&&m&&a&&p) db.ref('users/'+m).set({name:n, mobile:m, address:a, password:p, history:[]}).then(()=>{ alert("Created! Login."); showLogin(); });
+    else alert("Fill all details");
+}
+function doLogin() {
+    const m=document.getElementById('l_mobile').value, p=document.getElementById('l_pass').value;
+    db.ref('users/'+m).once('value', s => {
+        if(s.exists() && s.val().password === p) { user = s.val(); localStorage.setItem('yatra_user', JSON.stringify(user)); showHome(); } else alert("Invalid");
+    });
+}
+function doLogout() { localStorage.removeItem('yatra_user'); location.reload(); }
+function doUnregister() { if(confirm("Delete Account?")) db.ref('users/'+user.mobile).remove().then(()=>doLogout()); }
+
+// --- LIVE MAP LOGIC (NEW) ---
+function initMap() {
+    if(map) { map.remove(); map = null; }
+    map = L.map('map').setView([20.59, 78.96], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(map);
+    markers = {};
+    
+    // Listen for member locations
+    db.ref('trips/'+tid+'/locations').on('value', s => {
+        const locs = s.val();
+        if(!locs) return;
+        
+        Object.keys(locs).forEach(memberName => {
+            const data = locs[memberName];
+            const lat = data.lat;
+            const lng = data.lng;
+            
+            // Calculate distance if it's not me
+            let distText = "";
+            if(memberName !== user.name && locs[user.name]) {
+                const d = getDistance(locs[user.name].lat, locs[user.name].lng, lat, lng);
+                distText = `<br>Distance: ${d.toFixed(1)} km`;
+            }
+
+            const popupContent = `<b>${memberName}</b>${distText}<br>
+            <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}" target="_blank" class="btn btn-sm btn-primary mt-1 text-white">Go to Friend 🚀</a>`;
+
+            if(markers[memberName]) {
+                markers[memberName].setLatLng([lat, lng]).setPopupContent(popupContent);
+            } else {
+                markers[memberName] = L.marker([lat, lng]).addTo(map)
+                    .bindPopup(popupContent);
+            }
+        });
+    });
+}
+
+function startTracking() {
+    if(!navigator.geolocation) return alert("GPS not supported");
+    
+    // Only initialize map if not already done
+    if(!map) initMap();
+
+    watchId = navigator.geolocation.watchPosition(pos => {
+        const {latitude, longitude} = pos.coords;
+        // Update my location in DB
+        db.ref('trips/'+tid+'/locations/'+user.name).set({
+            lat: latitude,
+            lng: longitude,
+            t: Date.now()
+        });
+        
+        // Center map on me initially
+        if(map) map.setView([latitude, longitude], 15);
+        
+    }, err => console.error(err), { enableHighAccuracy: true });
+    
+    alert("Tracking Started! Move to see updates.");
+}
+
+function stopTracking() {
+    if(watchId) navigator.geolocation.clearWatch(watchId);
+}
+
+// Haversine Formula for Distance
+function getDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Earth radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+}
+
+// --- STANDARD LOGIC ---
+function loadProfile() {
+    db.ref('users/'+user.mobile).once('value', s => {
+        const u = s.val(); if(u) {
+            document.getElementById('p_name').innerText = u.name;
+            document.getElementById('p_mobile').innerText = u.mobile;
+            document.getElementById('p_addr').innerText = u.address || "--";
+            document.getElementById('edit_name').value = u.name;
+            document.getElementById('edit_address').value = u.address || "";
+        }
+    });
+}
+function updateProfile() {
+    const n=document.getElementById('edit_name').value, a=document.getElementById('edit_address').value;
+    if(n) db.ref('users/'+user.mobile).update({name:n, address:a}).then(()=>{ alert("Updated!"); loadProfile(); });
+}
+
+function loadTrips() {
+    db.ref('users/'+user.mobile+'/history').on('value', async s => {
+        const list = document.getElementById('userTripList'); list.innerHTML = "";
+        let codes = s.val() || [];
+        if(!Array.isArray(codes)) codes = Object.values(codes);
+        if(codes.length===0) { list.innerHTML="<p class='text-muted text-center'>No trips.</p>"; return; }
+        for(const c of codes) {
+            const snap = await db.ref('trips/'+c).once('value');
+            if(snap.exists()) list.innerHTML += `<div class="card p-3 mb-2 shadow-sm" onclick="enterTrip('${c}')"><b>${snap.val().name}</b> <small class="text-muted float-end">${c}</small></div>`;
+        }
+    });
+}
+
+function loadGlobal() {
+    db.ref('global_public_feed').limitToLast(15).on('value', s => {
+        const div = document.getElementById('globalFeed'); div.innerHTML="";
+        const data = s.val(); if(!data) { div.innerHTML="<p class='text-muted text-center'>No stories.</p>"; return; }
+        Object.keys(data).reverse().forEach(key => {
+            const p = data[key];
+            let imgHTML = "";
+            if(p.imgs && p.imgs.length > 0) {
+                let slides = ""; p.imgs.forEach(src => { slides += `<img src="${src}" class="feed-img">`; });
+                imgHTML = `<div class="img-scroll-container">${slides}</div>`;
+            }
+            let qaHTML = "";
+            if(p.comments) Object.values(p.comments).forEach(c => {
+                const reply = c.reply ? `<span class="reply-text">↳ ${p.who}: ${c.reply}</span>` : "";
+                const rBtn = (user.name === p.who && !c.reply) ? `<small class="text-primary cursor-pointer" onclick="replyQ('${key}','${c.id}')">Reply</small>` : "";
+                qaHTML += `<div class="qa-item"><b>${c.who}:</b> ${c.txt} ${rBtn} ${reply}</div>`;
+            });
+            div.innerHTML += `
+            <div class="feed-card">
+                <div class="p-3 pb-2"><div class="d-flex justify-content-between align-items-center"><div><span class="fw-bold fs-5">👤 ${p.who}</span> <small class="text-muted d-block">${p.loc}</small></div>${p.cost?`<span class="cost-badge">₹${p.cost}</span>`:''}</div></div>
+                ${imgHTML}
+                <div class="p-3 pt-2"><p class="mb-2"><b>${p.who}:</b> ${p.txt}</p><button class="btn btn-sm btn-outline-dark w-100 mb-2" onclick="askQ('${key}')">💬 Ask Plan</button><div class="qa-box">${qaHTML}</div></div>
+            </div>`;
+        });
+    });
+}
+function askQ(key) { const q=prompt("Question:"); if(q) db.ref('global_public_feed/'+key+'/comments/'+Date.now()).set({id:Date.now(), who:user.name, txt:q}); }
+function replyQ(pk, cid) { const r=prompt("Reply:"); if(r) db.ref('global_public_feed/'+pk+'/comments/'+cid+'/reply').set(r); }
+
+function renderTripFeed() {
+    const div = document.getElementById('tripFeedArea'); div.innerHTML = "";
+    const highlights = tripData.highlights || [];
+    if(highlights.length === 0) div.innerHTML = "<p class='text-center text-muted'>No posts yet.</p>";
+    [...highlights].reverse().forEach(h => {
+        let imgHTML = "";
+        if(h.imgs) h.imgs.forEach(src => imgHTML += `<img src="${src}" class="mem-img-full">`);
+        div.innerHTML += `
+        <div class="mem-card">
+            <div class="mem-head" onclick="this.nextElementSibling.style.display=(this.nextElementSibling.style.display==='block'?'none':'block')">
+                <span class="fw-bold"><i class="bi bi-caret-right-fill"></i> ${h.txt}</span>
+                <small class="text-muted">${h.who}</small>
+            </div>
+            <div class="mem-body"><small>📍 ${h.loc}</small>${imgHTML}</div>
+        </div>`;
+    });
+}
+
+function menuAction(a) { toggleMenu(); if(a==='create'){const n=prompt("Trip Name:");if(n){const id="T"+Math.floor(1000+Math.random()*9000);db.ref('trips/'+id).set({name:n,members:[user.name]}).then(()=>{addHistory(id);enterTrip(id);});}} if(a==='join'){const id=prompt("Code:").toUpperCase();db.ref('trips/'+id).once('value',s=>{if(s.exists()){addHistory(id);enterTrip(id);}else alert("Invalid Code");});} if(a==='profile'){hideAll();document.getElementById('profileScreen').style.display='block';loadProfile();} }
+function addHistory(id) { db.ref('users/'+user.mobile+'/history').once('value', s=>{ let h=s.val(); if(!h) h=[]; else if(!Array.isArray(h)) h=Object.values(h); if(!h.includes(id)){ h.push(id); db.ref('users/'+user.mobile+'/history').set(h); } }); }
+function enterTrip(id) { tid=id; hideAll(); document.getElementById('mainApp').style.display='block'; db.ref('trips/'+tid).on('value', s=>{ tripData=s.val(); if(!tripData)return; if(!tripData.members.includes(user.name)) db.ref('trips/'+tid+'/members').set([...tripData.members, user.name]); renderUI(); renderTripFeed(); initMap(); }); }
+
+function renderUI() {
+    document.getElementById('dispName').innerText = tripData.name;
+    document.getElementById('dispCode').innerText = tid;
+    const isHead = (user.name.toUpperCase() === (tripData.head||"").toUpperCase());
+    
+    const eDiv=document.getElementById('expList'); eDiv.innerHTML="";
+    (tripData.expenses||[]).slice().reverse().forEach(e=>{
+        const btns = isHead ? `<div><i class="bi bi-pencil-fill text-warning me-2" onclick="editExp(${e.t})"></i><i class="bi bi-trash-fill text-danger" onclick="delExp(${e.t})"></i></div>` : "";
+        eDiv.innerHTML+=`<div class="money-out"><div><span>${e.r}</span><br><b>₹${e.a}</b></div>${btns}</div>`;
+    });
+
+    const mDiv=document.getElementById('memList'); mDiv.innerHTML="";
+    const sel=document.getElementById('depMem'); sel.innerHTML="";
+    tripData.members.forEach(m=>{ mDiv.innerHTML+=`<span class="badge bg-white text-dark border p-2 me-1">${m===tripData.head?'👑':''} ${m}</span>`; sel.innerHTML+=`<option value="${m}">${m}</option>`; });
+    
+    let tin=(tripData.deposits||[]).reduce((s,x)=>s+x.amt,0), tout=(tripData.expenses||[]).reduce((s,x)=>s+x.a,0);
+    document.getElementById('cashHand').innerText = tin - tout;
+    document.getElementById('perPersonDisplay').innerText = tripData.members.length ? Math.round(tout/tripData.members.length) : 0;
+
+    const fDiv=document.getElementById('finalList'); fDiv.innerHTML="";
+    let ph=Math.round(tout/tripData.members.length), pd={}; tripData.members.forEach(m=>pd[m]=0);
+    (tripData.deposits||[]).forEach(d=>{ if(pd[d.who]!==undefined) pd[d.who]+=d.amt; });
+    tripData.members.forEach(m=>{ let bal=ph-pd[m]; fDiv.innerHTML+=`<div class="d-flex justify-content-between border-bottom py-1"><span>${m}</span><span>${bal>0?'Pay: '+bal:'Get: '+Math.abs(bal)}</span></div>`; });
+}
+
+function editExp(ts){ const e=tripData.expenses.find(x=>x.t===ts); if(e){ const nr=prompt("New Reason:",e.r), na=prompt("New Amount:",e.a); if(nr&&na) db.ref('trips/'+tid+'/expenses').set(tripData.expenses.map(x=>x.t===ts?{...x,r:nr,a:parseFloat(na)}:x)); } }
+function delExp(ts){ if(confirm("Delete?")) db.ref('trips/'+tid+'/expenses').set(tripData.expenses.filter(x=>x.t!==ts)); }
+function addExp(){ const r=document.getElementById('expRea').value, a=parseFloat(document.getElementById('expAmt').value); if(r&&a) db.ref('trips/'+tid+'/expenses').set([...(tripData.expenses||[]), {r,a,t:Date.now()}]); }
+function addDep(){ const w=document.getElementById('depMem').value, a=parseFloat(document.getElementById('depAmt').value); if(w&&a) db.ref('trips/'+tid+'/deposits').set([...(tripData.deposits||[]), {who:w, amt:a, t:Date.now()}]); }
+function addFuel(){ const d=document.getElementById('fDist').value, m=document.getElementById('fMil').value, r=document.getElementById('fRate').value; if(d&&m&&r) db.ref('trips/'+tid+'/expenses').set([...(tripData.expenses||[]), {r:`⛽ Fuel (${d}km)`, a:Math.round((d/m)*r), t:Date.now()}]); }
+function setHead(){ const h=prompt("Head Name:"); if(h) db.ref('trips/'+tid+'/head').set(h.toUpperCase()); }
+function encodeImgs(i){ tempImages=[]; if(i.files){ Array.from(i.files).forEach(f=>{ const r=new FileReader(); r.onload=(e)=>{ const img=new Image(); img.src=e.target.result; img.onload=()=>{ const c=document.createElement('canvas'), ctx=c.getContext('2d'); const w=500, sc=w/img.width; c.width=w; c.height=img.height*sc; ctx.drawImage(img,0,0,c.width,c.height); tempImages.push(c.toDataURL('image/jpeg',0.6)); document.getElementById('imgPreview').innerHTML+=`<img src="${c.toDataURL('image/jpeg',0.6)}" class="thumb-img">`; } }; r.readAsDataURL(f); }); document.getElementById('imgPreview').style.display='flex'; } }
+function saveMem(t){ const txt=document.getElementById('highTxt').value, loc=document.getElementById('highLoc').value, c=document.getElementById('highCost').value; if(!txt)return; const p={who:user.name, txt, loc, cost:c, imgs:tempImages, t:Date.now()}; if(t==='world') db.ref('global_public_feed').push(p); else db.ref('trips/'+tid+'/highlights').set([...(tripData.highlights||[]), p]); alert("Posted!"); document.getElementById('highTxt').value=""; tempImages=[]; document.getElementById('imgPreview').innerHTML=""; }
+</script>
+</body>
+</html>
