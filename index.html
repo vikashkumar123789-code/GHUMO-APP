@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GHUMO PRO - Fixed Features</title>
+    <title>GHUMO PRO - Exit Option</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -41,6 +41,7 @@
         .bg-blue { background: linear-gradient(to right, #2193b0, #6dd5ed); }
         .bg-dark { background: linear-gradient(to right, #232526, #414345); }
         .bg-purple { background: linear-gradient(to right, #8E2DE2, #4A00E0); }
+        .bg-red { background: linear-gradient(to right, #cb2d3e, #ef473a); } /* Exit Button */
 
         /* INPUTS */
         .vib-input { border: 1px solid #ddd; background: #fff; padding: 10px; border-radius: 12px; width: 100%; margin-bottom: 8px; outline: none; }
@@ -75,6 +76,8 @@
 
 <div id="qrModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('qrModal')">×</span><h5 class="text-success">Support Dev</h5><div id="dQr" class="my-2"></div><h3 class="mt-2">₹<span id="dAmt">0</span></h3><a id="dLink" class="btn-grad bg-dark" href="#">Pay via UPI</a></div></div>
 
+<div id="aboutModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('aboutModal')">×</span><h4>GHUMO PRO</h4><p class="small text-muted">Version 5.0 (Exit Feature)</p><hr><p class="small"><b>Dev:</b> <span id="devNameAbout">--</span></p></div></div>
+
 <div id="authScreen" class="full-screen">
     <div class="vibrant-card text-center" style="width:320px; background:white;">
         <h1 class="fw-bold mb-4" style="color:#fd1d1d;">GHUMO</h1>
@@ -98,7 +101,7 @@
 <div id="homeScreen" class="hidden">
     <div class="app-header">
         <div class="fw-bold">GHUMO <small>| <span id="uName">User</span></small></div>
-        <i class="bi bi-gear-fill fs-4" style="cursor:pointer;" onclick="hideAll();document.getElementById('settingsScreen').classList.remove('hidden')"></i>
+        <i class="bi bi-gear-fill fs-4" style="cursor:pointer;" onclick="openSettings()"></i>
     </div>
     <div class="container py-3">
         <div class="row g-3 mb-3">
@@ -194,19 +197,24 @@
             <div id="memList" class="d-flex flex-wrap gap-2"></div>
         </div>
 
+        <button class="btn-grad bg-red mt-3 mb-4" onclick="exitTrip()"><i class="bi bi-box-arrow-left"></i> Exit Trip</button>
+
         <h6 class="text-white fw-bold mt-4 ps-2">MEMORIES</h6>
         <div id="feedArea"></div>
         <div class="vibrant-card mt-3"><h6 class="text-primary">Settlement</h6><div id="finalList" class="small"></div></div>
     </div>
 </div>
 
-<div id="settingsScreen" class="hidden full-screen" style="background:white; display:block;">
+<div id="settingsScreen" class="hidden full-screen" style="background:white; z-index:3000; overflow-y:auto; display:block;">
     <div class="app-header"><i class="bi bi-arrow-left fs-3" style="cursor:pointer;" onclick="showHome()"></i> Settings <div></div></div>
     <div class="container text-center py-5">
-        <h4 id="setName">--</h4>
-        <input type="text" id="upN" class="vib-input" placeholder="Name">
-        <input type="text" id="upP" class="vib-input" placeholder="Password">
-        <button class="btn-grad bg-blue mb-3" onclick="updProf()">Update</button>
+        <div class="vibrant-card">
+            <h4 id="setName">--</h4>
+            <input type="text" id="upN" class="vib-input" placeholder="Name">
+            <input type="text" id="upP" class="vib-input" placeholder="Password">
+            <button class="btn-grad bg-blue mb-3" onclick="updProf()">Update Profile</button>
+        </div>
+        <button class="btn-grad bg-white text-dark mb-3 shadow-sm border" onclick="document.getElementById('aboutModal').style.display='flex'">ℹ️ About App</button>
         <button class="btn-grad bg-orange" onclick="doLogout()">Log Out</button>
     </div>
 </div>
@@ -223,11 +231,15 @@ function toggle(id){const e=document.getElementById(id);e.classList.toggle('hidd
 
 // AUTH
 window.onload=()=>{
+    document.querySelectorAll('#devNameAbout').forEach(e=>e.innerText=DEV_NAME);
     const s=localStorage.getItem('yatra_user');
     if(s){ user=JSON.parse(s); document.getElementById('uName').innerText=user.name; showHome(); } 
     else document.getElementById('authScreen').classList.remove('hidden');
 };
-function showHome(){ ['authScreen','homeScreen','mainApp','settingsScreen'].forEach(i=>document.getElementById(i).classList.add('hidden')); document.getElementById('homeScreen').classList.remove('hidden'); loadTrips(); loadWorld(); }
+function hideAll(){ ['authScreen','homeScreen','mainApp','settingsScreen'].forEach(i=>document.getElementById(i).classList.add('hidden')); }
+function showHome(){ hideAll(); document.getElementById('homeScreen').classList.remove('hidden'); loadTrips(); loadWorld(); }
+function openSettings(){ hideAll(); document.getElementById('settingsScreen').classList.remove('hidden'); document.getElementById('setName').innerText=user.name; document.getElementById('upN').value=user.name; document.getElementById('upP').value=user.password; }
+
 function doLogin(){
     const m=document.getElementById('l_mobile').value,p=document.getElementById('l_pass').value; if(!m||!p)return;
     db.ref('users/'+m).once('value',s=>{
@@ -250,7 +262,7 @@ function addHist(id){db.ref('users/'+user.mobile+'/history').once('value',s=>{le
 function loadTrips(){db.ref('users/'+user.mobile+'/history').on('value',async s=>{const l=document.getElementById('userTripList');l.innerHTML="";const c=safe(s.val());if(!c.length){l.innerHTML="<p class='text-center text-white small'>No trips.</p>";return;}for(const i of c){const sp=await db.ref('trips/'+i).once('value');if(sp.exists())l.innerHTML+=`<div class="vibrant-card d-flex justify-content-between p-2 mb-2" onclick="enterTrip('${i}')"><b>${sp.val().name}</b><small>${i}</small></div>`;}});}
 
 function enterTrip(id){
-    tid=id; ['homeScreen'].forEach(i=>document.getElementById(i).classList.add('hidden')); document.getElementById('mainApp').classList.remove('hidden');
+    tid=id; hideAll(); document.getElementById('mainApp').classList.remove('hidden');
     db.ref('trips/'+tid).on('value',s=>{
         trip=s.val(); if(!trip)return;
         let m=safe(trip.members); if(!m.includes(user.name)){m.push(user.name);db.ref('trips/'+tid+'/members').set(m);}
@@ -258,8 +270,29 @@ function enterTrip(id){
     });
 }
 
+// NEW: EXIT TRIP FUNCTION
+function exitTrip() {
+    if(!confirm("⚠️ Are you sure you want to leave this trip?")) return;
+    if(trip.head === user.name) {
+        alert("❌ You are the HEAD! Please assign a new Head before leaving.");
+        return;
+    }
+    
+    // 1. Remove from Members List
+    const newMembers = safe(trip.members).filter(m => m !== user.name);
+    db.ref('trips/'+tid+'/members').set(newMembers);
+
+    // 2. Remove from User History
+    db.ref('users/'+user.mobile+'/history').once('value', s => {
+        const newHist = safe(s.val()).filter(id => id !== tid);
+        db.ref('users/'+user.mobile+'/history').set(newHist);
+        alert("You have left the trip.");
+        showHome();
+    });
+}
+
 function renderUI(){
-    document.getElementById('tName').innerText=trip.name; document.getElementById('tCode').innerText=tid; document.getElementById('setName').innerText=user.name;
+    document.getElementById('tName').innerText=trip.name; document.getElementById('tCode').innerText=tid;
     const isHead=(user.name.toLowerCase()===(trip.head||"").toLowerCase());
     const hDiv=document.getElementById('headArea'); hDiv.innerHTML=isHead?`<button class="btn-grad bg-blue" onclick="document.getElementById('headSetupModal').style.display='flex'">🏦 Setup UPI</button>`:(trip.head?`<button class="btn-grad bg-green" onclick="payH()">💸 Pay Head</button>`:"");
 
@@ -271,8 +304,7 @@ function renderUI(){
     });
     // Expenses
     safe(trip.expenses).slice().reverse().forEach(e=>{
-        const isMe=(user.name===trip.head||e.who===user.name); // Creator logic requires tracking 'who', assuming head can delete all
-        const del=isHead?`<div class="d-flex"><i class="bi bi-pencil text-primary action-icon" onclick="edE(${e.t},'${e.r}','${e.a}')"></i><i class="bi bi-trash text-danger action-icon" onclick="delE(${e.t})"></i></div>`:"";
+        const del=(isHead||e.who===user.name)?`<div class="d-flex"><i class="bi bi-pencil text-primary action-icon" onclick="edE(${e.t},'${e.r}','${e.a}')"></i><i class="bi bi-trash text-danger action-icon" onclick="delE(${e.t})"></i></div>`:"";
         l.innerHTML+=`<div class="list-item" style="border-left:4px solid #e74c3c"><div><small>${e.r}</small><br><b>-₹${e.a}</b></div>${del}</div>`;
     });
 
@@ -298,7 +330,7 @@ function renderUI(){
 }
 
 // ACTIONS
-function addExp(){const r=document.getElementById('exR').value,a=parseFloat(document.getElementById('exA').value);if(r&&a){db.ref('trips/'+tid+'/expenses').set([...safe(trip.expenses),{r,a,t:Date.now()}]);toggle('formExp');}}
+function addExp(){const r=document.getElementById('exR').value,a=parseFloat(document.getElementById('exA').value);if(r&&a){db.ref('trips/'+tid+'/expenses').set([...safe(trip.expenses),{r,a,who:user.name,t:Date.now()}]);toggle('formExp');}}
 function addDep(){const w=document.getElementById('dpM').value,a=parseFloat(document.getElementById('dpA').value);if(w&&a){db.ref('trips/'+tid+'/deposits').set([...safe(trip.deposits),{who:w,amt:a,t:Date.now()}]);toggle('formDep');}}
 function delE(t){if(confirm("Delete?"))db.ref('trips/'+tid+'/expenses').set(safe(trip.expenses).filter(x=>x.t!==t));}
 function delD(t){if(confirm("Delete Deposit?"))db.ref('trips/'+tid+'/deposits').set(safe(trip.deposits).filter(x=>x.t!==t));}
@@ -310,7 +342,7 @@ function payH(){const a=prompt("Amount:");if(a){if(!trip.headUPI){alert("No UPI"
 function confPay(){db.ref('trips/'+tid+'/deposits').set([...safe(trip.deposits),{who:user.name,amt:hPay,t:Date.now()}]);closeModal('payHeadModal');alert("Added!");}
 
 // TRANSPORT
-function addTrans(){const m=document.getElementById('trMode').value,f=document.getElementById('trFrom').value,t=document.getElementById('trTo').value,a=parseFloat(document.getElementById('trFare').value);if(f&&t&&a){db.ref('trips/'+tid+'/expenses').set([...safe(trip.expenses),{r:`${m}: ${f} ➔ ${t}`,a,t:Date.now()}]);alert("Added!");}}
+function addTrans(){const m=document.getElementById('trMode').value,f=document.getElementById('trFrom').value,t=document.getElementById('trTo').value,a=parseFloat(document.getElementById('trFare').value);if(f&&t&&a){db.ref('trips/'+tid+'/expenses').set([...safe(trip.expenses),{r:`${m}: ${f} ➔ ${t}`,a,who:user.name,t:Date.now()}]);alert("Added!");}}
 function shareRoute(){const r=safe(trip.expenses).filter(e=>e.r.includes("➔"));if(!r.length)return alert("No routes");let m=`🚀 *TRIP PLAN: ${trip.name}*\n\n`,t=0;r.forEach((x,i)=>{m+=`✅ ${x.r} (₹${x.a})\n`;t+=x.a;});m+=`\n💰 Total: ₹${t}`;window.open(`https://wa.me/?text=${encodeURIComponent(m)}`,'_blank');}
 
 // ESTIMATE
@@ -333,22 +365,29 @@ function renderFeed(){
     const d=document.getElementById('feedArea'); d.innerHTML="";
     safe(trip.highlights).reverse().forEach(h=>{
         let im=""; if(h.imgs)h.imgs.forEach(i=>im+=`<img src="${i}" class="feed-img">`);
-        const del = (h.who===user.name || user.name===trip.head) ? `<i class="bi bi-trash text-danger position-absolute top-0 end-0 m-2 bg-white p-1 rounded" onclick="delPost('${h.t}')"></i>` : "";
+        const del = (h.who===user.name || user.name===trip.head) ? `<i class="bi bi-trash text-danger position-absolute top-0 end-0 m-2 bg-white p-1 rounded action-icon" onclick="delPost('${h.t}')"></i>` : "";
         d.innerHTML+=`<div class="vibrant-card p-0 overflow-hidden position-relative">${del}<div class="p-3"><b>${h.who}</b> <small class="text-muted">at ${h.loc||"Unknown"}</small><p>${h.txt}</p></div>${im}</div>`;
     });
 }
 function delPost(t){if(confirm("Delete?"))db.ref('trips/'+tid+'/highlights').set(safe(trip.highlights).filter(h=>h.t!=t));}
+
+// WORLD FEED CONTROL
 function loadWorld(){
     db.ref('global_public_feed').limitToLast(10).on('value',s=>{
         const d=document.getElementById('globalFeed');d.innerHTML="";
-        safe(s.val()).reverse().forEach(k=>{
+        const data = s.val() || {};
+        Object.keys(data).reverse().forEach(key=>{
+            const k = data[key];
             let im="";if(k.imgs)k.imgs.forEach(i=>im+=`<img src="${i}" class="feed-img">`);
-            // Allow delete if user matches (simple client side check for demo)
-            const del = (k.who===user.name) ? `<small class="text-danger d-block text-end" onclick="alert('Admin delete only in World Feed for safety')">Delete</small>` : "";
-            d.innerHTML+=`<div class="vibrant-card p-0 overflow-hidden bg-white"><div class="p-3"><b>${k.who}</b> <small>at ${k.loc||""}</small><p>${k.txt}</p>${del}</div>${im}</div>`;
+            let ctrls = (k.who === user.name) ? 
+                `<div class="d-flex justify-content-end gap-2 p-2"><button class="btn btn-sm btn-light border" onclick="editW('${key}','${k.txt}')">✏️ Edit</button><button class="btn btn-sm btn-danger" onclick="delW('${key}')">🗑️ Delete</button></div>` : "";
+            d.innerHTML+=`<div class="vibrant-card p-0 overflow-hidden bg-white"><div class="p-3"><b>${k.who}</b> <small class="text-muted">at ${k.loc||"Unknown"}</small><p>${k.txt}</p></div>${im}${ctrls}</div>`;
         });
     });
 }
+function delW(k){ if(confirm("Delete this post?")) db.ref('global_public_feed/'+k).remove(); }
+function editW(k, old){ const n = prompt("Update Caption:", old); if(n) db.ref('global_public_feed/'+k).update({txt:n}); }
+
 function donate(){ const a=prompt("Amount:"); if(a){ const l=`upi://pay?pa=${UPI_ID}&pn=${DEV_NAME}&am=${a}&cu=INR`; document.getElementById('qrModal').style.display='flex'; document.getElementById('dAmt').innerText=a; document.getElementById('dLink').href=l; document.getElementById('dQr').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(l)}">`; } }
 </script>
 </body>
