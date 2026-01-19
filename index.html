@@ -3,44 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHUMO PRO - Live Tracking</title>
-    
+    <title>GHUMO PRO - Fixed Members</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
     <style>
         body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
         .full-screen { height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
         .card { border-radius: 15px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 15px; }
         .app-header { background: #203a43; color: white; padding: 15px; border-radius: 0 0 20px 20px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         
-        /* Menu */
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; }
         .menu-content button { width: 260px; margin-bottom: 12px; padding: 12px; border-radius: 30px; font-weight: bold; }
         
-        /* Map Styles */
-        #map { height: 350px; width: 100%; border-radius: 10px; z-index: 1; }
-        .user-marker-label { background: white; padding: 2px 5px; border-radius: 4px; border: 1px solid #333; font-weight: bold; font-size: 10px; white-space: nowrap; }
-
-        /* Other Styles */
         .stat-box { padding: 15px; border-radius: 12px; text-align: center; color: white; height: 100%; }
         .bg-cash { background: linear-gradient(45deg, #11998e, #38ef7d); }
         .bg-head { background: linear-gradient(45deg, #3a7bd5, #00d2ff); }
-        .money-out { border-left: 5px solid #e74c3c; background: #fff; padding: 10px; margin-bottom: 5px; border-radius: 5px; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; }
-        
+
+        .mem-card { background: white; border-radius: 10px; overflow: hidden; margin-bottom: 8px; border: 1px solid #ddd; }
+        .mem-head { padding: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #fff3cd; border-left: 5px solid #ffc107; }
+        .mem-body { display: none; padding: 15px; background: #fff; border-top: 1px solid #eee; }
+        .mem-img-full { width: 100%; border-radius: 8px; margin-top: 10px; }
+
         .feed-card { background: white; border-radius: 15px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative; }
         .img-scroll-container { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; background: #000; }
         .feed-img { flex: 0 0 100%; width: 100%; height: 300px; object-fit: contain; scroll-snap-align: center; }
         .cost-badge { background: #27ae60; color: white; padding: 4px 10px; border-radius: 15px; font-size: 0.85rem; font-weight: bold; float: right; }
+        
+        .qa-box { background: #f8f9fa; padding: 10px; border-top: 1px solid #eee; font-size: 0.9rem; }
+        .qa-item { background: white; padding: 8px; margin-bottom: 5px; border-radius: 8px; border-left: 3px solid #203a43; }
+        .reply-text { color: #d35400; font-weight: bold; display: block; margin-top: 2px; }
+
+        .money-out { border-left: 5px solid #e74c3c; background: #fff; padding: 10px; margin-bottom: 5px; border-radius: 5px; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; }
         .preview-box { display: flex; gap: 5px; overflow-x: auto; padding: 5px; }
         .thumb-img { height: 60px; width: 60px; object-fit: cover; border-radius: 5px; border: 1px solid #ccc; }
     </style>
-
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
 
@@ -67,7 +65,7 @@
             <button class="btn btn-link mt-2" onclick="showReg()">New Account</button>
         </div>
         <div id="regForm" style="display:none;">
-            <input type="text" id="r_name" class="form-control mb-2" placeholder="Name">
+            <input type="text" id="r_name" class="form-control mb-2" placeholder="Full Name">
             <input type="number" id="r_mobile" class="form-control mb-2" placeholder="Mobile">
             <input type="text" id="r_address" class="form-control mb-2" placeholder="Address">
             <input type="password" id="r_pass" class="form-control mb-2" placeholder="Password">
@@ -84,8 +82,10 @@
         <div style="width:40px"></div>
     </div>
     <div class="container py-3">
-        <h6 class="fw-bold text-muted mb-2">MY TRIPS</h6>
-        <div id="userTripList"></div>
+        <h6 class="fw-bold text-muted mb-2">MY TRIPS (Joined)</h6>
+        <div id="userTripList">
+            <p class="text-center text-muted">Loading trips...</p>
+        </div>
         <hr>
         <h6 class="text-primary fw-bold mb-3"><i class="bi bi-globe"></i> EXPLORE WORLD</h6>
         <div id="globalFeed"></div>
@@ -95,17 +95,17 @@
 <div id="profileScreen" style="display:none; max-width: 500px; margin: auto;">
     <div class="app-header d-flex justify-content-between align-items-center">
         <i class="bi bi-arrow-left fs-2" onclick="showHome()"></i>
-        <h5 class="m-0">Profile</h5>
+        <h5 class="m-0">My Profile</h5>
         <div style="width:30px"></div>
     </div>
     <div class="container py-4">
-        <div class="card p-4 shadow-sm text-center">
-            <i class="bi bi-person-circle" style="font-size: 4rem; color:#203a43;"></i>
-            <h4 id="p_name">--</h4>
-            <p id="p_mobile">--</p>
-            <p id="p_addr" class="small text-muted">--</p>
+        <div class="card p-4 shadow-sm">
+            <div class="text-center mb-4"><i class="bi bi-person-circle" style="font-size: 4rem; color:#203a43;"></i></div>
+            <p><b>Name:</b> <span id="p_name">--</span></p>
+            <p><b>Mobile:</b> <span id="p_mobile">--</span></p>
+            <p><b>Address:</b> <span id="p_addr">--</span></p>
             <hr>
-            <h6>Edit</h6>
+            <h6>Edit Profile</h6>
             <input type="text" id="edit_name" class="form-control mb-2" placeholder="Name">
             <input type="text" id="edit_address" class="form-control mb-2" placeholder="Address">
             <button class="btn btn-dark w-100" onclick="updateProfile()">UPDATE</button>
@@ -122,15 +122,6 @@
 
     <div class="container p-3 pb-5">
         
-        <div class="card p-2 border-primary mb-3 shadow">
-            <div class="d-flex justify-content-between align-items-center mb-2 px-2">
-                <h6 class="text-primary fw-bold m-0"><i class="bi bi-geo-alt-fill"></i> LIVE TRACKING</h6>
-                <button class="btn btn-sm btn-primary" onclick="startTracking()">Start GPS</button>
-            </div>
-            <div id="map"></div>
-            <small class="text-center text-muted mt-1">Tap marker to Follow Member</small>
-        </div>
-
         <div class="row g-3 mb-3">
             <div class="col-6"><div class="stat-box bg-cash shadow-sm"><small>CASH IN HAND</small><h3 class="fw-bold m-0">₹<span id="cashHand">0</span></h3></div></div>
             <div class="col-6"><div class="stat-box bg-head shadow-sm"><small>PER PERSON</small><h3 class="fw-bold m-0">₹<span id="perPersonDisplay">0</span></h3></div></div>
@@ -215,7 +206,6 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 let user = null, tid = "", tripData = {}, tempImages = [];
-let map, markers = {}, watchId = null;
 
 window.onload = () => { 
     const saved = localStorage.getItem('yatra_user');
@@ -225,107 +215,33 @@ window.onload = () => {
 function hideAll() { ['authScreen','homeScreen','mainApp','profileScreen'].forEach(id => document.getElementById(id).style.display='none'); }
 function showLogin() { hideAll(); document.getElementById('authScreen').style.display='flex'; document.getElementById('loginForm').style.display='block'; document.getElementById('regForm').style.display='none'; }
 function showReg() { document.getElementById('loginForm').style.display='none'; document.getElementById('regForm').style.display='block'; }
-function showHome() { hideAll(); document.getElementById('homeScreen').style.display='block'; loadTrips(); loadGlobal(); stopTracking(); }
+function showHome() { hideAll(); document.getElementById('homeScreen').style.display='block'; loadTrips(); loadGlobal(); }
 function toggleMenu() { const m = document.getElementById('menuOverlay'); m.style.display = m.style.display==='flex' ? 'none' : 'flex'; }
 
 // AUTH
 function doRegister() {
     const n=document.getElementById('r_name').value, m=document.getElementById('r_mobile').value, a=document.getElementById('r_address').value, p=document.getElementById('r_pass').value;
-    if(n&&m&&a&&p) db.ref('users/'+m).set({name:n, mobile:m, address:a, password:p, history:[]}).then(()=>{ alert("Created! Login."); showLogin(); });
+    if(n&&m&&a&&p) db.ref('users/'+m).set({name:n, mobile:m, address:a, password:p, history:[]}).then(()=>{ alert("Account Created! Login Now."); showLogin(); });
     else alert("Fill all details");
 }
 function doLogin() {
     const m=document.getElementById('l_mobile').value, p=document.getElementById('l_pass').value;
     db.ref('users/'+m).once('value', s => {
-        if(s.exists() && s.val().password === p) { user = s.val(); localStorage.setItem('yatra_user', JSON.stringify(user)); showHome(); } else alert("Invalid");
+        if(s.exists() && s.val().password === p) { user = s.val(); localStorage.setItem('yatra_user', JSON.stringify(user)); showHome(); } else alert("Invalid Credentials");
     });
 }
 function doLogout() { localStorage.removeItem('yatra_user'); location.reload(); }
 function doUnregister() { if(confirm("Delete Account?")) db.ref('users/'+user.mobile).remove().then(()=>doLogout()); }
 
-// --- LIVE MAP LOGIC (NEW) ---
-function initMap() {
-    if(map) { map.remove(); map = null; }
-    map = L.map('map').setView([20.59, 78.96], 5);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(map);
-    markers = {};
-    
-    // Listen for member locations
-    db.ref('trips/'+tid+'/locations').on('value', s => {
-        const locs = s.val();
-        if(!locs) return;
-        
-        Object.keys(locs).forEach(memberName => {
-            const data = locs[memberName];
-            const lat = data.lat;
-            const lng = data.lng;
-            
-            // Calculate distance if it's not me
-            let distText = "";
-            if(memberName !== user.name && locs[user.name]) {
-                const d = getDistance(locs[user.name].lat, locs[user.name].lng, lat, lng);
-                distText = `<br>Distance: ${d.toFixed(1)} km`;
-            }
-
-            const popupContent = `<b>${memberName}</b>${distText}<br>
-            <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}" target="_blank" class="btn btn-sm btn-primary mt-1 text-white">Go to Friend 🚀</a>`;
-
-            if(markers[memberName]) {
-                markers[memberName].setLatLng([lat, lng]).setPopupContent(popupContent);
-            } else {
-                markers[memberName] = L.marker([lat, lng]).addTo(map)
-                    .bindPopup(popupContent);
-            }
-        });
-    });
-}
-
-function startTracking() {
-    if(!navigator.geolocation) return alert("GPS not supported");
-    
-    // Only initialize map if not already done
-    if(!map) initMap();
-
-    watchId = navigator.geolocation.watchPosition(pos => {
-        const {latitude, longitude} = pos.coords;
-        // Update my location in DB
-        db.ref('trips/'+tid+'/locations/'+user.name).set({
-            lat: latitude,
-            lng: longitude,
-            t: Date.now()
-        });
-        
-        // Center map on me initially
-        if(map) map.setView([latitude, longitude], 15);
-        
-    }, err => console.error(err), { enableHighAccuracy: true });
-    
-    alert("Tracking Started! Move to see updates.");
-}
-
-function stopTracking() {
-    if(watchId) navigator.geolocation.clearWatch(watchId);
-}
-
-// Haversine Formula for Distance
-function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Earth radius in km
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-}
-
-// --- STANDARD LOGIC ---
+// PROFILE
 function loadProfile() {
     db.ref('users/'+user.mobile).once('value', s => {
-        const u = s.val(); if(u) {
+        const u = s.val();
+        if(u) {
+            user = u; localStorage.setItem('yatra_user', JSON.stringify(user));
             document.getElementById('p_name').innerText = u.name;
             document.getElementById('p_mobile').innerText = u.mobile;
-            document.getElementById('p_addr').innerText = u.address || "--";
+            document.getElementById('p_addr').innerText = u.address || "Not Provided";
             document.getElementById('edit_name').value = u.name;
             document.getElementById('edit_address').value = u.address || "";
         }
@@ -336,19 +252,30 @@ function updateProfile() {
     if(n) db.ref('users/'+user.mobile).update({name:n, address:a}).then(()=>{ alert("Updated!"); loadProfile(); });
 }
 
+// TRIP LIST
 function loadTrips() {
     db.ref('users/'+user.mobile+'/history').on('value', async s => {
         const list = document.getElementById('userTripList'); list.innerHTML = "";
-        let codes = s.val() || [];
-        if(!Array.isArray(codes)) codes = Object.values(codes);
-        if(codes.length===0) { list.innerHTML="<p class='text-muted text-center'>No trips.</p>"; return; }
+        
+        let codes = [];
+        if(s.exists()) {
+            const val = s.val();
+            // SAFE ARRAY FIX: Whether object or array, convert to array
+            codes = Array.isArray(val) ? val : Object.values(val);
+        }
+
+        if(codes.length === 0) { list.innerHTML = "<p class='text-center text-muted'>No trips joined yet.</p>"; return; }
+        
         for(const c of codes) {
             const snap = await db.ref('trips/'+c).once('value');
-            if(snap.exists()) list.innerHTML += `<div class="card p-3 mb-2 shadow-sm" onclick="enterTrip('${c}')"><b>${snap.val().name}</b> <small class="text-muted float-end">${c}</small></div>`;
+            if(snap.exists()) {
+                list.innerHTML += `<div class="card p-3 mb-2 shadow-sm" onclick="enterTrip('${c}')"><b>${snap.val().name}</b> <small class="text-muted float-end">Code: ${c}</small></div>`;
+            }
         }
     });
 }
 
+// GLOBAL FEED
 function loadGlobal() {
     db.ref('global_public_feed').limitToLast(15).on('value', s => {
         const div = document.getElementById('globalFeed'); div.innerHTML="";
@@ -378,10 +305,12 @@ function loadGlobal() {
 function askQ(key) { const q=prompt("Question:"); if(q) db.ref('global_public_feed/'+key+'/comments/'+Date.now()).set({id:Date.now(), who:user.name, txt:q}); }
 function replyQ(pk, cid) { const r=prompt("Reply:"); if(r) db.ref('global_public_feed/'+pk+'/comments/'+cid+'/reply').set(r); }
 
+// TRIP FEED
 function renderTripFeed() {
     const div = document.getElementById('tripFeedArea'); div.innerHTML = "";
     const highlights = tripData.highlights || [];
     if(highlights.length === 0) div.innerHTML = "<p class='text-center text-muted'>No posts yet.</p>";
+    
     [...highlights].reverse().forEach(h => {
         let imgHTML = "";
         if(h.imgs) h.imgs.forEach(src => imgHTML += `<img src="${src}" class="mem-img-full">`);
@@ -396,9 +325,30 @@ function renderTripFeed() {
     });
 }
 
+// TRIP LOGIC (FIXED MEMBER LOAD)
 function menuAction(a) { toggleMenu(); if(a==='create'){const n=prompt("Trip Name:");if(n){const id="T"+Math.floor(1000+Math.random()*9000);db.ref('trips/'+id).set({name:n,members:[user.name]}).then(()=>{addHistory(id);enterTrip(id);});}} if(a==='join'){const id=prompt("Code:").toUpperCase();db.ref('trips/'+id).once('value',s=>{if(s.exists()){addHistory(id);enterTrip(id);}else alert("Invalid Code");});} if(a==='profile'){hideAll();document.getElementById('profileScreen').style.display='block';loadProfile();} }
 function addHistory(id) { db.ref('users/'+user.mobile+'/history').once('value', s=>{ let h=s.val(); if(!h) h=[]; else if(!Array.isArray(h)) h=Object.values(h); if(!h.includes(id)){ h.push(id); db.ref('users/'+user.mobile+'/history').set(h); } }); }
-function enterTrip(id) { tid=id; hideAll(); document.getElementById('mainApp').style.display='block'; db.ref('trips/'+tid).on('value', s=>{ tripData=s.val(); if(!tripData)return; if(!tripData.members.includes(user.name)) db.ref('trips/'+tid+'/members').set([...tripData.members, user.name]); renderUI(); renderTripFeed(); initMap(); }); }
+
+function enterTrip(id) { 
+    tid=id; hideAll(); document.getElementById('mainApp').style.display='block'; 
+    db.ref('trips/'+tid).on('value', s=>{ 
+        tripData=s.val(); if(!tripData)return; 
+        
+        // SAFE MEMBER CHECK
+        let members = tripData.members || [];
+        if(!Array.isArray(members)) members = Object.values(members);
+        
+        if(!members.includes(user.name)) {
+            // Add user and save back
+            db.ref('trips/'+tid+'/members').set([...members, user.name]); 
+        }
+        
+        // Ensure tripData has array for renderUI
+        tripData.members = members;
+        
+        renderUI(); renderTripFeed(); 
+    }); 
+}
 
 function renderUI() {
     document.getElementById('dispName').innerText = tripData.name;
@@ -413,16 +363,22 @@ function renderUI() {
 
     const mDiv=document.getElementById('memList'); mDiv.innerHTML="";
     const sel=document.getElementById('depMem'); sel.innerHTML="";
-    tripData.members.forEach(m=>{ mDiv.innerHTML+=`<span class="badge bg-white text-dark border p-2 me-1">${m===tripData.head?'👑':''} ${m}</span>`; sel.innerHTML+=`<option value="${m}">${m}</option>`; });
+    
+    // SAFE RENDER MEMBERS
+    const mems = tripData.members || []; // Already handled in enterTrip but safe check
+    mems.forEach(m=>{ 
+        mDiv.innerHTML+=`<span class="badge bg-white text-dark border p-2 me-1">${m===tripData.head?'👑':''} ${m}</span>`; 
+        sel.innerHTML+=`<option value="${m}">${m}</option>`; 
+    });
     
     let tin=(tripData.deposits||[]).reduce((s,x)=>s+x.amt,0), tout=(tripData.expenses||[]).reduce((s,x)=>s+x.a,0);
     document.getElementById('cashHand').innerText = tin - tout;
-    document.getElementById('perPersonDisplay').innerText = tripData.members.length ? Math.round(tout/tripData.members.length) : 0;
+    document.getElementById('perPersonDisplay').innerText = mems.length ? Math.round(tout/mems.length) : 0;
 
     const fDiv=document.getElementById('finalList'); fDiv.innerHTML="";
-    let ph=Math.round(tout/tripData.members.length), pd={}; tripData.members.forEach(m=>pd[m]=0);
+    let ph=Math.round(tout/mems.length), pd={}; mems.forEach(m=>pd[m]=0);
     (tripData.deposits||[]).forEach(d=>{ if(pd[d.who]!==undefined) pd[d.who]+=d.amt; });
-    tripData.members.forEach(m=>{ let bal=ph-pd[m]; fDiv.innerHTML+=`<div class="d-flex justify-content-between border-bottom py-1"><span>${m}</span><span>${bal>0?'Pay: '+bal:'Get: '+Math.abs(bal)}</span></div>`; });
+    mems.forEach(m=>{ let bal=ph-pd[m]; fDiv.innerHTML+=`<div class="d-flex justify-content-between border-bottom py-1"><span>${m}</span><span>${bal>0?'Pay: '+bal:'Get: '+Math.abs(bal)}</span></div>`; });
 }
 
 function editExp(ts){ const e=tripData.expenses.find(x=>x.t===ts); if(e){ const nr=prompt("New Reason:",e.r), na=prompt("New Amount:",e.a); if(nr&&na) db.ref('trips/'+tid+'/expenses').set(tripData.expenses.map(x=>x.t===ts?{...x,r:nr,a:parseFloat(na)}:x)); } }
@@ -433,6 +389,7 @@ function addFuel(){ const d=document.getElementById('fDist').value, m=document.g
 function setHead(){ const h=prompt("Head Name:"); if(h) db.ref('trips/'+tid+'/head').set(h.toUpperCase()); }
 function encodeImgs(i){ tempImages=[]; if(i.files){ Array.from(i.files).forEach(f=>{ const r=new FileReader(); r.onload=(e)=>{ const img=new Image(); img.src=e.target.result; img.onload=()=>{ const c=document.createElement('canvas'), ctx=c.getContext('2d'); const w=500, sc=w/img.width; c.width=w; c.height=img.height*sc; ctx.drawImage(img,0,0,c.width,c.height); tempImages.push(c.toDataURL('image/jpeg',0.6)); document.getElementById('imgPreview').innerHTML+=`<img src="${c.toDataURL('image/jpeg',0.6)}" class="thumb-img">`; } }; r.readAsDataURL(f); }); document.getElementById('imgPreview').style.display='flex'; } }
 function saveMem(t){ const txt=document.getElementById('highTxt').value, loc=document.getElementById('highLoc').value, c=document.getElementById('highCost').value; if(!txt)return; const p={who:user.name, txt, loc, cost:c, imgs:tempImages, t:Date.now()}; if(t==='world') db.ref('global_public_feed').push(p); else db.ref('trips/'+tid+'/highlights').set([...(tripData.highlights||[]), p]); alert("Posted!"); document.getElementById('highTxt').value=""; tempImages=[]; document.getElementById('imgPreview').innerHTML=""; }
+function toggleMenu() { const m = document.getElementById('menuOverlay'); m.style.display = m.style.display==='flex' ? 'none' : 'flex'; }
 </script>
 </body>
 </html>
