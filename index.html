@@ -3,42 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHUMO PRO - Ultimate Fixed</title>
+    <title>GHUMO PRO - Google Maps Tracking</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
     <style>
         body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; user-select: none; }
         .full-screen { height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
         .card { border-radius: 15px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 15px; }
         .app-header { background: #203a43; color: white; padding: 15px; border-radius: 0 0 20px 20px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: flex; justify-content: space-between; align-items: center; }
         
-        /* 3-Dot Menu Dropdown */
-        .dropdown-menu { border-radius: 10px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        
-        /* Dashboard Buttons */
-        .dash-btn { padding: 15px; border-radius: 12px; font-weight: bold; color: white; text-align: center; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .dash-btn:active { transform: scale(0.95); }
-        .btn-create { background: linear-gradient(45deg, #FF512F, #DD2476); }
-        .btn-join { background: linear-gradient(45deg, #4776E6, #8E54E9); }
-
-        /* Trip Card */
-        .trip-card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #203a43; }
-        
-        /* Stats & Map */
-        #map { height: 250px; width: 100%; border-radius: 10px; z-index: 1; }
-        .stat-box { padding: 15px; border-radius: 12px; text-align: center; color: white; }
+        /* Dashboard & Stats */
+        .stat-box { padding: 15px; border-radius: 12px; text-align: center; color: white; height: 100%; }
         .bg-cash { background: linear-gradient(45deg, #11998e, #38ef7d); }
         .bg-head { background: linear-gradient(45deg, #3a7bd5, #00d2ff); }
 
-        /* Feeds & Memories */
+        /* Tracking List Style */
+        .track-card { background: #e3f2fd; padding: 10px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #90caf9; display: flex; justify-content: space-between; align-items: center; }
+        .track-btn { background: #fff; color: #1976d2; border: 1px solid #1976d2; font-weight: bold; font-size: 0.85rem; padding: 5px 10px; border-radius: 20px; text-decoration: none; }
+        .track-btn:hover { background: #1976d2; color: white; }
+
+        /* General Styles */
         .mem-card { background: white; border-radius: 10px; overflow: hidden; margin-bottom: 8px; border: 1px solid #ddd; }
         .mem-head { padding: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #fff3cd; border-left: 5px solid #ffc107; }
         .mem-body { display: none; padding: 15px; }
+        
+        .feed-card { background: white; border-radius: 15px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .feed-img { width: 100%; height: 250px; object-fit: cover; }
         .img-scroll-container { display: flex; overflow-x: auto; background: #000; }
         
@@ -56,12 +47,11 @@
 <div id="authScreen" class="full-screen">
     <div class="card p-4 text-center" style="width: 350px;">
         <h1 class="text-primary fw-bold">GHUMO</h1>
-        <p class="text-muted small">Travel Together</p>
         <div id="loginForm">
             <input type="number" id="l_mobile" class="form-control mb-2" placeholder="Mobile Number">
             <input type="password" id="l_pass" class="form-control mb-2" placeholder="Password">
             <button class="btn btn-primary w-100 fw-bold" onclick="doLogin()">LOGIN</button>
-            <button class="btn btn-link mt-2" onclick="showReg()">Create New Account</button>
+            <button class="btn btn-link mt-2" onclick="showReg()">Create Account</button>
         </div>
         <div id="regForm" style="display:none;">
             <input type="text" id="r_name" class="form-control mb-2" placeholder="Full Name">
@@ -77,63 +67,36 @@
 <div id="homeScreen" style="display:none; max-width: 500px; margin: auto;">
     <div class="app-header">
         <div class="fw-bold fs-4">🌎 GHUMO</div>
-        
         <div class="dropdown">
             <i class="bi bi-three-dots-vertical fs-3 text-white" data-bs-toggle="dropdown" style="cursor: pointer;"></i>
             <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="#" onclick="openSettings()"><i class="bi bi-person-gear"></i> Profile & Settings</a></li>
+                <li><a class="dropdown-item" href="#" onclick="openSettings()">👤 Profile & Settings</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="#" onclick="doLogout()"><i class="bi bi-box-arrow-right"></i> Log Out</a></li>
+                <li><a class="dropdown-item text-danger" href="#" onclick="doLogout()">Log Out</a></li>
             </ul>
         </div>
     </div>
-
     <div class="container py-3">
         <div class="row g-2 mb-4">
-            <div class="col-6">
-                <div class="dash-btn btn-create" onclick="createTrip()">
-                    <i class="bi bi-plus-circle fs-1"></i><br>Create Trip
-                </div>
-            </div>
-            <div class="col-6">
-                <div class="dash-btn btn-join" onclick="joinTrip()">
-                    <i class="bi bi-box-arrow-in-right fs-1"></i><br>Join Trip
-                </div>
-            </div>
+            <div class="col-6"><button class="btn btn-primary w-100 py-3 fw-bold" onclick="createTrip()">➕ Create Trip</button></div>
+            <div class="col-6"><button class="btn btn-outline-primary w-100 py-3 fw-bold" onclick="joinTrip()">🚀 Join Trip</button></div>
         </div>
-
         <h6 class="fw-bold text-muted mb-2">MY TRIPS</h6>
-        <div id="userTripList">
-            <p class="text-center text-muted">Loading trips...</p>
-        </div>
-        
+        <div id="userTripList"><p class="text-center text-muted">Loading...</p></div>
         <hr>
-        <h6 class="text-primary fw-bold mb-3"><i class="bi bi-globe-americas"></i> EXPLORE WORLD</h6>
+        <h6 class="text-primary fw-bold mb-3">EXPLORE WORLD</h6>
         <div id="globalFeed"></div>
     </div>
 </div>
 
 <div id="settingsScreen" style="display:none; max-width: 500px; margin: auto;">
-    <div class="app-header">
-        <i class="bi bi-arrow-left fs-2" onclick="showHome()"></i>
-        <h5 class="m-0">Settings</h5>
-        <div style="width:30px"></div>
-    </div>
-    <div class="container py-4">
-        <div class="card p-4 shadow-sm text-center">
-            <i class="bi bi-person-circle" style="font-size: 4rem; color:#203a43;"></i>
-            <h4 id="s_name" class="mt-2">User</h4>
-            <p id="s_mobile" class="text-muted">--</p>
-            
-            <hr>
-            <h6 class="text-start text-primary fw-bold">Update Details</h6>
-            <input type="text" id="up_name" class="form-control mb-2" placeholder="Full Name">
-            <input type="text" id="up_address" class="form-control mb-2" placeholder="Address">
-            <input type="text" id="up_pass" class="form-control mb-3" placeholder="New Password">
-            
-            <button class="btn btn-dark w-100 mb-3" onclick="saveSettings()">SAVE CHANGES</button>
-            <button class="btn btn-outline-danger w-100" onclick="doUnregister()">Delete My Account</button>
-        </div>
+    <div class="app-header"><i class="bi bi-arrow-left fs-2" onclick="showHome()"></i> Settings</div>
+    <div class="container py-4 text-center">
+        <i class="bi bi-person-circle" style="font-size: 4rem;"></i>
+        <h4 id="s_name" class="mt-2">--</h4>
+        <input type="text" id="up_name" class="form-control mb-2" placeholder="Name">
+        <input type="text" id="up_address" class="form-control mb-2" placeholder="Address">
+        <button class="btn btn-dark w-100" onclick="saveSettings()">UPDATE</button>
     </div>
 </div>
 
@@ -141,17 +104,19 @@
     <div class="app-header">
         <i class="bi bi-arrow-left fs-2" onclick="showHome()"></i>
         <div class="text-center"><h5 id="dispName" class="m-0 fw-bold">Trip</h5></div>
-        <i class="bi bi-three-dots-vertical fs-4 invisible"></i>
+        <i class="bi bi-list fs-2 invisible"></i>
     </div>
 
     <div class="container p-3 pb-5">
         
-        <div class="card p-2 border-primary mb-3 shadow">
-            <div class="d-flex justify-content-between align-items-center mb-2 px-2">
-                <h6 class="text-primary fw-bold m-0"><i class="bi bi-geo-alt-fill"></i> LIVE MAP</h6>
-                <button class="btn btn-sm btn-primary" onclick="startTracking()">Start GPS</button>
+        <div class="card p-3 border-primary mb-3 shadow">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="text-primary fw-bold m-0"><i class="bi bi-geo-alt-fill"></i> LIVE MEMBERS</h6>
+                <button id="gpsBtn" class="btn btn-sm btn-primary" onclick="startTracking()">🔴 Start GPS</button>
             </div>
-            <div id="map"></div>
+            <div id="locationList">
+                <p class="text-center text-muted small">Start GPS to see others & be seen.</p>
+            </div>
         </div>
 
         <div class="row g-3 mb-3">
@@ -159,10 +124,20 @@
             <div class="col-6"><div class="stat-box bg-head shadow-sm"><small>PER PERSON</small><h3 class="fw-bold m-0">₹<span id="perPersonDisplay">0</span></h3></div></div>
         </div>
 
+        <div class="card p-3 border-info mb-3">
+            <h6 class="text-info fw-bold">⛽ Fuel Calculator</h6>
+            <div class="input-group input-group-sm">
+                <input type="number" id="fDist" class="form-control" placeholder="KM">
+                <input type="number" id="fMil" class="form-control" placeholder="Avg">
+                <input type="number" id="fRate" class="form-control" placeholder="Price">
+                <button class="btn btn-info text-white" onclick="addFuel()">Add</button>
+            </div>
+        </div>
+
         <div class="card p-3 border-danger mb-3 shadow-sm">
             <h6 class="text-danger fw-bold">💸 EXPENSE</h6>
             <div class="input-group input-group-sm mb-2">
-                <input type="text" id="expRea" class="form-control" placeholder="Reason">
+                <input type="text" id="expRea" class="form-control" placeholder="Item Name">
                 <input type="number" id="expAmt" class="form-control" placeholder="₹">
                 <button class="btn btn-danger" onclick="addExp()">Add</button>
             </div>
@@ -180,7 +155,7 @@
 
         <div class="card p-3 mb-3 bg-light">
             <div class="d-flex justify-content-between mb-2">
-                <h6 class="m-0">👥 Members</h6>
+                <h6 class="m-0">👥 Members List</h6>
                 <small class="text-warning cursor-pointer" onclick="setHead()">Set Head</small>
             </div>
             <div id="memList" class="d-flex flex-wrap gap-1"></div>
@@ -201,7 +176,7 @@
             </div>
         </div>
 
-        <h6 class="text-muted fw-bold small mt-4">TRIP MEMORIES</h6>
+        <h6 class="text-muted fw-bold small mt-3">TRIP MEMORIES</h6>
         <div id="tripFeedArea" class="mb-4"></div>
 
         <div class="card p-3 bg-dark text-white mt-3">
@@ -225,9 +200,8 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 let user = null, tid = "", tripData = {}, tempImages = [];
-let map, markers = {}, watchId = null;
+let watchId = null, myLat = null, myLng = null;
 
-// *** SUPER FIX: Safe Array Converter ***
 function safeArray(data) {
     if (!data) return [];
     if (Array.isArray(data)) return data;
@@ -248,7 +222,6 @@ function showHome() { hideAll(); document.getElementById('homeScreen').style.dis
 function doRegister() {
     const n=document.getElementById('r_name').value, m=document.getElementById('r_mobile').value, a=document.getElementById('r_address').value, p=document.getElementById('r_pass').value;
     if(n&&m&&a&&p) db.ref('users/'+m).set({name:n, mobile:m, address:a, password:p, history:[]}).then(()=>{ alert("Created!"); showLogin(); });
-    else alert("Fill details");
 }
 function doLogin() {
     const m=document.getElementById('l_mobile').value, p=document.getElementById('l_pass').value;
@@ -259,61 +232,94 @@ function doLogin() {
 function doLogout() { localStorage.removeItem('yatra_user'); location.reload(); }
 function doUnregister() { if(confirm("Delete Account?")) db.ref('users/'+user.mobile).remove().then(()=>doLogout()); }
 
-// SETTINGS & PROFILE
+// SETTINGS
 function openSettings() {
     hideAll(); document.getElementById('settingsScreen').style.display='block';
     db.ref('users/'+user.mobile).once('value', s => {
         const u = s.val();
         document.getElementById('s_name').innerText = u.name;
-        document.getElementById('s_mobile').innerText = u.mobile;
         document.getElementById('up_name').value = u.name;
         document.getElementById('up_address').value = u.address || "";
-        document.getElementById('up_pass').value = u.password;
     });
 }
 function saveSettings() {
-    const n = document.getElementById('up_name').value, a = document.getElementById('up_address').value, p = document.getElementById('up_pass').value;
-    if(n&&p) db.ref('users/'+user.mobile).update({name:n, address:a, password:p}).then(()=>{ 
-        user.name=n; user.address=a; user.password=p; localStorage.setItem('yatra_user', JSON.stringify(user));
-        alert("Saved!"); showHome();
+    const n = document.getElementById('up_name').value, a = document.getElementById('up_address').value;
+    if(n) db.ref('users/'+user.mobile).update({name:n, address:a}).then(()=>{ 
+        user.name=n; user.address=a; localStorage.setItem('yatra_user', JSON.stringify(user)); alert("Saved!"); showHome();
     });
 }
 
-// DASHBOARD LOGIC
+// DASHBOARD
 function createTrip() { const n=prompt("Trip Name:"); if(n) { const id="T"+Math.floor(10000+Math.random()*90000); db.ref('trips/'+id).set({name:n, members:[user.name]}).then(()=>{ addHistory(id); enterTrip(id); }); }}
 function joinTrip() { const id=prompt("Trip Code:"); if(id) db.ref('trips/'+id.toUpperCase()).once('value', s=>{ if(s.exists()) { addHistory(id.toUpperCase()); enterTrip(id.toUpperCase()); } else alert("Invalid Code"); }); }
 function addHistory(id) { db.ref('users/'+user.mobile+'/history').once('value', s=>{ let h=safeArray(s.val()); if(!h.includes(id)) { h.push(id); db.ref('users/'+user.mobile+'/history').set(h); } }); }
+function deleteTrip(id) { if(confirm("Remove Trip?")) { db.ref('users/'+user.mobile+'/history').once('value', s=>{ db.ref('users/'+user.mobile+'/history').set(safeArray(s.val()).filter(x=>x!==id)); }); } }
 
-// DELETE TRIP (From History)
-function deleteTripFromHistory(id) {
-    if(confirm("Remove this trip from your list?")) {
-        db.ref('users/'+user.mobile+'/history').once('value', s => {
-            let h = safeArray(s.val());
-            h = h.filter(x => x !== id);
-            db.ref('users/'+user.mobile+'/history').set(h);
-        });
-    }
-}
-
-// TRIP LIST
 function loadTrips() {
     db.ref('users/'+user.mobile+'/history').on('value', async s => {
         const list = document.getElementById('userTripList'); list.innerHTML = "";
         const codes = safeArray(s.val());
-        if(codes.length===0) { list.innerHTML="<small class='text-muted'>No trips yet.</small>"; return; }
+        if(codes.length===0) { list.innerHTML="<small class='text-muted'>No trips.</small>"; return; }
         for(const c of codes) {
             const snap = await db.ref('trips/'+c).once('value');
             if(snap.exists()) {
-                list.innerHTML += `
-                <div class="trip-card shadow-sm">
-                    <div onclick="enterTrip('${c}')" style="flex-grow:1; cursor:pointer;">
-                        <b>${snap.val().name}</b><br><small class="text-muted">Code: ${c}</small>
-                    </div>
-                    <i class="bi bi-trash text-danger fs-5" onclick="deleteTripFromHistory('${c}')"></i>
+                list.innerHTML += `<div class="card p-3 mb-2 shadow-sm d-flex flex-row justify-content-between align-items-center">
+                    <div onclick="enterTrip('${c}')" style="flex-grow:1; cursor:pointer;"><b>${snap.val().name}</b><br><small class="text-muted">Code: ${c}</small></div>
+                    <i class="bi bi-trash text-danger" onclick="deleteTrip('${c}')"></i>
                 </div>`;
             }
         }
     });
+}
+
+// --- NEW GOOGLE MAPS TRACKING ---
+function startTracking() {
+    if(!navigator.geolocation) return alert("GPS needed");
+    document.getElementById('gpsBtn').innerText = "🟢 GPS ON";
+    watchId = navigator.geolocation.watchPosition(pos => {
+        myLat = pos.coords.latitude;
+        myLng = pos.coords.longitude;
+        db.ref('trips/'+tid+'/locations/'+user.name).set({lat: myLat, lng: myLng, t: Date.now()});
+    }, null, { enableHighAccuracy: true });
+}
+function stopTracking() { if(watchId) navigator.geolocation.clearWatch(watchId); }
+
+function renderLocationList(locs) {
+    const div = document.getElementById('locationList');
+    div.innerHTML = "";
+    
+    if(!locs) return;
+    
+    Object.keys(locs).forEach(member => {
+        if(member === user.name) return; // Don't show self in list
+        
+        const data = locs[member];
+        // Calculate Distance
+        let distDisplay = "";
+        if(myLat && myLng) {
+            const d = getDistance(myLat, myLng, data.lat, data.lng);
+            distDisplay = `<span class="badge bg-secondary ms-2">${d.toFixed(1)} km</span>`;
+        }
+
+        div.innerHTML += `
+        <div class="track-card">
+            <div>
+                <b>${member}</b> ${distDisplay}
+                <div class="small text-muted" style="font-size:10px;">Updated: ${new Date(data.t).toLocaleTimeString()}</div>
+            </div>
+            <a href="https://www.google.com/maps/dir/?api=1&destination=${data.lat},${data.lng}" target="_blank" class="track-btn">
+                📍 Open G-Map
+            </a>
+        </div>`;
+    });
+}
+
+function getDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; 
+    const dLat = (lat2-lat1) * Math.PI/180;
+    const dLon = (lon2-lon1) * Math.PI/180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
 // TRIP CORE
@@ -321,31 +327,25 @@ function enterTrip(id) {
     tid=id; hideAll(); document.getElementById('mainApp').style.display='block'; 
     db.ref('trips/'+tid).on('value', s=>{ 
         tripData=s.val(); if(!tripData) return;
-        
-        // MEMBER FIX: Always Array, Always Include Self
         let members = safeArray(tripData.members);
-        if(!members.includes(user.name)) {
-            members.push(user.name);
-            db.ref('trips/'+tid+'/members').set(members);
-        }
-        tripData.members = members; // Force update local data
+        if(!members.includes(user.name)) { members.push(user.name); db.ref('trips/'+tid+'/members').set(members); }
+        tripData.members = members; renderUI(); renderTripFeed();
         
-        renderUI(); renderTripFeed(); initMap(); 
-    }); 
+        // Listen to locations
+        if(tripData.locations) renderLocationList(tripData.locations);
+    });
 }
 
 function renderUI() {
     document.getElementById('dispName').innerText = tripData.name;
     const isHead = (user.name.toUpperCase() === (tripData.head||"").toUpperCase());
     
-    // Expenses
     const eDiv=document.getElementById('expList'); eDiv.innerHTML="";
-    safeArray(tripData.expenses).slice().reverse().forEach(e => {
+    safeArray(tripData.expenses).slice().reverse().forEach(e=>{
         const btns = isHead ? `<div><i class="bi bi-pencil-fill text-warning me-2" onclick="editExp(${e.t})"></i><i class="bi bi-trash text-danger" onclick="delExp(${e.t})"></i></div>` : "";
         eDiv.innerHTML+=`<div class="money-out"><div><span>${e.r}</span><br><b>₹${e.a}</b></div>${btns}</div>`;
     });
 
-    // Members
     const mDiv=document.getElementById('memList'); mDiv.innerHTML="";
     const sel=document.getElementById('depMem'); sel.innerHTML="";
     tripData.members.forEach(m => {
@@ -353,13 +353,11 @@ function renderUI() {
         sel.innerHTML+=`<option value="${m}">${m}</option>`;
     });
 
-    // Calculations
     let tin = safeArray(tripData.deposits).reduce((s,x)=>s+x.amt,0);
     let tout = safeArray(tripData.expenses).reduce((s,x)=>s+x.a,0);
     document.getElementById('cashHand').innerText = tin - tout;
     document.getElementById('perPersonDisplay').innerText = tripData.members.length ? Math.round(tout/tripData.members.length) : 0;
 
-    // Settlement
     const fDiv=document.getElementById('finalList'); fDiv.innerHTML="";
     let ph = Math.round(tout/tripData.members.length), pd={};
     tripData.members.forEach(m=>pd[m]=0);
@@ -370,39 +368,12 @@ function renderUI() {
     });
 }
 
-// ACTIONS
 function addExp() { const r=document.getElementById('expRea').value, a=parseFloat(document.getElementById('expAmt').value); if(r&&a) db.ref('trips/'+tid+'/expenses').set([...safeArray(tripData.expenses), {r,a,t:Date.now()}]); }
 function addDep() { const w=document.getElementById('depMem').value, a=parseFloat(document.getElementById('depAmt').value); if(w&&a) db.ref('trips/'+tid+'/deposits').set([...safeArray(tripData.deposits), {who:w, amt:a, t:Date.now()}]); }
 function setHead() { const h=prompt("Head Name:"); if(h) db.ref('trips/'+tid+'/head').set(h.toUpperCase()); }
 function editExp(ts){ const exps=safeArray(tripData.expenses); const e=exps.find(x=>x.t===ts); if(e){ const nr=prompt("New Reason:",e.r), na=prompt("New Amount:",e.a); if(nr&&na) db.ref('trips/'+tid+'/expenses').set(exps.map(x=>x.t===ts?{...x,r:nr,a:parseFloat(na)}:x)); } }
 function delExp(ts){ if(confirm("Delete?")) db.ref('trips/'+tid+'/expenses').set(safeArray(tripData.expenses).filter(x=>x.t!==ts)); }
-
-// MAP
-function initMap() {
-    if(map) { map.remove(); map=null; }
-    map = L.map('map').setView([20.59, 78.96], 5);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    markers={};
-    db.ref('trips/'+tid+'/locations').on('value', s=>{
-        const locs=s.val(); if(!locs) return;
-        Object.keys(locs).forEach(m=>{
-            const lat=locs[m].lat, lng=locs[m].lng;
-            const popup=`<b>${m}</b><br><a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}" target="_blank">Navigate 🚀</a>`;
-            if(markers[m]) markers[m].setLatLng([lat,lng]).setPopupContent(popup);
-            else markers[m]=L.marker([lat,lng]).addTo(map).bindPopup(popup);
-        });
-    });
-}
-function startTracking() {
-    if(!navigator.geolocation) return alert("No GPS");
-    if(!map) initMap();
-    watchId = navigator.geolocation.watchPosition(pos=>{
-        db.ref('trips/'+tid+'/locations/'+user.name).set({lat:pos.coords.latitude, lng:pos.coords.longitude, t:Date.now()});
-        if(map) map.setView([pos.coords.latitude, pos.coords.longitude], 15);
-    }, null, {enableHighAccuracy:true});
-    alert("Tracking ON!");
-}
-function stopTracking() { if(watchId) navigator.geolocation.clearWatch(watchId); }
+function addFuel(){ const d=document.getElementById('fDist').value, m=document.getElementById('fMil').value, r=document.getElementById('fRate').value; if(d&&m&&r) db.ref('trips/'+tid+'/expenses').set([...safeArray(tripData.expenses), {r:`⛽ Fuel (${d}km)`, a:Math.round((d/m)*r), t:Date.now()}]); }
 
 // FEED & MEMORIES
 function loadGlobal() {
@@ -412,12 +383,10 @@ function loadGlobal() {
         Object.keys(data).reverse().forEach(k => {
             const p = data[k];
             let imgHTML = ""; if(p.imgs) p.imgs.forEach(i => imgHTML+=`<img src="${i}" class="feed-img">`);
-            let qa = ""; if(p.comments) Object.values(p.comments).forEach(c=>qa+=`<div class="qa-item"><b>${c.who}:</b> ${c.txt} ${c.reply?'<br>↳ '+c.reply:''}</div>`);
-            d.innerHTML += `<div class="feed-card"><div class="p-2 d-flex justify-content-between"><b>${p.who}</b> ${p.cost?`<span class="cost-badge">₹${p.cost}</span>`:''}</div><div class="img-scroll-container">${imgHTML}</div><div class="p-2"><p>${p.txt}</p><button class="btn btn-sm btn-outline-dark w-100" onclick="ask('${k}')">Ask</button><div class="qa-box">${qa}</div></div></div>`;
+            d.innerHTML += `<div class="feed-card"><div class="p-2 d-flex justify-content-between"><b>${p.who}</b> ${p.cost?`<span class="cost-badge">₹${p.cost}</span>`:''}</div><div class="img-scroll-container">${imgHTML}</div><div class="p-2"><p>${p.txt}</p></div></div>`;
         });
     });
 }
-function ask(k){ const q=prompt("Ask:"); if(q) db.ref('global_public_feed/'+k+'/comments/'+Date.now()).set({who:user.name, txt:q}); }
 
 function renderTripFeed() {
     const d = document.getElementById('tripFeedArea'); d.innerHTML="";
