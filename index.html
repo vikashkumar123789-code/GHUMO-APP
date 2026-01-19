@@ -3,376 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GHUMO PRO - Premium UI</title>
+    <title>GHUMO PRO - Soft Future</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --primary: #4e54c8;
-            --secondary: #8f94fb;
-            --accent: #ff416c;
-            --glass: rgba(255, 255, 255, 0.95);
-            --dark-glass: rgba(0, 0, 0, 0.85);
-            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --bg: #e0e5ec;
+            --text: #4d4d4d;
+            --shadow-light: #ffffff;
+            --shadow-dark: #a3b1c6;
+            --primary: #6d5dfc;
+            --danger: #e53935;
+            --success: #00b894;
         }
 
         body { 
-            font-family: 'Poppins', sans-serif; 
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-            background-size: 400% 400%;
-            animation: gradient 15s ease infinite;
-            min-height: 100vh;
-            color: #333;
-            padding-bottom: 80px; /* Space for bottom nav */
+            background-color: var(--bg); 
+            color: var(--text);
+            font-family: 'Nunito', sans-serif;
+            padding-bottom: 30px;
+            user-select: none;
         }
 
-        @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        /* --- NEUMORPHISM UTILS --- */
+        .neu-card {
+            background: var(--bg);
+            border-radius: 20px;
+            box-shadow: 9px 9px 16px rgba(163,177,198,0.6), -9px -9px 16px rgba(255,255,255, 0.5);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: none;
+        }
+
+        .neu-btn {
+            background: var(--bg);
+            color: var(--text);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 20px;
+            font-weight: 700;
+            box-shadow: 6px 6px 10px 0 rgba(163,177,198, 0.7), -6px -6px 10px 0 rgba(255,255,255, 0.8);
+            transition: all 0.2s ease;
+            width: 100%;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .neu-btn:active {
+            box-shadow: inset 4px 4px 8px rgba(163,177,198, 0.7), inset -4px -4px 8px rgba(255,255,255, 0.8);
+            transform: translateY(2px);
+        }
+        .neu-btn-primary { color: var(--primary); }
+        .neu-btn-danger { color: var(--danger); }
+        .neu-btn-success { color: var(--success); }
+
+        .neu-input {
+            background: var(--bg);
+            border: none;
+            border-radius: 15px;
+            padding: 15px;
+            width: 100%;
+            box-shadow: inset 6px 6px 10px 0 rgba(163,177,198, 0.7), inset -6px -6px 10px 0 rgba(255,255,255, 0.8);
+            color: var(--text);
+            outline: none;
+            margin-bottom: 15px;
+        }
+        .neu-input::placeholder { color: #a0a0a0; }
 
         /* HEADER */
-        .premium-header {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            padding: 15px 20px;
-            border-radius: 0 0 30px 30px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: white;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        /* CARDS & GLASS */
-        .glass-card {
-            background: var(--glass);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: var(--shadow);
-            padding: 15px;
-            margin-bottom: 15px;
-            transition: transform 0.2s;
-        }
-        .glass-card:active { transform: scale(0.98); }
-
-        /* ATM CARD STATS */
-        .atm-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .app-header {
+            background: var(--bg);
             padding: 20px;
-            border-radius: 20px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 15px 30px rgba(118, 75, 162, 0.4);
+            position: sticky; top: 0; z-index: 1000;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 5px 5px 10px rgba(163,177,198,0.6);
+            border-radius: 0 0 25px 25px;
             margin-bottom: 20px;
         }
-        .atm-card::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200px;
-            height: 200px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-        }
+        .logo-text { font-weight: 800; font-size: 1.4rem; color: var(--text); letter-spacing: 1px; }
 
-        /* ACTION GRID ICONS */
-        .action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
-        .action-item {
-            background: white;
+        /* UTILITIES */
+        .full-screen { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: var(--bg); 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            z-index: 9999;
+        }
+        .toggle-form { display: none; margin-top: 15px; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(-10px);} to{opacity:1;transform:translateY(0);} }
+
+        /* LIST ITEMS */
+        .list-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px;
             border-radius: 15px;
-            padding: 15px 5px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            cursor: pointer;
-            transition: 0.2s;
+            margin-bottom: 10px;
+            box-shadow: inset 3px 3px 6px rgba(163,177,198,0.4), inset -3px -3px 6px rgba(255,255,255,0.5);
         }
-        .action-item:active { transform: scale(0.9); }
-        .icon-circle {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 8px auto;
-            font-size: 1.5rem;
-            color: white;
-        }
-        .ic-exp { background: linear-gradient(45deg, #ff9966, #ff5e62); box-shadow: 0 5px 15px rgba(255, 94, 98, 0.4); }
-        .ic-dep { background: linear-gradient(45deg, #56ab2f, #a8e063); box-shadow: 0 5px 15px rgba(86, 171, 47, 0.4); }
-        .ic-mem { background: linear-gradient(45deg, #4568dc, #b06ab3); box-shadow: 0 5px 15px rgba(176, 106, 179, 0.4); }
+        .list-item-green { border-left: 5px solid var(--success); }
+        .list-item-red { border-left: 5px solid var(--danger); }
 
         /* HEAD BADGE */
         .head-badge {
-            background: linear-gradient(45deg, #FDC830, #F37335) !important;
-            color: white !important;
-            border: none !important;
-            font-weight: 700 !important;
-            box-shadow: 0 3px 10px rgba(243, 115, 53, 0.4);
-            padding: 5px 10px !important;
-            border-radius: 20px !important;
+            color: #f39c12 !important;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 2px solid #f39c12;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
         }
 
-        /* BOTTOM NAV */
-        .bottom-nav {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(10px);
-            padding: 12px 30px;
-            border-radius: 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            z-index: 2000;
+        /* MODALS */
+        .custom-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(224, 229, 236, 0.9); z-index: 2000;
+            align-items: center; justify-content: center;
+            backdrop-filter: blur(5px);
         }
-        .nav-item { color: rgba(255,255,255,0.6); font-size: 1.5rem; cursor: pointer; transition: 0.2s; }
-        .nav-item.active { color: #fff; transform: scale(1.2); }
-        .nav-center {
-            background: #ff416c;
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            margin-top: -30px;
-            box-shadow: 0 5px 20px rgba(255, 65, 108, 0.6);
-            border: 4px solid rgba(255,255,255,0.2);
+        .modal-box {
+            background: var(--bg); padding: 30px; border-radius: 30px; width: 85%; max-width: 350px;
+            text-align: center;
+            box-shadow: 20px 20px 60px #bebebe, -20px -20px 60px #ffffff;
+            position: relative;
         }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: var(--danger); }
 
-        /* UTILS */
-        .hidden { display: none; }
-        .full-screen { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        #map { height: 200px; width: 100%; border-radius: 15px; }
-        
-        /* Activity List */
-        .activity-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
-        .activity-icon { width: 40px; height: 40px; border-radius: 12px; background: #f0f2f5; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 1.2rem; }
-        
-        /* Modals */
-        #qrModal, #aboutModal, #headSetupModal, #payHeadModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .modal-box { background: white; padding: 25px; border-radius: 25px; text-align: center; width: 85%; max-width: 350px; position: relative; animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        /* STATS */
+        .stat-text { font-size: 2rem; font-weight: 800; }
     </style>
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
 
-<div id="qrModal"><div class="modal-box"><h5 class="fw-bold mb-3 text-success">Support Dev</h5><div id="qrImage"></div><h3 class="mt-2">₹<span id="qrAmount">0</span></h3><a id="payLink" href="#" class="btn btn-dark w-100 rounded-pill mt-2">Pay via UPI</a><br><button onclick="closeModal('qrModal')" class="btn btn-link text-muted mt-2">Close</button></div></div>
-<div id="payHeadModal"><div class="modal-box"><h5 class="fw-bold text-primary">Pay to Head</h5><p class="small text-muted" id="headNameDisplay">--</p><div id="headQrImage"></div><h3 class="mt-2">₹<span id="headPayAmt">0</span></h3><a id="headPayLink" href="#" class="btn btn-success w-100 rounded-pill mb-2">Open UPI App</a><button class="btn btn-outline-dark w-100 rounded-pill" onclick="confirmHeadPayment()">✅ I Have Paid</button><br><button onclick="closeModal('payHeadModal')" class="btn btn-link text-muted mt-2">Close</button></div></div>
-<div id="headSetupModal"><div class="modal-box"><h5>🏦 Setup UPI</h5><input type="text" id="headUPIInput" class="form-control mb-3 rounded-pill" placeholder="e.g. name@oksbi"><button class="btn btn-primary w-100 rounded-pill" onclick="saveHeadUPI()">Save</button><button onclick="closeModal('headSetupModal')" class="btn btn-link text-muted mt-2">Close</button></div></div>
-<div id="aboutModal"><div class="modal-box"><img src="https://cdn-icons-png.flaticon.com/512/201/201623.png" width="50" class="mb-3"><h4>GHUMO PRO</h4><p class="small text-muted">Version 5.0 (UI Remastered)</p><hr><p class="small"><b>Dev:</b> <span id="devNameAbout">--</span></p><button class="btn btn-dark w-100 rounded-pill" onclick="closeModal('aboutModal')">Close</button></div></div>
+<div id="qrModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('qrModal')">×</span><h5 class="text-success fw-bold">Support Dev</h5><div id="qrImage" class="my-3"></div><h3 class="mt-2">₹<span id="qrAmount">0</span></h3><a id="payLink" href="#" class="neu-btn neu-btn-primary mt-3">Open UPI App</a></div></div>
+
+<div id="payHeadModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('payHeadModal')">×</span><h5 class="text-primary fw-bold">Pay to Head</h5><p id="headNameDisplay" class="small mt-2">--</p><div id="headQrImage" class="my-3"></div><h3 class="mt-2">₹<span id="headPayAmt">0</span></h3><a id="headPayLink" href="#" class="neu-btn neu-btn-success mb-3">Pay Now</a><button class="neu-btn" onclick="confirmHeadPayment()">✅ Paid</button></div></div>
+
+<div id="headSetupModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('headSetupModal')">×</span><h5>Setup Collection</h5><input type="text" id="headUPIInput" class="neu-input mt-3" placeholder="Enter UPI ID"><button class="neu-btn neu-btn-primary" onclick="saveHeadUPI()">Save</button></div></div>
+
+<div id="aboutModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('aboutModal')">×</span><h4>GHUMO PRO</h4><p class="small">Soft Future Edition</p><hr><p class="small"><b>Dev:</b> <span id="devNameAbout">--</span></p></div></div>
 
 <div id="authScreen" class="full-screen">
-    <div class="glass-card text-center" style="width: 320px; padding: 40px 20px;">
-        <h1 class="fw-bold mb-0" style="background: -webkit-linear-gradient(#ff416c, #ff4b2b); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">GHUMO</h1>
-        <p class="text-muted small mb-4">Travel Together, Smartly.</p>
+    <div style="width: 300px; text-align: center;">
+        <h1 class="logo-text mb-4" style="font-size: 2.5rem; color: var(--primary);">GHUMO</h1>
         
         <div id="loginForm">
-            <input type="number" id="l_mobile" class="form-control mb-3 rounded-pill" placeholder="Mobile Number" style="background:#f0f2f5; border:none; padding:12px 20px;">
-            <input type="password" id="l_pass" class="form-control mb-4 rounded-pill" placeholder="Password" style="background:#f0f2f5; border:none; padding:12px 20px;">
-            <button class="btn btn-dark w-100 rounded-pill py-2 fw-bold" onclick="doLogin()" style="background: linear-gradient(to right, #11998e, #38ef7d); border:none;">LOGIN</button>
-            <button class="btn btn-link mt-3 text-muted" onclick="showReg()">Create New Account</button>
+            <input type="number" id="l_mobile" class="neu-input" placeholder="Mobile Number">
+            <input type="password" id="l_pass" class="neu-input" placeholder="Password">
+            <button class="neu-btn neu-btn-primary mb-3" onclick="doLogin()">LOGIN</button>
+            <button class="neu-btn" onclick="showReg()">Create Account</button>
         </div>
         
-        <div id="regForm" class="hidden">
-            <input type="text" id="r_name" class="form-control mb-2 rounded-pill" placeholder="Full Name">
-            <input type="number" id="r_mobile" class="form-control mb-2 rounded-pill" placeholder="Mobile">
-            <input type="text" id="r_address" class="form-control mb-2 rounded-pill" placeholder="Address">
-            <input type="password" id="r_pass" class="form-control mb-3 rounded-pill" placeholder="Password">
-            <button class="btn btn-dark w-100 rounded-pill py-2 fw-bold" onclick="doRegister()">REGISTER</button>
-            <button class="btn btn-link mt-2 text-muted" onclick="showLogin()">Back to Login</button>
+        <div id="regForm" style="display:none;">
+            <input type="text" id="r_name" class="neu-input" placeholder="Full Name">
+            <input type="number" id="r_mobile" class="neu-input" placeholder="Mobile">
+            <input type="text" id="r_address" class="neu-input" placeholder="Address">
+            <input type="password" id="r_pass" class="neu-input" placeholder="Password">
+            <button class="neu-btn neu-btn-success mb-3" onclick="doRegister()">REGISTER</button>
+            <button class="neu-btn" onclick="showLogin()">Back</button>
         </div>
+        <p class="mt-5 small text-muted">Version 3.0 • Soft UI</p>
     </div>
-    <small class="text-white mt-4 opacity-50">Developed by <span class="devNameDisplay"></span></small>
 </div>
 
-<div id="homeScreen" class="hidden">
-    <div class="premium-header">
-        <div>
-            <small class="d-block opacity-75">Welcome back,</small>
-            <span class="fw-bold fs-5" id="headerUserName">User</span>
-        </div>
-        <div class="bg-white rounded-circle p-1" style="width:40px; height:40px; overflow:hidden;">
-            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" width="100%">
-        </div>
+<div id="homeScreen" style="display:none;">
+    <div class="app-header">
+        <div class="logo-text">GHUMO <small style="font-size:0.8rem; opacity:0.6;">| <span id="headerUserName">User</span></small></div>
+        <i class="bi bi-gear-fill fs-4" style="color:var(--text); cursor:pointer;" onclick="openSettings()"></i>
     </div>
 
-    <div class="container py-4">
+    <div class="container">
         <div class="row g-3 mb-4">
-            <div class="col-6" onclick="createTrip()">
-                <div class="glass-card text-center h-100 d-flex flex-column justify-content-center align-items-center" style="cursor:pointer; background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color:white; border:none;">
-                    <i class="bi bi-plus-circle-fill fs-1 mb-2"></i>
-                    <span class="fw-bold">Create Trip</span>
-                </div>
-            </div>
-            <div class="col-6" onclick="joinTrip()">
-                <div class="glass-card text-center h-100 d-flex flex-column justify-content-center align-items-center" style="cursor:pointer; background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); color:white; border:none;">
-                    <i class="bi bi-rocket-takeoff-fill fs-1 mb-2"></i>
-                    <span class="fw-bold">Join Trip</span>
-                </div>
+            <div class="col-6"><button class="neu-btn neu-btn-primary" style="height:100px; flex-direction:column;" onclick="createTrip()"><i class="bi bi-plus-circle fs-1"></i>Create</button></div>
+            <div class="col-6"><button class="neu-btn" style="height:100px; flex-direction:column;" onclick="joinTrip()"><i class="bi bi-rocket-takeoff fs-1"></i>Join</button></div>
+        </div>
+
+        <div class="neu-card">
+            <h6 class="fw-bold mb-3"><i class="bi bi-fire text-warning"></i> OFFERS</h6>
+            <div class="d-flex gap-3" style="overflow-x:auto;">
+                <button class="neu-btn" style="min-width:100px;" onclick="window.open('https://booking.com')">🏨 Hotel</button>
+                <button class="neu-btn" style="min-width:100px;" onclick="window.open('https://makemytrip.com')">✈️ Flight</button>
+                <button class="neu-btn" style="min-width:100px;" onclick="window.open('https://amazon.in')">🎒 Gear</button>
             </div>
         </div>
 
-        <h6 class="fw-bold text-white mb-3 ps-2">MY TRIPS</h6>
-        <div id="userTripList"><p class="text-center text-white opacity-50">No trips yet.</p></div>
+        <h6 class="fw-bold ms-2 mb-2">MY TRIPS</h6>
+        <div id="userTripList"><p class="text-center small">Loading...</p></div>
         
-        <br><br>
-        <h6 class="fw-bold text-white mb-3 ps-2">🔥 EXCLUSIVE DEALS</h6>
-        <div class="d-flex gap-3" style="overflow-x:auto; padding-bottom:10px;">
-            <div class="glass-card text-center" style="min-width:140px;" onclick="window.open('https://www.booking.com','_blank')">
-                <i class="bi bi-building fs-1 text-primary"></i><br><small class="fw-bold">Hotels</small>
-            </div>
-            <div class="glass-card text-center" style="min-width:140px;" onclick="window.open('https://www.makemytrip.com/flights','_blank')">
-                <i class="bi bi-airplane-fill fs-1 text-info"></i><br><small class="fw-bold">Flights</small>
-            </div>
-            <div class="glass-card text-center" style="min-width:140px;" onclick="window.open('https://www.amazon.in/s?k=travel','_blank')">
-                <i class="bi bi-bag-fill fs-1 text-warning"></i><br><small class="fw-bold">Gear</small>
-            </div>
-        </div>
+        <br>
+        <button class="neu-btn neu-btn-danger mb-4" onclick="donateUPI()">❤️ Support Dev</button>
     </div>
 </div>
 
-<div id="mainApp" class="hidden">
-    <div class="premium-header">
-        <i class="bi bi-arrow-left fs-4" onclick="showHome()"></i>
+<div id="mainApp" style="display:none;">
+    <div class="app-header">
+        <i class="bi bi-chevron-left fs-3" onclick="showHome()" style="cursor:pointer;"></i>
         <div class="text-center">
-            <span class="fw-bold" id="dispName">Trip Name</span><br>
-            <small class="opacity-75" style="font-size:0.7rem;" id="dispCode">--</small>
+            <span class="fw-bold fs-5" id="dispName">Trip</span><br>
+            <small style="font-size:0.7rem; color:var(--primary);" id="dispCode"></small>
         </div>
-        <i class="bi bi-gear-fill fs-4" onclick="openSettings()"></i>
+        <div></div>
     </div>
 
-    <div class="container py-3">
-        <div class="atm-card">
-            <div class="d-flex justify-content-between">
-                <span>Total Balance</span>
-                <i class="bi bi-wifi"></i>
-            </div>
-            <h2 class="fw-bold mt-2">₹<span id="cashHand">0</span></h2>
-            <div class="d-flex justify-content-between mt-4 align-items-end">
-                <div>
-                    <small class="opacity-75">PER HEAD</small><br>
-                    <span class="fw-bold fs-5">₹<span id="perPersonDisplay">0</span></span>
+    <div class="container">
+        <div class="row g-3 mb-4">
+            <div class="col-6">
+                <div class="neu-card text-center py-3 mb-0">
+                    <small>BALANCE</small><br>
+                    <span class="stat-text text-success">₹<span id="cashHand">0</span></span>
                 </div>
-                <img src="https://cdn-icons-png.flaticon.com/512/9334/9334549.png" width="40" style="opacity:0.8">
+            </div>
+            <div class="col-6">
+                <div class="neu-card text-center py-3 mb-0">
+                    <small>PER HEAD</small><br>
+                    <span class="stat-text text-primary">₹<span id="perPersonDisplay">0</span></span>
+                </div>
             </div>
         </div>
 
-        <div id="headActionArea" class="mb-3"></div>
+        <div id="headActionArea" class="mb-4"></div>
 
-        <div class="action-grid">
-            <div class="action-item" onclick="toggleForm('formExp')">
-                <div class="icon-circle ic-exp"><i class="bi bi-cash-stack"></i></div>
-                <small class="fw-bold">Expense</small>
-            </div>
-            <div class="action-item" onclick="toggleForm('formDep')">
-                <div class="icon-circle ic-dep"><i class="bi bi-piggy-bank-fill"></i></div>
-                <small class="fw-bold">Deposit</small>
-            </div>
-            <div class="action-item" onclick="toggleForm('formMem')">
-                <div class="icon-circle ic-mem"><i class="bi bi-camera-reels-fill"></i></div>
-                <small class="fw-bold">Memory</small>
-            </div>
+        <div class="d-flex justify-content-between gap-2 mb-3">
+            <button class="neu-btn neu-btn-danger" onclick="toggleForm('formExp')"><i class="bi bi-dash-circle"></i> Exp</button>
+            <button class="neu-btn neu-btn-success" onclick="toggleForm('formDep')"><i class="bi bi-plus-circle"></i> Dep</button>
+            <button class="neu-btn" onclick="toggleForm('formMem')"><i class="bi bi-camera"></i> Post</button>
         </div>
 
-        <div id="formExp" class="glass-card hidden">
-            <h6 class="text-danger fw-bold">Add Expense</h6>
-            <div class="input-group"><input type="text" id="expRea" class="form-control rounded-start-pill" placeholder="Item"><input type="number" id="expAmt" class="form-control" placeholder="₹"><button class="btn btn-danger rounded-end-pill" onclick="addExp()">Add</button></div>
+        <div id="formExp" class="neu-card toggle-form">
+            <h6 class="text-danger">Add Expense</h6>
+            <input type="text" id="expRea" class="neu-input" placeholder="Item Name">
+            <input type="number" id="expAmt" class="neu-input" placeholder="₹ Amount">
+            <button class="neu-btn neu-btn-danger" onclick="addExp()">Save</button>
         </div>
-        <div id="formDep" class="glass-card hidden">
-            <h6 class="text-success fw-bold">Cash Deposit</h6>
-            <div class="input-group"><select id="depMem" class="form-select rounded-start-pill"></select><input type="number" id="depAmt" class="form-control" placeholder="₹"><button class="btn btn-success rounded-end-pill" onclick="addDep()">Add</button></div>
+        <div id="formDep" class="neu-card toggle-form">
+            <h6 class="text-success">Cash Deposit</h6>
+            <select id="depMem" class="neu-input"></select>
+            <input type="number" id="depAmt" class="neu-input" placeholder="₹ Amount">
+            <button class="neu-btn neu-btn-success" onclick="addDep()">Save</button>
         </div>
-        <div id="formMem" class="glass-card hidden">
-            <h6 class="text-warning fw-bold">Post Memory</h6>
-            <input type="text" id="highTxt" class="form-control mb-2 rounded-pill" placeholder="Caption...">
-            <input type="file" id="highImg" class="form-control rounded-pill" accept="image/*" multiple onchange="encodeImgs(this)">
-            <div id="imgPreview" class="d-flex gap-2 mt-2" style="overflow-x:auto;"></div>
-            <button class="btn btn-warning w-100 rounded-pill mt-2 fw-bold" onclick="saveMem('trip')">Share to Trip</button>
+        <div id="formMem" class="neu-card toggle-form">
+            <h6 class="text-warning">Post Memory</h6>
+            <input type="text" id="highTxt" class="neu-input" placeholder="Caption...">
+            <input type="file" id="highImg" class="neu-input" accept="image/*" multiple onchange="encodeImgs(this)">
+            <button class="neu-btn" onclick="saveMem('trip')">Post</button>
         </div>
 
-        <div class="glass-card">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h6 class="fw-bold m-0"><i class="bi bi-bus-front-fill text-primary"></i> Transport</h6>
-                <select id="transType" class="form-select form-select-sm w-auto rounded-pill" onchange="toggleTransportMode()"><option value="fuel">Car/Fuel</option><option value="public">Bus/Train</option></select>
+        <div class="neu-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold m-0 text-primary">🚌 Transport</h6>
+                <select id="transType" class="neu-input py-1 px-2 w-auto mb-0" style="font-size:0.8rem;" onchange="toggleTransportMode()">
+                    <option value="fuel">Fuel</option><option value="public">Public</option>
+                </select>
             </div>
             
             <div id="fuelInputs">
-                <div class="input-group input-group-sm"><input type="number" id="fDist" class="form-control" placeholder="KM"><input type="number" id="fMil" class="form-control" placeholder="Avg"><input type="number" id="fRate" class="form-control" placeholder="Price"><button class="btn btn-primary" onclick="addFuel()">Add</button></div>
+                <div class="d-flex gap-2 mb-2">
+                    <input type="number" id="fDist" class="neu-input mb-0" placeholder="KM">
+                    <input type="number" id="fMil" class="neu-input mb-0" placeholder="Avg">
+                </div>
+                <input type="number" id="fRate" class="neu-input" placeholder="Price">
+                <button class="neu-btn neu-btn-primary" onclick="addFuel()">Add Fuel Cost</button>
             </div>
-            <div id="publicInputs" class="hidden">
-                <div class="row g-2 mb-2"><div class="col-6"><input type="text" id="ptFrom" class="form-control form-control-sm" placeholder="From"></div><div class="col-6"><input type="text" id="ptTo" class="form-control form-control-sm" placeholder="To"></div></div>
-                <div class="input-group input-group-sm"><select id="ptMode" class="form-select"><option>Bus</option><option>Train</option><option>Flight</option></select><input type="number" id="ptFare" class="form-control" placeholder="₹ Fare"><button class="btn btn-primary" onclick="addPublicTransport()">Add</button></div>
+            <div id="publicInputs" style="display:none;">
+                <div class="d-flex gap-2 mb-2">
+                    <input type="text" id="ptFrom" class="neu-input mb-0" placeholder="From">
+                    <input type="text" id="ptTo" class="neu-input mb-0" placeholder="To">
+                </div>
+                <div class="d-flex gap-2 mb-2">
+                    <select id="ptMode" class="neu-input mb-0"><option>Bus</option><option>Train</option></select>
+                    <input type="number" id="ptFare" class="neu-input mb-0" placeholder="₹">
+                </div>
+                <button class="neu-btn neu-btn-primary" onclick="addPublicTransport()">Add Ticket</button>
             </div>
-            <button class="btn btn-success btn-sm w-100 mt-2 rounded-pill" onclick="shareFullRoute()"><i class="bi bi-whatsapp"></i> Share Full Itinerary</button>
+            <button class="neu-btn neu-btn-success mt-3" onclick="shareFullRoute()"><i class="bi bi-whatsapp"></i> Share Plan</button>
         </div>
 
-        <div class="glass-card">
-            <h6 class="text-muted fw-bold small mb-3">RECENT ACTIVITY</h6>
-            <div id="expList" style="max-height:300px; overflow-y:auto; padding-right:5px;"></div>
+        <div class="neu-card p-3">
+            <h6 class="text-muted small fw-bold mb-3">RECENT ACTIVITY</h6>
+            <div id="expList" style="max-height:300px; overflow-y:auto;"></div>
         </div>
 
-        <div class="glass-card p-2">
-            <div class="d-flex justify-content-between align-items-center mb-2 px-2">
-                <h6 class="fw-bold m-0 text-danger"><i class="bi bi-geo-alt-fill"></i> Live Map</h6>
-                <button id="gpsBtn" class="btn btn-sm btn-danger rounded-pill" onclick="startTracking()">Start GPS</button>
-            </div>
-            <div id="map"></div>
-            <div id="locationList" class="mt-2"></div>
-        </div>
-
-        <div class="glass-card">
-            <div class="d-flex justify-content-between mb-2"><h6 class="fw-bold m-0">Members</h6><small class="text-primary cursor-pointer" onclick="setHead()">Set Head</small></div>
+        <div class="neu-card">
+            <div class="d-flex justify-content-between mb-2"><h6 class="fw-bold m-0">Members</h6><small class="text-primary" style="cursor:pointer;" onclick="setHead()">Set Head</small></div>
             <div id="memList" class="d-flex flex-wrap gap-2"></div>
         </div>
 
-        <h6 class="text-white fw-bold ps-2 mt-4">TRIP MEMORIES</h6>
-        <div id="tripFeedArea" class="mb-5"></div>
+        <h6 class="text-muted fw-bold small mt-4 ps-2">MEMORIES</h6>
+        <div id="tripFeedArea"></div>
         
-        <div class="glass-card bg-dark text-white"><h6 class="text-warning">Final Settlement</h6><div id="finalList" class="small mt-2"></div></div>
+        <div class="neu-card mt-3"><h6 class="text-primary mb-3">Final Settlement</h6><div id="finalList" class="small"></div></div>
     </div>
 </div>
 
-<div id="settingsScreen" class="hidden">
-    <div class="premium-header"><i class="bi bi-arrow-left fs-4" onclick="showHome()"></i> <span class="fw-bold">Settings</span> <div></div></div>
-    <div class="container py-4">
-        <div class="glass-card text-center">
-            <div class="bg-light rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:80px; height:80px; font-size:2rem;">👤</div>
-            <h4 id="s_name">--</h4>
-            <input type="text" id="up_name" class="form-control mb-2 rounded-pill mt-3" placeholder="Name">
-            <input type="text" id="up_address" class="form-control mb-2 rounded-pill" placeholder="Address">
-            <input type="text" id="up_pass" class="form-control mb-3 rounded-pill" placeholder="Password">
-            <button class="btn btn-primary w-100 rounded-pill" onclick="saveSettings()">Save Changes</button>
+<div id="settingsScreen" style="display:none;">
+    <div class="app-header"><i class="bi bi-chevron-left fs-3" onclick="showHome()"></i> Settings <div></div></div>
+    <div class="container text-center">
+        <div class="neu-card">
+            <h4 id="s_name" class="mb-3">--</h4>
+            <input type="text" id="up_name" class="neu-input" placeholder="Name">
+            <input type="text" id="up_address" class="neu-input" placeholder="Address">
+            <input type="text" id="up_pass" class="neu-input" placeholder="New Password">
+            <button class="neu-btn neu-btn-primary" onclick="saveSettings()">Update Profile</button>
         </div>
-        <div class="glass-card p-0 overflow-hidden">
-            <button class="btn btn-light w-100 text-start p-3 border-bottom" onclick="document.getElementById('aboutModal').style.display='flex'">ℹ️ About App</button>
-            <button class="btn btn-light w-100 text-start p-3 border-bottom text-danger" onclick="donateUPI()">❤️ Support Developer</button>
-            <button class="btn btn-light w-100 text-start p-3 text-danger" onclick="doLogout()">🚪 Log Out</button>
-        </div>
+        <button class="neu-btn mb-3" onclick="document.getElementById('aboutModal').style.display='flex'">ℹ️ About App</button>
+        <button class="neu-btn neu-btn-danger" onclick="doLogout()">Log Out</button>
     </div>
-</div>
-
-<div class="bottom-nav hidden" id="bottomNav">
-    <i class="bi bi-house-door-fill nav-item active" onclick="showHome()"></i>
-    <div class="nav-center" onclick="showHome()"><i class="bi bi-grid-fill"></i></div> <i class="bi bi-person-fill nav-item" onclick="openSettings()"></i>
 </div>
 
 <script>
@@ -392,20 +333,26 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-let user=null, tid="", tripData={}, tempImages=[], headPayAmt=0, watchId=null, myLat=null, myLng=null;
+let user=null, tid="", tripData={}, tempImages=[], headPayAmt=0;
 function safeArray(d){ return d ? (Array.isArray(d)?d:Object.values(d)) : []; }
 function closeModal(id){ document.getElementById(id).style.display='none'; }
 
-// AUTH & NAV
-window.onload = () => { document.querySelectorAll('.devNameDisplay').forEach(e=>e.innerText=DEV_NAME); const s=localStorage.getItem('yatra_user'); if(s){ user=JSON.parse(s); document.getElementById('headerUserName').innerText=user.name; showHome(); } else { document.getElementById('authScreen').style.display='flex'; } };
-function hideAll() { ['authScreen','homeScreen','mainApp','settingsScreen'].forEach(i=>document.getElementById(i).classList.add('hidden')); document.getElementById('bottomNav').classList.add('hidden'); }
-function showLogin() { hideAll(); document.getElementById('authScreen').style.display='flex'; document.getElementById('authScreen').classList.remove('hidden'); document.getElementById('loginForm').classList.remove('hidden'); document.getElementById('regForm').classList.add('hidden'); }
-function showReg() { document.getElementById('loginForm').classList.add('hidden'); document.getElementById('regForm').classList.remove('hidden'); }
-function showHome() { hideAll(); document.getElementById('homeScreen').classList.remove('hidden'); document.getElementById('bottomNav').classList.remove('hidden'); loadTrips(); stopTracking(); }
-function openSettings() { hideAll(); document.getElementById('settingsScreen').classList.remove('hidden'); document.getElementById('bottomNav').classList.remove('hidden'); db.ref('users/'+user.mobile).once('value',s=>{const u=s.val();document.getElementById('s_name').innerText=u.name;document.getElementById('up_name').value=u.name;document.getElementById('up_address').value=u.address||"";document.getElementById('up_pass').value=u.password;}); }
-function toggleForm(id) { const el=document.getElementById(id); el.classList.toggle('hidden'); }
+// AUTH
+window.onload = () => { 
+    document.querySelectorAll('#devNameAbout').forEach(e=>e.innerText=DEV_NAME); 
+    const s=localStorage.getItem('yatra_user'); 
+    if(s){ user=JSON.parse(s); document.getElementById('headerUserName').innerText=user.name; showHome(); } 
+    else { document.getElementById('authScreen').style.display='flex'; } 
+};
 
-// --- LOGIC ---
+function hideAll() { ['authScreen','homeScreen','mainApp','settingsScreen'].forEach(i => document.getElementById(i).style.display='none'); }
+function showLogin() { hideAll(); document.getElementById('authScreen').style.display='flex'; document.getElementById('loginForm').style.display='block'; document.getElementById('regForm').style.display='none'; }
+function showReg() { document.getElementById('loginForm').style.display='none'; document.getElementById('regForm').style.display='block'; }
+function showHome() { hideAll(); document.getElementById('homeScreen').style.display='block'; loadTrips(); }
+function openSettings() { hideAll(); document.getElementById('settingsScreen').style.display='block'; db.ref('users/'+user.mobile).once('value',s=>{const u=s.val();document.getElementById('s_name').innerText=u.name;document.getElementById('up_name').value=u.name;document.getElementById('up_address').value=u.address||"";document.getElementById('up_pass').value=u.password;}); }
+function toggleForm(id) { const el = document.getElementById(id); el.style.display = (el.style.display === 'block') ? 'none' : 'block'; }
+
+// LOGIC
 function doRegister(){const n=document.getElementById('r_name').value,m=document.getElementById('r_mobile').value,a=document.getElementById('r_address').value,p=document.getElementById('r_pass').value; if(n&&m&&a&&p) db.ref('users/'+m).set({name:n,mobile:m,address:a,password:p,history:[]}).then(()=>{alert("Created!");showLogin();});}
 function doLogin(){const m=document.getElementById('l_mobile').value,p=document.getElementById('l_pass').value; if(!m||!p)return; db.ref('users/'+m).once('value',s=>{if(s.exists()&&s.val().password==p){user=s.val();localStorage.setItem('yatra_user',JSON.stringify(user));document.getElementById('headerUserName').innerText=user.name;showHome();}else alert("Invalid");});}
 function doLogout(){localStorage.removeItem('yatra_user');location.reload();}
@@ -415,29 +362,37 @@ function createTrip(){const n=prompt("Trip Name:");if(n){const id="T"+Math.floor
 function joinTrip(){const id=prompt("Code:");if(id)db.ref('trips/'+id.toUpperCase()).once('value',s=>{if(s.exists()){addHistory(id.toUpperCase());enterTrip(id.toUpperCase());}else alert("Invalid");});}
 function addHistory(id){db.ref('users/'+user.mobile+'/history').once('value',s=>{let h=safeArray(s.val());if(!h.includes(id)){h.push(id);db.ref('users/'+user.mobile+'/history').set(h);}});}
 function deleteTrip(id,e){e.stopPropagation();if(confirm("Delete?"))db.ref('users/'+user.mobile+'/history').once('value',s=>{db.ref('users/'+user.mobile+'/history').set(safeArray(s.val()).filter(x=>x!==id));});}
-function loadTrips(){db.ref('users/'+user.mobile+'/history').on('value',async s=>{const l=document.getElementById('userTripList');l.innerHTML="";const c=safeArray(s.val());if(c.length===0){l.innerHTML="<p class='text-white text-center opacity-50'>No trips.</p>";return;}for(const i of c){const sp=await db.ref('trips/'+i).once('value');if(sp.exists()){l.innerHTML+=`<div class="glass-card d-flex justify-content-between align-items-center" onclick="enterTrip('${i}')"><div><b>${sp.val().name}</b><br><small class="opacity-75">${i}</small></div><i class="bi bi-trash text-danger" onclick="deleteTrip('${i}',event)"></i></div>`;}}});}
+function loadTrips(){db.ref('users/'+user.mobile+'/history').on('value',async s=>{const l=document.getElementById('userTripList');l.innerHTML="";const c=safeArray(s.val());if(c.length===0){l.innerHTML="<p class='small text-muted'>No trips.</p>";return;}for(const i of c){const sp=await db.ref('trips/'+i).once('value');if(sp.exists()){l.innerHTML+=`<div class="neu-card d-flex justify-content-between align-items-center p-3 mb-3" style="cursor:pointer;" onclick="enterTrip('${i}')"><div><b>${sp.val().name}</b><br><small class="text-muted">${i}</small></div><i class="bi bi-trash text-danger" onclick="deleteTrip('${i}',event)"></i></div>`;}}});}
 
-function enterTrip(id){tid=id;hideAll();document.getElementById('mainApp').classList.remove('hidden');db.ref('trips/'+tid).on('value',s=>{tripData=s.val();if(!tripData)return;let m=safeArray(tripData.members);if(!m.includes(user.name)){m.push(user.name);db.ref('trips/'+tid+'/members').set(m);}tripData.members=m;renderUI();renderTripFeed();if(tripData.locations)renderLocs(tripData.locations);});}
+function enterTrip(id){tid=id;hideAll();document.getElementById('mainApp').style.display='block';db.ref('trips/'+tid).on('value',s=>{tripData=s.val();if(!tripData)return;let m=safeArray(tripData.members);if(!m.includes(user.name)){m.push(user.name);db.ref('trips/'+tid+'/members').set(m);}tripData.members=m;renderUI();renderTripFeed();});}
 
 function renderUI(){
     document.getElementById('dispName').innerText=tripData.name; document.getElementById('dispCode').innerText=tid;
     const isHead=(user.name.toLowerCase()===(tripData.head||"").toLowerCase());
     const hDiv=document.getElementById('headActionArea'); hDiv.innerHTML="";
-    if(isHead) hDiv.innerHTML=`<button class="btn btn-warning w-100 rounded-pill fw-bold shadow" onclick="document.getElementById('headSetupModal').style.display='flex'">🏦 Setup UPI Collection</button>`;
-    else if(tripData.head) hDiv.innerHTML=`<button class="btn btn-success w-100 rounded-pill fw-bold shadow" onclick="payHead()">💸 Pay to Head Online</button>`;
+    if(isHead) hDiv.innerHTML=`<button class="neu-btn neu-btn-primary mb-3" onclick="document.getElementById('headSetupModal').style.display='flex'">🏦 Setup UPI</button>`;
+    else if(tripData.head) hDiv.innerHTML=`<button class="neu-btn neu-btn-success mb-3" onclick="payHead()">💸 Pay Head</button>`;
 
     const l=document.getElementById('expList'); l.innerHTML="";
-    safeArray(tripData.deposits).slice().reverse().forEach(d=>{l.innerHTML+=`<div class="d-flex align-items-center mb-2 p-2 bg-white rounded shadow-sm" style="border-left:4px solid #2ecc71"><div class="flex-grow-1 ms-2"><small class="text-muted">${new Date(d.t).toLocaleDateString()}</small><br><b>${d.who}</b> Deposited</div><b class="text-success">+₹${d.amt}</b></div>`;});
+    
+    // Deposits
+    safeArray(tripData.deposits).slice().reverse().forEach(d=>{
+        const canDel = (d.who === user.name || isHead);
+        const delBtn = canDel ? `<i class="bi bi-trash text-danger ms-2" onclick="delDep(${d.t})" style="cursor:pointer;"></i>` : "";
+        l.innerHTML+=`<div class="list-item list-item-green"><div><small class="text-muted">${new Date(d.t).toLocaleDateString()}</small><br><b>${d.who}</b></div><div><b class="text-success">+₹${d.amt}</b> ${delBtn}</div></div>`;
+    });
+
+    // Expenses
     safeArray(tripData.expenses).slice().reverse().forEach(e=>{
         const isR=e.r.includes("➔"); const share=isR?`<i class="bi bi-whatsapp text-success ms-2" onclick="shareR('${e.r}',${e.a})"></i>`:"";
-        const del=isHead?`<i class="bi bi-trash text-danger ms-2" onclick="delExp(${e.t})"></i>`:"";
-        l.innerHTML+=`<div class="d-flex align-items-center mb-2 p-2 bg-white rounded shadow-sm" style="border-left:4px solid #e74c3c"><div class="flex-grow-1 ms-2"><small class="text-muted">${new Date(e.t).toLocaleDateString()}</small><br><span>${e.r}</span></div><div class="text-end"><b class="text-danger">-₹${e.a}</b><br>${share}${del}</div></div>`;
+        const del=isHead?`<i class="bi bi-trash text-danger ms-2" onclick="delExp(${e.t})" style="cursor:pointer;"></i>`:"";
+        l.innerHTML+=`<div class="list-item list-item-red"><div><small class="text-muted">${new Date(e.t).toLocaleDateString()}</small><br><span>${e.r}</span></div><div class="text-end"><b class="text-danger">-₹${e.a}</b><br>${share}${del}</div></div>`;
     });
 
     const mDiv=document.getElementById('memList'); mDiv.innerHTML=""; const sel=document.getElementById('depMem'); sel.innerHTML="";
     tripData.members.forEach(m=>{
         const isH=(tripData.head&&m.toLowerCase()===tripData.head.toLowerCase());
-        mDiv.innerHTML+=`<span class="badge ${isH?'head-badge':'bg-white text-dark'} p-2 border">${isH?'👑':''} ${m}</span>`;
+        mDiv.innerHTML+=`<span class="badge ${isH?'bg-warning text-dark border border-warning':'bg-light text-dark'} p-2 me-1">${isH?'👑':''} ${m}</span>`;
         sel.innerHTML+=`<option value="${m}">${m}</option>`;
     });
 
@@ -445,36 +400,30 @@ function renderUI(){
     document.getElementById('cashHand').innerText=tin-tout; 
     document.getElementById('perPersonDisplay').innerText=tripData.members.length?Math.round(tout/tripData.members.length):0;
     
-    // Settlement
     const fDiv=document.getElementById('finalList'); fDiv.innerHTML=""; let ph=Math.round(tout/tripData.members.length), pd={};
     tripData.members.forEach(m=>pd[m]=0); safeArray(tripData.deposits).forEach(d=>{if(pd[d.who]!==undefined)pd[d.who]+=d.amt;});
-    tripData.members.forEach(m=>{let b=ph-pd[m]; fDiv.innerHTML+=`<div class="d-flex justify-content-between border-bottom border-secondary py-1"><span>${m}</span><span>${b>0?'Pay: '+b:'Get: '+Math.abs(b)}</span></div>`;});
+    tripData.members.forEach(m=>{let b=ph-pd[m]; fDiv.innerHTML+=`<div class="d-flex justify-content-between border-bottom py-1"><span>${m}</span><span>${b>0?'Pay: '+b:'Get: '+Math.abs(b)}</span></div>`;});
 }
 
-// ACTIONS
 function addExp(){const r=document.getElementById('expRea').value,a=parseFloat(document.getElementById('expAmt').value);if(r&&a){db.ref('trips/'+tid+'/expenses').set([...safeArray(tripData.expenses),{r,a,t:Date.now()}]);toggleForm('formExp');}}
 function addDep(){const w=document.getElementById('depMem').value,a=parseFloat(document.getElementById('depAmt').value);if(w&&a){db.ref('trips/'+tid+'/deposits').set([...safeArray(tripData.deposits),{who:w,amt:a,t:Date.now()}]);toggleForm('formDep');}}
-function delExp(t){if(confirm("Delete?"))db.ref('trips/'+tid+'/expenses').set(safeArray(tripData.expenses).filter(x=>x.t!==t));}
+function delExp(t){if(confirm("Delete Expense?"))db.ref('trips/'+tid+'/expenses').set(safeArray(tripData.expenses).filter(x=>x.t!==t));}
+function delDep(t){if(confirm("Delete this Deposit?"))db.ref('trips/'+tid+'/deposits').set(safeArray(tripData.deposits).filter(x=>x.t!==t));}
+
 function setHead(){const h=prompt("Head Name:");if(h)db.ref('trips/'+tid+'/head').set(h);}
 function saveHeadUPI(){const u=document.getElementById('headUPIInput').value;if(u){db.ref('trips/'+tid+'/headUPI').set(u);closeModal('headSetupModal');}}
 function payHead(){const a=prompt("Amount:");if(a){if(!tripData.headUPI){alert("No UPI Set");return;} headPayAmt=parseFloat(a); const l=`upi://pay?pa=${tripData.headUPI}&pn=${tripData.head}&am=${a}&cu=INR`; document.getElementById('payHeadModal').style.display='flex'; document.getElementById('headNameDisplay').innerText="To: "+tripData.head; document.getElementById('headPayAmt').innerText=a; document.getElementById('headPayLink').href=l; document.getElementById('headQrImage').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(l)}">`; }}
 function confirmHeadPayment(){db.ref('trips/'+tid+'/deposits').set([...safeArray(tripData.deposits),{who:user.name,amt:headPayAmt,t:Date.now()}]);closeModal('payHeadModal');alert("Added!");}
 function donateUPI(){const a=prompt("Amount:");if(a){const l=`upi://pay?pa=${DEV_UPI_ID}&pn=${DEV_NAME}&am=${a}&cu=INR`; document.getElementById('qrModal').style.display='flex'; document.getElementById('qrAmount').innerText=a; document.getElementById('payLink').href=l; document.getElementById('qrImage').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(l)}">`;}}
 
-// TRANSPORT
-function toggleTransportMode(){const m=document.getElementById('transType').value;document.getElementById('fuelInputs').classList.toggle('hidden',m!=='fuel');document.getElementById('publicInputs').classList.toggle('hidden',m!=='public');}
+function toggleTransportMode(){const m=document.getElementById('transType').value;document.getElementById('fuelInputs').style.display=(m==='fuel'?'block':'none');document.getElementById('publicInputs').style.display=(m==='public'?'block':'none');}
 function addFuel(){const d=document.getElementById('fDist').value,m=document.getElementById('fMil').value,r=document.getElementById('fRate').value;if(d&&m&&r)db.ref('trips/'+tid+'/expenses').set([...safeArray(tripData.expenses),{r:`⛽ Fuel ${d}km`,a:Math.round((d/m)*r),t:Date.now()}]);}
 function addPublicTransport(){const f=document.getElementById('ptFrom').value,t=document.getElementById('ptTo').value,m=document.getElementById('ptMode').value,a=parseFloat(document.getElementById('ptFare').value);if(f&&t&&a){db.ref('trips/'+tid+'/expenses').set([...safeArray(tripData.expenses),{r:`${m}: ${f} ➔ ${t}`,a,t:Date.now()}]);alert("Added!");}}
 function shareR(r,a){window.open(`https://wa.me/?text=${encodeURIComponent(`🚌 Route: ${r}\n💰 Fare: ₹${a}\nvia GHUMO PRO`)}`,'_blank');}
 function shareFullRoute(){const r=safeArray(tripData.expenses).filter(e=>e.r.includes("➔"));if(!r.length)return alert("No routes");let m=`🚀 *TRIP PLAN: ${tripData.name}*\n\n`,t=0;r.forEach((x,i)=>{m+=`✅ Step ${i+1}: ${x.r} (₹${x.a})\n`;t+=x.a;});m+=`\n💰 Total Transport: ₹${t}`;window.open(`https://wa.me/?text=${encodeURIComponent(m)}`,'_blank');}
 
-// MAP & FEED
-function startTracking(){if(!navigator.geolocation)return alert("No GPS");document.getElementById('gpsBtn').innerText="ON";watchId=navigator.geolocation.watchPosition(p=>{myLat=p.coords.latitude;myLng=p.coords.longitude;db.ref('trips/'+tid+'/locations/'+user.name).set({lat:myLat,lng:myLng,t:Date.now()});});}
-function stopTracking(){if(watchId)navigator.geolocation.clearWatch(watchId);}
-function renderLocs(l){const d=document.getElementById('locationList');d.innerHTML="";Object.keys(l).forEach(m=>{if(m===user.name)return;const x=l[m];let dist="";if(myLat){const k=calcDist(myLat,myLng,x.lat,x.lng);dist=`<span class="badge bg-secondary">${k} km</span>`;}d.innerHTML+=`<div class="track-card"><b>${m}</b> ${dist} <a href="http://maps.google.com/?q=${x.lat},${x.lng}" target="_blank" class="track-btn">Track</a></div>`;});}
-function calcDist(lat1,lon1,lat2,lon2){const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180,a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);return(R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))).toFixed(1);}
-function renderTripFeed(){const d=document.getElementById('tripFeedArea');d.innerHTML="";safeArray(tripData.highlights).reverse().forEach(h=>{let im="";if(h.imgs)h.imgs.forEach(i=>im+=`<img src="${i}" class="mem-img-full">`);d.innerHTML+=`<div class="glass-card p-0 overflow-hidden"><div class="p-3 bg-white border-bottom d-flex justify-content-between"><b>${h.who}</b><span>${h.txt}</span></div><div class="p-2">${im}</div></div>`;});}
-function encodeImgs(i){tempImages=[];if(i.files)Array.from(i.files).forEach(f=>{const r=new FileReader();r.onload=e=>{tempImages.push(e.target.result);document.getElementById('imgPreview').innerHTML+=`<img src="${e.target.result}" class="thumb-img">`;};r.readAsDataURL(f);});}
+function renderTripFeed(){const d=document.getElementById('tripFeedArea');d.innerHTML="";safeArray(tripData.highlights).reverse().forEach(h=>{let im="";if(h.imgs)h.imgs.forEach(i=>im+=`<img src="${i}" style="width:100%; border-radius:10px; margin-top:5px;">`);d.innerHTML+=`<div class="neu-card p-3 mb-3"><b>${h.who}</b><br>${h.txt}<div>${im}</div></div>`;});}
+function encodeImgs(i){tempImages=[];if(i.files)Array.from(i.files).forEach(f=>{const r=new FileReader();r.onload=e=>{const img=new Image();img.src=e.target.result;img.onload=()=>{const c=document.createElement('canvas'),ctx=c.getContext('2d');const w=500,sc=w/img.width;c.width=w;c.height=img.height*sc;ctx.drawImage(img,0,0,c.width,c.height);tempImages.push(c.toDataURL('image/jpeg',0.6));}};r.readAsDataURL(f);});}
 function saveMem(t){const x=document.getElementById('highTxt').value;if(!x)return;db.ref('trips/'+tid+'/highlights').set([...safeArray(tripData.highlights),{who:user.name,txt:x,imgs:tempImages,t:Date.now()}]);alert("Posted!");toggleForm('formMem');}
 </script>
 </body>
