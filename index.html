@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHUMO PRO - Head Payment</title>
+    <title>GHUMO PRO - Fixed Delete & Head</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -14,15 +14,16 @@
         .card { border-radius: 15px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; }
         .app-header { background: #203a43; color: white; padding: 15px; border-radius: 0 0 20px 20px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: flex; justify-content: space-between; align-items: center; }
         
-        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; }
-        
-        /* Action Buttons */
         .action-btn-large { padding: 15px; border-radius: 12px; color: white; text-align: center; cursor: pointer; transition: 0.2s; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 10px; display: block; width: 100%; border: none; }
-        .action-btn-large:active { transform: scale(0.98); }
         .btn-exp { background: linear-gradient(45deg, #FF416C, #FF4B2B); }
-        .btn-dep { background: linear-gradient(45deg, #11998e, #38ef7d); } /* Manual Deposit */
-        .btn-pay-head { background: linear-gradient(45deg, #00b09b, #96c93d); } /* Online Pay */
+        .btn-dep { background: linear-gradient(45deg, #11998e, #38ef7d); }
         .btn-mem { background: linear-gradient(45deg, #f12711, #f5af19); }
+        .btn-pay-head { background: linear-gradient(45deg, #00b09b, #96c93d); }
+
+        .affiliate-box { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; }
+        .aff-card { min-width: 120px; background: white; border: 1px solid #eee; border-radius: 10px; padding: 10px; text-align: center; cursor: pointer; }
+        .aff-card i { font-size: 1.5rem; color: #FF512F; }
+        .aff-card span { display: block; font-size: 0.8rem; font-weight: bold; margin-top: 5px; color: #333; }
 
         .toggle-form { display: none; background: white; padding: 15px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 15px; }
 
@@ -31,24 +32,31 @@
         .modal-content-box { background: white; padding: 20px; border-radius: 15px; text-align: center; width: 90%; max-width: 350px; position: relative; }
         .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #333; }
 
-        /* Stats & Feed */
+        /* IMPORTANT: Head Badge Style */
+        .head-badge { 
+            background: #ffc107 !important; 
+            color: #000 !important; 
+            border: 2px solid #e0a800 !important; 
+            font-weight: 900 !important;
+            box-shadow: 0 0 8px rgba(255, 193, 7, 0.6);
+        }
+
+        /* List Styles */
+        .money-out { border-left: 5px solid #e74c3c; background: #fff; padding: 10px; margin-bottom: 5px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .money-in { border-left: 5px solid #2ecc71; background: #fff; padding: 10px; margin-bottom: 5px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
+        
         .stat-box { padding: 15px; border-radius: 12px; text-align: center; color: white; height: 100%; }
         .bg-cash { background: #34495e; }
         .bg-head { background: #2980b9; }
-        .money-out { border-left: 5px solid #e74c3c; background: #fff; padding: 10px; margin-bottom: 5px; border-radius: 5px; display: flex; justify-content: space-between; }
-        .money-in { border-left: 5px solid #2ecc71; background: #fff; padding: 10px; margin-bottom: 5px; border-radius: 5px; display: flex; justify-content: space-between; }
-        
         .feed-card { background: white; border-radius: 15px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .img-scroll-container { display: flex; overflow-x: auto; background: #000; scroll-snap-type: x mandatory; }
         .feed-img { flex: 0 0 100%; width: 100%; height: 300px; object-fit: contain; scroll-snap-align: center; }
         .post-actions { position: absolute; top: 10px; right: 10px; z-index: 10; background: rgba(255,255,255,0.9); border-radius: 20px; padding: 2px 8px; }
-        
         .mem-card { background: white; border-radius: 10px; overflow: hidden; margin-bottom: 8px; border: 1px solid #ddd; }
         .mem-head { padding: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #fff3cd; border-left: 5px solid #ffc107; }
         .mem-body { display: none; padding: 15px; }
         .mem-img-full { width: 100%; border-radius: 8px; margin-top: 10px; }
         
-        /* Map */
         #map { height: 250px; width: 100%; border-radius: 10px; z-index: 1; }
         .track-card { background: #e3f2fd; padding: 10px; border-radius: 10px; margin-bottom: 8px; font-size:0.9rem; display:flex; justify-content:space-between; align-items:center; }
         .track-btn { background:#1565c0; color:white; padding:4px 10px; border-radius:15px; text-decoration:none; font-size:0.8rem; }
@@ -60,56 +68,10 @@
 </head>
 <body>
 
-<div id="qrModal">
-    <div class="modal-content-box">
-        <span class="close-modal" onclick="document.getElementById('qrModal').style.display='none'">×</span>
-        <h5 class="fw-bold mb-3 text-success">Support Developer</h5>
-        <div id="qrImage"></div>
-        <h3 class="mt-2">₹<span id="qrAmount">0</span></h3>
-        <a id="payLink" href="#" class="btn btn-primary w-100 fw-bold mt-2">Pay via UPI App</a>
-    </div>
-</div>
-
-<div id="payHeadModal">
-    <div class="modal-content-box">
-        <span class="close-modal" onclick="document.getElementById('payHeadModal').style.display='none'">×</span>
-        <h5 class="fw-bold mb-1 text-primary">Pay to Head</h5>
-        <p class="small text-muted" id="headNameDisplay">--</p>
-        <div id="headQrImage"></div>
-        <h3 class="mt-2">₹<span id="headPayAmt">0</span></h3>
-        <p class="small text-danger fw-bold">Step 1: Pay using QR or Button</p>
-        <a id="headPayLink" href="#" class="btn btn-success w-100 fw-bold mb-3">Open UPI App</a>
-        <hr>
-        <p class="small text-muted">Step 2: Confirm to Add to Deposit List</p>
-        <button class="btn btn-dark w-100" onclick="confirmHeadPayment()">✅ Payment Done</button>
-    </div>
-</div>
-
-<div id="headSetupModal">
-    <div class="modal-content-box">
-        <span class="close-modal" onclick="document.getElementById('headSetupModal').style.display='none'">×</span>
-        <h5>🏦 Setup Collection</h5>
-        <p class="small text-muted">Enter your UPI ID to receive payments from members.</p>
-        <input type="text" id="headUPIInput" class="form-control mb-3" placeholder="e.g. name@oksbi">
-        <button class="btn btn-primary w-100" onclick="saveHeadUPI()">Save UPI ID</button>
-    </div>
-</div>
-
-<div id="aboutModal">
-    <div class="modal-content-box">
-        <span class="close-modal" onclick="document.getElementById('aboutModal').style.display='none'">×</span>
-        <img src="https://cdn-icons-png.flaticon.com/512/201/201623.png" width="60" class="mb-3">
-        <h4>GHUMO PRO</h4>
-        <p class="text-muted small">Version 2.0</p>
-        <hr>
-        <div class="text-start small">
-            <p><b>Developer:</b> <span id="devNameAbout">YOUR NAME HERE</span></p>
-            <p><b>Contact:</b> support@ghumo.app</p>
-            <p><b>Description:</b> The ultimate trip management tool for group travelers.</p>
-        </div>
-        <button class="btn btn-dark w-100 mt-2" onclick="document.getElementById('aboutModal').style.display='none'">Close</button>
-    </div>
-</div>
+<div id="qrModal"><div class="modal-content-box"><span class="close-modal" onclick="document.getElementById('qrModal').style.display='none'">×</span><h5 class="fw-bold mb-3 text-success">Support Developer</h5><div id="qrImage"></div><h3 class="mt-2">₹<span id="qrAmount">0</span></h3><a id="payLink" href="#" class="btn btn-primary w-100 fw-bold mt-2">Pay via UPI App</a></div></div>
+<div id="payHeadModal"><div class="modal-content-box"><span class="close-modal" onclick="document.getElementById('payHeadModal').style.display='none'">×</span><h5 class="fw-bold mb-1 text-primary">Pay to Head</h5><p class="small text-muted" id="headNameDisplay">--</p><div id="headQrImage"></div><h3 class="mt-2">₹<span id="headPayAmt">0</span></h3><p class="small text-danger fw-bold">Step 1: Pay using QR or Button</p><a id="headPayLink" href="#" class="btn btn-success w-100 fw-bold mb-3">Open UPI App</a><hr><p class="small text-muted">Step 2: Confirm to Add to Deposit List</p><button class="btn btn-dark w-100" onclick="confirmHeadPayment()">✅ I Have Paid</button></div></div>
+<div id="headSetupModal"><div class="modal-content-box"><span class="close-modal" onclick="document.getElementById('headSetupModal').style.display='none'">×</span><h5>🏦 Setup Collection</h5><p class="small text-muted">Enter your UPI ID (e.g. name@oksbi)</p><input type="text" id="headUPIInput" class="form-control mb-3" placeholder="Enter UPI ID"><button class="btn btn-primary w-100" onclick="saveHeadUPI()">Save Details</button></div></div>
+<div id="aboutModal"><div class="modal-content-box"><span class="close-modal" onclick="document.getElementById('aboutModal').style.display='none'">×</span><img src="https://cdn-icons-png.flaticon.com/512/201/201623.png" width="60" class="mb-3"><h4>GHUMO PRO</h4><p class="text-muted small">Version 5.0 (Fixed)</p><hr><div class="text-start small"><p><b>Developer:</b> <span id="devNameAbout">--</span></p><p><b>Contact:</b> support@ghumo.app</p></div><button class="btn btn-dark w-100 mt-2" onclick="document.getElementById('aboutModal').style.display='none'">Close</button></div></div>
 
 <div id="authScreen" class="full-screen">
     <div class="card p-4 text-center" style="width: 350px;">
@@ -133,11 +95,12 @@
 
 <div id="homeScreen" style="display:none; max-width: 500px; margin: auto;">
     <div class="app-header">
-        <div class="fw-bold fs-4">🌎 GHUMO</div>
+        <div class="fw-bold">GHUMO | <span id="headerUserName" class="text-warning small">User</span></div>
         <div class="dropdown">
             <i class="bi bi-three-dots-vertical fs-3 text-white" data-bs-toggle="dropdown"></i>
             <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="#" onclick="openSettings()">👤 Profile & Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item text-danger" href="#" onclick="doLogout()">Log Out</a></li>
             </ul>
         </div>
@@ -148,6 +111,20 @@
             <div class="col-6"><button class="btn btn-outline-primary w-100 py-3 fw-bold" onclick="joinTrip()">🚀 Join Trip</button></div>
         </div>
         
+        <div class="card p-3 mb-3 border-warning">
+            <h6 class="fw-bold text-dark mb-2">🔥 OFFERS & BOOKINGS</h6>
+            <div class="affiliate-box">
+                <div class="aff-card" onclick="window.open('https://www.booking.com', '_blank')"><i class="bi bi-building"></i> <span>Book Hotel</span></div>
+                <div class="aff-card" onclick="window.open('https://www.makemytrip.com/flights', '_blank')"><i class="bi bi-airplane-fill"></i> <span>Flight/Train</span></div>
+                <div class="aff-card" onclick="window.open('https://www.amazon.in/s?k=travel+bag', '_blank')"><i class="bi bi-bag-fill"></i> <span>Travel Gear</span></div>
+            </div>
+        </div>
+
+        <div class="card p-3 mb-3 border-danger text-center shadow-sm">
+            <h6 class="fw-bold text-danger">❤️ SUPPORT DEVELOPER</h6>
+            <button class="btn btn-danger w-100 fw-bold" onclick="donateUPI()"><i class="bi bi-qr-code"></i> Donate via UPI</button>
+        </div>
+
         <h6 class="fw-bold text-muted mb-2">MY TRIPS</h6>
         <div id="userTripList"><p class="text-center text-muted">Loading...</p></div>
         <hr>
@@ -165,16 +142,17 @@
         <input type="text" id="up_address" class="form-control mb-2" placeholder="Address">
         <input type="text" id="up_pass" class="form-control mb-3" placeholder="New Password">
         <button class="btn btn-dark w-100 mb-3" onclick="saveSettings()">UPDATE PROFILE</button>
-        
-        <button class="btn btn-outline-primary w-100 mb-2" onclick="document.getElementById('aboutModal').style.display='flex'">ℹ️ About App</button>
-        <button class="btn btn-outline-danger w-100" onclick="donateUPI()">❤️ Support Developer</button>
+        <button class="btn btn-outline-primary w-100" onclick="document.getElementById('aboutModal').style.display='flex'">ℹ️ About App</button>
     </div>
 </div>
 
 <div id="mainApp" style="display:none; max-width: 500px; margin: auto;">
     <div class="app-header">
         <i class="bi bi-arrow-left fs-2" onclick="showHome()"></i>
-        <div class="text-center"><h5 id="dispName" class="m-0 fw-bold">Trip</h5></div>
+        <div class="text-center">
+            <h5 id="dispName" class="m-0 fw-bold">Trip</h5>
+            <small id="headerUserTrip" class="text-warning" style="font-size: 0.7rem;">--</small>
+        </div>
         <i class="bi bi-list fs-2 invisible"></i>
     </div>
 
@@ -218,9 +196,49 @@
             <div class="row g-2"><div class="col-6"><button class="btn btn-warning w-100 fw-bold" onclick="saveMem('world')">POST WORLD</button></div><div class="col-6"><button class="btn btn-dark w-100 fw-bold" onclick="saveMem('trip')">POST TRIP</button></div></div>
         </div>
 
-        <div class="card p-3 mb-3"><h6 class="text-muted fw-bold small">RECENT ACTIVITY</h6><div id="expList" style="max-height:200px; overflow:auto;"></div></div>
-        <div class="card p-3 border-info mb-3"><h6 class="text-info fw-bold">⛽ Transport Cost</h6><div class="input-group input-group-sm"><input type="number" id="fDist" class="form-control" placeholder="KM"><input type="number" id="fMil" class="form-control" placeholder="Avg"><input type="number" id="fRate" class="form-control" placeholder="Price"><button class="btn btn-info text-white" onclick="addFuel()">Add</button></div></div>
-        <div class="card p-3 mb-3 bg-light"><div class="d-flex justify-content-between mb-2"><h6 class="m-0">👥 Members</h6><small class="text-warning cursor-pointer" onclick="setHead()">Set Head</small></div><div id="memList" class="d-flex flex-wrap gap-1"></div></div>
+        <div class="card p-3 border-info mb-3">
+            <h6 class="text-info fw-bold">🚌 Transport Plan & Route</h6>
+            <select id="transType" class="form-select mb-2" onchange="toggleTransportMode()">
+                <option value="fuel">🚗 Private Car (Fuel)</option>
+                <option value="public">🚆 Public (Bus/Train/Flight)</option>
+            </select>
+            
+            <div id="fuelInputs">
+                <div class="input-group input-group-sm">
+                    <input type="number" id="fDist" class="form-control" placeholder="KM">
+                    <input type="number" id="fMil" class="form-control" placeholder="Avg">
+                    <input type="number" id="fRate" class="form-control" placeholder="Price">
+                    <button class="btn btn-info text-white" onclick="addFuel()">Add</button>
+                </div>
+            </div>
+
+            <div id="publicInputs" style="display:none;">
+                <div class="row g-2 mb-2">
+                    <div class="col-6"><input type="text" id="ptFrom" class="form-control form-control-sm" placeholder="From (Origin)"></div>
+                    <div class="col-6"><input type="text" id="ptTo" class="form-control form-control-sm" placeholder="To (Dest)"></div>
+                </div>
+                <div class="input-group input-group-sm">
+                    <select id="ptMode" class="form-select" style="max-width: 80px;">
+                        <option>Bus</option><option>Train</option><option>Flight</option><option>Taxi</option>
+                    </select>
+                    <input type="number" id="ptFare" class="form-control" placeholder="Total Fare ₹">
+                    <button class="btn btn-info text-white" onclick="addPublicTransport()">Add Route</button>
+                </div>
+            </div>
+            
+            <button class="btn btn-success w-100 mt-2 fw-bold" onclick="shareFullRoute()">📲 Share Full Itinerary</button>
+        </div>
+
+        <div class="card p-3 mb-3">
+            <h6 class="text-muted fw-bold small">RECENT ACTIVITY (Routes & Costs)</h6>
+            <div id="expList" style="max-height:250px; overflow:auto;"></div>
+        </div>
+
+        <div class="card p-3 mb-3 bg-light">
+            <div class="d-flex justify-content-between mb-2"><h6 class="m-0">👥 Members</h6><small class="text-warning cursor-pointer" onclick="setHead()">Set Head</small></div>
+            <div id="memList" class="d-flex flex-wrap gap-1"></div>
+        </div>
+
         <h6 class="text-muted fw-bold small mt-4">TRIP MEMORIES</h6><div id="tripFeedArea" class="mb-4"></div>
         <div class="card p-3 bg-dark text-white mt-3"><h6 class="text-warning">📊 Settlement</h6><div id="finalList" class="small mt-2"></div></div>
     </div>
@@ -228,8 +246,8 @@
 
 <script>
 // --- CONFIGURATION ---
-const DEV_NAME = "YOUR NAME HERE"; // <--- CHANGE THIS (e.g. Amit Kumar)
-const DEV_UPI_ID = "YOUR_UPI_ID_HERE"; // <--- CHANGE THIS (Developer UPI)
+const DEV_NAME = "YOUR NAME HERE"; 
+const DEV_UPI_ID = "YOUR_UPI_ID_HERE"; 
 
 const firebaseConfig = {
       apiKey: "AIzaSyCp_ctBvgHAmqxpU9xDbxaufDftKulcJXk",
@@ -251,7 +269,7 @@ function safeArray(data) { if (!data) return []; return Array.isArray(data) ? da
 window.onload = () => { 
     document.getElementById('devNameAbout').innerText = DEV_NAME;
     const saved = localStorage.getItem('yatra_user');
-    if(saved) { user = JSON.parse(saved); showHome(); }
+    if(saved) { user = JSON.parse(saved); document.getElementById('headerUserName').innerText = user.name; showHome(); }
 };
 
 function hideAll() { ['authScreen','homeScreen','mainApp','settingsScreen'].forEach(id => document.getElementById(id).style.display='none'); }
@@ -260,9 +278,50 @@ function showReg() { document.getElementById('loginForm').style.display='none'; 
 function showHome() { hideAll(); document.getElementById('homeScreen').style.display='block'; loadTrips(); loadGlobal(); stopTracking(); }
 function toggleForm(id) { const el = document.getElementById(id); el.style.display = (el.style.display === 'block') ? 'none' : 'block'; }
 
-// DONATE TO DEVELOPER
+// TRANSPORT & SHARING
+function toggleTransportMode() {
+    const mode = document.getElementById('transType').value;
+    document.getElementById('fuelInputs').style.display = (mode === 'fuel') ? 'block' : 'none';
+    document.getElementById('publicInputs').style.display = (mode === 'public') ? 'block' : 'none';
+}
+
+function addPublicTransport() {
+    const from = document.getElementById('ptFrom').value;
+    const to = document.getElementById('ptTo').value;
+    const mode = document.getElementById('ptMode').value;
+    const fare = parseFloat(document.getElementById('ptFare').value);
+    
+    if(from && to && fare) {
+        const desc = `${mode}: ${from} ➔ ${to}`; 
+        db.ref('trips/'+tid+'/expenses').set([...safeArray(tripData.expenses), {r: desc, a: fare, t: Date.now()}]);
+        alert("Route Added!");
+        document.getElementById('ptFrom').value = ""; document.getElementById('ptTo').value = ""; document.getElementById('ptFare').value = "";
+    } else { alert("Fill all details"); }
+}
+
+function shareFullRoute() {
+    const expenses = safeArray(tripData.expenses);
+    const routes = expenses.filter(e => e.r.includes("➔")).sort((a, b) => a.t - b.t);
+
+    if (routes.length === 0) { alert("No routes added yet!"); return; }
+
+    let msg = `🚀 *TRIP ITINERARY: ${tripData.name}*\n\n`;
+    let totalFare = 0;
+
+    routes.forEach((r, index) => {
+        msg += `✅ *Step ${index + 1}*\n${r.r}\n💰 Fare: ₹${r.a}\n\n`;
+        totalFare += r.a;
+    });
+
+    msg += `----------------\n💵 *Total Transport Cost: ₹${totalFare}*\n----------------\nShared via GHUMO PRO`;
+
+    const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank');
+}
+
+// DONATE
 function donateUPI() {
-    const amt = prompt("Enter Amount (₹):", "50");
+    const amt = prompt("Amount (₹):", "50");
     if(amt) {
         const upiLink = `upi://pay?pa=${DEV_UPI_ID}&pn=${DEV_NAME}&tn=SupportApp&am=${amt}&cu=INR`;
         document.getElementById('qrModal').style.display = "flex";
@@ -272,21 +331,13 @@ function donateUPI() {
     }
 }
 
-// HEAD PAYMENT LOGIC
+// HEAD PAYMENT
 function setupHeadUPI() { document.getElementById('headSetupModal').style.display='flex'; document.getElementById('headUPIInput').value = tripData.headUPI || ""; }
-function saveHeadUPI() {
-    const upi = document.getElementById('headUPIInput').value;
-    if(upi) { db.ref('trips/'+tid+'/headUPI').set(upi); document.getElementById('headSetupModal').style.display='none'; alert("UPI Saved!"); }
-}
-
+function saveHeadUPI() { const upi = document.getElementById('headUPIInput').value; if(upi) { db.ref('trips/'+tid+'/headUPI').set(upi); document.getElementById('headSetupModal').style.display='none'; alert("UPI Saved!"); } }
 function payHead() {
     const amt = prompt("Amount to Pay Head (₹):");
-    if(!amt) return;
-    headPayAmt = parseFloat(amt);
-    
-    // Check if Head has set UPI
-    if(!tripData.headUPI) { alert("Head has not set up payment details yet."); return; }
-
+    if(!amt) return; headPayAmt = parseFloat(amt);
+    if(!tripData.headUPI) { alert("Head has not set up UPI."); return; }
     const upiLink = `upi://pay?pa=${tripData.headUPI}&pn=${tripData.head}&tn=TripDeposit&am=${amt}&cu=INR`;
     document.getElementById('payHeadModal').style.display = 'flex';
     document.getElementById('headNameDisplay').innerText = "Paying to: " + tripData.head;
@@ -294,29 +345,37 @@ function payHead() {
     document.getElementById('headPayLink').href = upiLink;
     document.getElementById('headQrImage').innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}" style="width:200px; border-radius:10px;">`;
 }
-
 function confirmHeadPayment() {
-    // Add to Deposit List
     db.ref('trips/'+tid+'/deposits').set([...safeArray(tripData.deposits), {who:user.name, amt:headPayAmt, t:Date.now()}]);
     document.getElementById('payHeadModal').style.display = 'none';
-    alert("Payment Recorded in Deposits!");
+    alert("Payment Added!");
 }
 
 // AUTH
 function doRegister() { const n=document.getElementById('r_name').value, m=document.getElementById('r_mobile').value, a=document.getElementById('r_address').value, p=document.getElementById('r_pass').value; if(n&&m&&a&&p) db.ref('users/'+m).set({name:n, mobile:m, address:a, password:p, history:[]}).then(()=>{ alert("Created!"); showLogin(); }); }
-function doLogin() { const m=document.getElementById('l_mobile').value, p=document.getElementById('l_pass').value; if(!m || !p) return; db.ref('users/'+m).once('value', s => { if(s.exists() && s.val().password == p) { user = s.val(); localStorage.setItem('yatra_user', JSON.stringify(user)); showHome(); } else alert("Invalid"); }); }
+function doLogin() { const m=document.getElementById('l_mobile').value, p=document.getElementById('l_pass').value; if(!m || !p) return; db.ref('users/'+m).once('value', s => { if(s.exists() && s.val().password == p) { user = s.val(); localStorage.setItem('yatra_user', JSON.stringify(user)); document.getElementById('headerUserName').innerText = user.name; showHome(); } else alert("Invalid"); }); }
 function doLogout() { localStorage.removeItem('yatra_user'); location.reload(); }
 function doUnregister() { if(confirm("Delete Account?")) db.ref('users/'+user.mobile).remove().then(()=>doLogout()); }
 
 // SETTINGS
 function openSettings() { hideAll(); document.getElementById('settingsScreen').style.display='block'; db.ref('users/'+user.mobile).once('value', s => { const u = s.val(); document.getElementById('s_name').innerText = u.name; document.getElementById('up_name').value = u.name; document.getElementById('up_address').value = u.address || ""; document.getElementById('up_pass').value = u.password; }); }
-function saveSettings() { const n = document.getElementById('up_name').value, a = document.getElementById('up_address').value, p = document.getElementById('up_pass').value; if(n) db.ref('users/'+user.mobile).update({name:n, address:a, password:p}).then(()=>{ user.name=n; user.address=a; localStorage.setItem('yatra_user', JSON.stringify(user)); alert("Saved!"); showHome(); }); }
+function saveSettings() { const n = document.getElementById('up_name').value, a = document.getElementById('up_address').value, p = document.getElementById('up_pass').value; if(n) db.ref('users/'+user.mobile).update({name:n, address:a, password:p}).then(()=>{ user.name=n; user.address=a; localStorage.setItem('yatra_user', JSON.stringify(user)); document.getElementById('headerUserName').innerText = n; alert("Saved!"); showHome(); }); }
 
 // TRIP
 function createTrip() { const n=prompt("Trip Name:"); if(n) { const id="T"+Math.floor(10000+Math.random()*90000); db.ref('trips/'+id).set({name:n, members:[user.name]}).then(()=>{ addHistory(id); enterTrip(id); }); }}
 function joinTrip() { const id=prompt("Trip Code:"); if(id) db.ref('trips/'+id.toUpperCase()).once('value', s=>{ if(s.exists()) { addHistory(id.toUpperCase()); enterTrip(id.toUpperCase()); } else alert("Invalid Code"); }); }
 function addHistory(id) { db.ref('users/'+user.mobile+'/history').once('value', s=>{ let h=safeArray(s.val()); if(!h.includes(id)) { h.push(id); db.ref('users/'+user.mobile+'/history').set(h); } }); }
-function loadTrips() { db.ref('users/'+user.mobile+'/history').on('value', async s => { const list = document.getElementById('userTripList'); list.innerHTML = ""; const codes = safeArray(s.val()); if(codes.length===0) { list.innerHTML="<small>No trips.</small>"; return; } for(const c of codes) { const snap = await db.ref('trips/'+c).once('value'); if(snap.exists()) { list.innerHTML += `<div class="card p-3 shadow-sm d-flex flex-row justify-content-between align-items-center mb-2"><div onclick="enterTrip('${c}')" style="flex-grow:1; cursor:pointer;"><b>${snap.val().name}</b><br><small>${c}</small></div><i class="bi bi-trash text-danger"></i></div>`; } } }); }
+// DELETE TRIP FIX
+function deleteTrip(id, event) {
+    if(event) event.stopPropagation();
+    if(confirm("Delete this trip?")) {
+        db.ref('users/'+user.mobile+'/history').once('value', s => {
+            const h = safeArray(s.val()).filter(x => x !== id);
+            db.ref('users/'+user.mobile+'/history').set(h);
+        });
+    }
+}
+function loadTrips() { db.ref('users/'+user.mobile+'/history').on('value', async s => { const list = document.getElementById('userTripList'); list.innerHTML = ""; const codes = safeArray(s.val()); if(codes.length===0) { list.innerHTML="<small>No trips.</small>"; return; } for(const c of codes) { const snap = await db.ref('trips/'+c).once('value'); if(snap.exists()) { list.innerHTML += `<div class="card p-3 shadow-sm d-flex flex-row justify-content-between align-items-center mb-2"><div onclick="enterTrip('${c}')" style="flex-grow:1; cursor:pointer;"><b>${snap.val().name}</b><br><small>${c}</small></div><i class="bi bi-trash text-danger" onclick="deleteTrip('${c}', event)"></i></div>`; } } }); }
 
 function enterTrip(id) { 
     tid=id; hideAll(); document.getElementById('mainApp').style.display='block'; 
@@ -331,26 +390,38 @@ function enterTrip(id) {
 
 function renderUI() {
     document.getElementById('dispName').innerText = `${tripData.name} (${tid})`;
+    document.getElementById('headerUserTrip').innerText = user.name;
     const isHead = (user.name.toUpperCase() === (tripData.head||"").toUpperCase());
     
-    // HEAD PAYMENT BUTTONS
-    const headDiv = document.getElementById('headActionArea');
-    headDiv.innerHTML = "";
-    if (isHead) {
-        headDiv.innerHTML = `<button class="action-btn-large" style="background:#203a43;" onclick="setupHeadUPI()">🏦 Setup Collection UPI</button>`;
-    } else if (tripData.head) {
-        headDiv.innerHTML = `<button class="action-btn-large btn-pay-head" onclick="payHead()">💸 Pay to Head Online</button>`;
-    }
+    // Head Payment
+    const headDiv = document.getElementById('headActionArea'); headDiv.innerHTML = "";
+    if (isHead) headDiv.innerHTML = `<button class="action-btn-large" style="background:#203a43;" onclick="setupHeadUPI()">🏦 Setup Collection UPI</button>`;
+    else if (tripData.head) headDiv.innerHTML = `<button class="action-btn-large btn-pay-head" onclick="payHead()">💸 Pay to Head Online</button>`;
 
+    // List
     const eDiv=document.getElementById('expList'); eDiv.innerHTML="";
+    safeArray(tripData.deposits).slice().reverse().forEach(d => { eDiv.innerHTML += `<div class="money-in"><div><span>${d.who} Deposited</span><br><b>₹${d.amt}</b></div></div>`; });
     safeArray(tripData.expenses).slice().reverse().forEach(e=>{
-        const btns = isHead ? `<div><i class="bi bi-trash text-danger" onclick="delExp(${e.t})"></i></div>` : "";
+        const btns = isHead ? `<div><i class="bi bi-trash text-danger ms-2" onclick="delExp(${e.t})"></i></div>` : "";
         eDiv.innerHTML+=`<div class="money-out"><div><span>${e.r}</span><br><b>₹${e.a}</b></div>${btns}</div>`;
     });
 
+    // Members Highlight - CASE INSENSITIVE CHECK
     const mDiv=document.getElementById('memList'); mDiv.innerHTML="";
     const sel=document.getElementById('depMem'); sel.innerHTML="";
-    tripData.members.forEach(m=>{ mDiv.innerHTML+=`<span class="badge bg-white text-dark border p-2 me-1">${m===tripData.head?'👑':''} ${m}</span>`; sel.innerHTML+=`<option value="${m}">${m}</option>`; });
+    
+    tripData.members.forEach(m=>{
+        let isTripHead = false;
+        if(tripData.head && m.toLowerCase() === tripData.head.toLowerCase()) {
+            isTripHead = true;
+        }
+        
+        const badgeClass = isTripHead ? "head-badge" : "bg-white text-dark border";
+        const icon = isTripHead ? "👑 HEAD" : "👤";
+        
+        mDiv.innerHTML+=`<span class="badge ${badgeClass} p-2 me-1">${icon} ${m}</span>`; 
+        sel.innerHTML+=`<option value="${m}">${m}</option>`; 
+    });
 
     let tin = safeArray(tripData.deposits).reduce((s,x)=>s+x.amt,0);
     let tout = safeArray(tripData.expenses).reduce((s,x)=>s+x.a,0);
@@ -370,15 +441,17 @@ function addFuel(){ const d=document.getElementById('fDist').value, m=document.g
 function setHead(){ const h=prompt("Head Name:"); if(h) db.ref('trips/'+tid+'/head').set(h.toUpperCase()); }
 function delExp(ts){ if(confirm("Delete?")) db.ref('trips/'+tid+'/expenses').set(safeArray(tripData.expenses).filter(x=>x.t!==ts)); }
 
-// MAP & FEED
+// MAP
 function startTracking() { if(!navigator.geolocation) return alert("No GPS"); document.getElementById('gpsBtn').innerText = "🟢 GPS ON"; watchId = navigator.geolocation.watchPosition(pos=>{ myLat = pos.coords.latitude; myLng = pos.coords.longitude; db.ref('trips/'+tid+'/locations/'+user.name).set({lat:myLat, lng:myLng, t:Date.now()}); }, null, {enableHighAccuracy:true}); }
 function stopTracking() { if(watchId) navigator.geolocation.clearWatch(watchId); }
 function renderLocationList(locs) { const div = document.getElementById('locationList'); div.innerHTML = ""; Object.keys(locs).forEach(m => { if(m === user.name) return; const d = locs[m]; let dist = ""; if(myLat && myLng) { const km = getDistance(myLat, myLng, d.lat, d.lng).toFixed(1); dist = `<span class="badge bg-secondary ms-2">${km} km</span>`; } div.innerHTML += `<div class="track-card"><div><b>${m}</b> ${dist} <br><small style="font-size:9px;">${new Date(d.t).toLocaleTimeString()}</small></div><a href="https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lng}" target="_blank" class="track-btn">📍 Track</a></div>`; }); }
 function getDistance(lat1, lon1, lat2, lon2) { const R = 6371; const dLat = (lat2-lat1)*Math.PI/180; const dLon = (lon2-lon1)*Math.PI/180; const a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2); return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); }
 
-function loadGlobal() { db.ref('global_public_feed').limitToLast(10).on('value', s => { const d = document.getElementById('globalFeed'); d.innerHTML=""; const data = s.val(); if(!data) { d.innerHTML="<small>No posts.</small>"; return; } Object.keys(data).reverse().forEach(k => { const p = data[k]; let imgHTML = ""; if(p.imgs) p.imgs.forEach(i => imgHTML+=`<img src="${i}" class="feed-img">`); let qa = ""; if(p.comments) Object.values(p.comments).forEach(c=>qa+=`<div class="qa-item"><b>${c.who}:</b> ${c.txt} ${c.reply?'<br>↳ '+c.reply:''}</div>`); let actions = ""; if(p.who === user.name) actions = `<div class="post-actions"><i class="bi bi-trash text-danger" onclick="delPost('${k}')"></i></div>`; d.innerHTML += `<div class="feed-card position-relative">${actions}<div class="p-2 d-flex justify-content-between"><b>${p.who}</b> ${p.cost?`<span class="cost-badge">₹${p.cost}</span>`:''}</div><div class="img-scroll-container">${imgHTML}</div><div class="p-2"><p><b>${p.who}:</b> ${p.txt}</p><button class="btn btn-sm btn-outline-dark w-100" onclick="ask('${k}')">💬 Ask</button><div class="qa-box">${qa}</div></div></div>`; }); }); }
+// FEED
+function loadGlobal() { db.ref('global_public_feed').limitToLast(10).on('value', s => { const d = document.getElementById('globalFeed'); d.innerHTML=""; const data = s.val(); if(!data) { d.innerHTML="<small>No posts.</small>"; return; } Object.keys(data).reverse().forEach(k => { const p = data[k]; let imgHTML = ""; if(p.imgs) p.imgs.forEach(i => imgHTML+=`<img src="${i}" class="feed-img">`); let qa = ""; if(p.comments) Object.values(p.comments).forEach(c=>qa+=`<div class="qa-item"><b>${c.who}:</b> ${c.txt} ${c.reply?'<br>↳ '+c.reply:''}</div>`); let actions = ""; if(p.who === user.name) actions = `<div class="post-actions"><i class="bi bi-pencil-square text-primary me-2" onclick="editPost('${k}')"></i><i class="bi bi-trash text-danger" onclick="delPost('${k}')"></i></div>`; d.innerHTML += `<div class="feed-card position-relative">${actions}<div class="p-2 d-flex justify-content-between"><b>${p.who}</b> ${p.cost?`<span class="cost-badge">₹${p.cost}</span>`:''}</div><div class="img-scroll-container">${imgHTML}</div><div class="p-2"><p><b>${p.who}:</b> ${p.txt}</p><button class="btn btn-sm btn-outline-dark w-100" onclick="ask('${k}')">💬 Ask</button><div class="qa-box">${qa}</div></div></div>`; }); }); }
 function ask(k){ const q=prompt("Ask:"); if(q) db.ref('global_public_feed/'+k+'/comments/'+Date.now()).set({who:user.name, txt:q}); }
 function delPost(k){ if(confirm("Delete Post?")) db.ref('global_public_feed/'+k).remove(); }
+function editPost(k){ db.ref('global_public_feed/'+k).once('value', s=>{ const t=prompt("New Caption:", s.val().txt); if(t) db.ref('global_public_feed/'+k).update({txt:t}); }); }
 function renderTripFeed() { const d = document.getElementById('tripFeedArea'); d.innerHTML=""; const hs = safeArray(tripData.highlights); hs.reverse().forEach(h => { let imgHTML = ""; if(h.imgs) h.imgs.forEach(i => imgHTML+=`<img src="${i}" class="mem-img-full">`); d.innerHTML += `<div class="mem-card"><div class="mem-head" onclick="this.nextElementSibling.style.display=(this.nextElementSibling.style.display==='block'?'none':'block')"><span>${h.txt}</span><small>${h.who}</small></div><div class="mem-body">${imgHTML}</div></div>`; }); }
 function encodeImgs(i){ tempImages=[]; if(i.files){ Array.from(i.files).forEach(f=>{ const r=new FileReader(); r.onload=(e)=>{ const img=new Image(); img.src=e.target.result; img.onload=()=>{ const c=document.createElement('canvas'), ctx=c.getContext('2d'); const w=500, sc=w/img.width; c.width=w; c.height=img.height*sc; ctx.drawImage(img,0,0,c.width,c.height); tempImages.push(c.toDataURL('image/jpeg',0.6)); document.getElementById('imgPreview').innerHTML+=`<img src="${c.toDataURL('image/jpeg',0.6)}" class="thumb-img">`; } }; r.readAsDataURL(f); }); document.getElementById('imgPreview').style.display='flex'; } }
 function saveMem(t){ const txt=document.getElementById('highTxt').value, loc=document.getElementById('highLoc').value, c=document.getElementById('highCost').value; if(!txt)return; const p={who:user.name, txt, loc, cost:c, imgs:tempImages, t:Date.now()}; if(t==='world') db.ref('global_public_feed').push(p); else db.ref('trips/'+tid+'/highlights').set([...safeArray(tripData.highlights), p]); alert("Posted!"); document.getElementById('highTxt').value=""; tempImages=[]; document.getElementById('imgPreview').innerHTML=""; toggleForm('formMem'); }
