@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHUMO PRO - Fixed Members</title>
+    <title>GHUMO PRO - All Features</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <style>
         body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
         .full-screen { height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
@@ -15,10 +20,15 @@
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; }
         .menu-content button { width: 260px; margin-bottom: 12px; padding: 12px; border-radius: 30px; font-weight: bold; }
         
+        /* Map Style */
+        #map { height: 300px; width: 100%; border-radius: 10px; z-index: 1; }
+
+        /* Stats Box */
         .stat-box { padding: 15px; border-radius: 12px; text-align: center; color: white; height: 100%; }
         .bg-cash { background: linear-gradient(45deg, #11998e, #38ef7d); }
         .bg-head { background: linear-gradient(45deg, #3a7bd5, #00d2ff); }
 
+        /* Memories & Feed */
         .mem-card { background: white; border-radius: 10px; overflow: hidden; margin-bottom: 8px; border: 1px solid #ddd; }
         .mem-head { padding: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #fff3cd; border-left: 5px solid #ffc107; }
         .mem-body { display: none; padding: 15px; background: #fff; border-top: 1px solid #eee; }
@@ -37,6 +47,7 @@
         .preview-box { display: flex; gap: 5px; overflow-x: auto; padding: 5px; }
         .thumb-img { height: 60px; width: 60px; object-fit: cover; border-radius: 5px; border: 1px solid #ccc; }
     </style>
+    
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
@@ -99,11 +110,11 @@
         <div style="width:30px"></div>
     </div>
     <div class="container py-4">
-        <div class="card p-4 shadow-sm">
-            <div class="text-center mb-4"><i class="bi bi-person-circle" style="font-size: 4rem; color:#203a43;"></i></div>
-            <p><b>Name:</b> <span id="p_name">--</span></p>
-            <p><b>Mobile:</b> <span id="p_mobile">--</span></p>
-            <p><b>Address:</b> <span id="p_addr">--</span></p>
+        <div class="card p-4 shadow-sm text-center">
+            <i class="bi bi-person-circle" style="font-size: 4rem; color:#203a43;"></i>
+            <h4 id="p_name">--</h4>
+            <p id="p_mobile">--</p>
+            <p id="p_addr" class="small text-muted">--</p>
             <hr>
             <h6>Edit Profile</h6>
             <input type="text" id="edit_name" class="form-control mb-2" placeholder="Name">
@@ -122,6 +133,15 @@
 
     <div class="container p-3 pb-5">
         
+        <div class="card p-2 border-primary mb-3 shadow">
+            <div class="d-flex justify-content-between align-items-center mb-2 px-2">
+                <h6 class="text-primary fw-bold m-0"><i class="bi bi-geo-alt-fill"></i> LIVE TRACKING</h6>
+                <button class="btn btn-sm btn-primary" onclick="startTracking()">Start GPS</button>
+            </div>
+            <div id="map"></div>
+            <small class="text-center text-muted mt-1">Click marker to Navigate</small>
+        </div>
+
         <div class="row g-3 mb-3">
             <div class="col-6"><div class="stat-box bg-cash shadow-sm"><small>CASH IN HAND</small><h3 class="fw-bold m-0">₹<span id="cashHand">0</span></h3></div></div>
             <div class="col-6"><div class="stat-box bg-head shadow-sm"><small>PER PERSON</small><h3 class="fw-bold m-0">₹<span id="perPersonDisplay">0</span></h3></div></div>
@@ -175,7 +195,7 @@
                 <div class="col-5"><input type="number" id="highCost" class="form-control" placeholder="Est. Cost ₹"></div>
             </div>
             <label class="btn btn-outline-secondary w-100 mb-2 btn-sm">
-                <i class="bi bi-images"></i> Select Photos
+                <i class="bi bi-images"></i> Select Photos (Multiple)
                 <input type="file" id="highImg" class="form-control" accept="image/*" multiple hidden onchange="encodeImgs(this)">
             </label>
             <div id="imgPreview" class="preview-box mb-2" style="display:none;"></div>
@@ -206,6 +226,7 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 let user = null, tid = "", tripData = {}, tempImages = [];
+let map, markers = {}, watchId = null;
 
 window.onload = () => { 
     const saved = localStorage.getItem('yatra_user');
@@ -215,7 +236,7 @@ window.onload = () => {
 function hideAll() { ['authScreen','homeScreen','mainApp','profileScreen'].forEach(id => document.getElementById(id).style.display='none'); }
 function showLogin() { hideAll(); document.getElementById('authScreen').style.display='flex'; document.getElementById('loginForm').style.display='block'; document.getElementById('regForm').style.display='none'; }
 function showReg() { document.getElementById('loginForm').style.display='none'; document.getElementById('regForm').style.display='block'; }
-function showHome() { hideAll(); document.getElementById('homeScreen').style.display='block'; loadTrips(); loadGlobal(); }
+function showHome() { hideAll(); document.getElementById('homeScreen').style.display='block'; loadTrips(); loadGlobal(); stopTracking(); }
 function toggleMenu() { const m = document.getElementById('menuOverlay'); m.style.display = m.style.display==='flex' ? 'none' : 'flex'; }
 
 // AUTH
@@ -233,6 +254,35 @@ function doLogin() {
 function doLogout() { localStorage.removeItem('yatra_user'); location.reload(); }
 function doUnregister() { if(confirm("Delete Account?")) db.ref('users/'+user.mobile).remove().then(()=>doLogout()); }
 
+// --- LIVE MAP LOGIC ---
+function initMap() {
+    if(map) { map.remove(); map = null; }
+    map = L.map('map').setView([20.59, 78.96], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+    markers = {};
+    
+    db.ref('trips/'+tid+'/locations').on('value', s => {
+        const locs = s.val(); if(!locs) return;
+        Object.keys(locs).forEach(m => {
+            const lat = locs[m].lat; const lng = locs[m].lng;
+            const popup = `<b>${m}</b><br><a href="http://maps.google.com/?q=${lat},${lng}" target="_blank">Navigate 🚀</a>`;
+            if(markers[m]) markers[m].setLatLng([lat, lng]).setPopupContent(popup);
+            else markers[m] = L.marker([lat, lng]).addTo(map).bindPopup(popup);
+        });
+    });
+}
+
+function startTracking() {
+    if(!navigator.geolocation) return alert("GPS Required");
+    if(!map) initMap();
+    watchId = navigator.geolocation.watchPosition(pos => {
+        db.ref('trips/'+tid+'/locations/'+user.name).set({lat: pos.coords.latitude, lng: pos.coords.longitude, t: Date.now()});
+        if(map) map.setView([pos.coords.latitude, pos.coords.longitude], 15);
+    }, null, { enableHighAccuracy: true });
+    alert("Tracking On!");
+}
+function stopTracking() { if(watchId) navigator.geolocation.clearWatch(watchId); }
+
 // PROFILE
 function loadProfile() {
     db.ref('users/'+user.mobile).once('value', s => {
@@ -241,7 +291,7 @@ function loadProfile() {
             user = u; localStorage.setItem('yatra_user', JSON.stringify(user));
             document.getElementById('p_name').innerText = u.name;
             document.getElementById('p_mobile').innerText = u.mobile;
-            document.getElementById('p_addr').innerText = u.address || "Not Provided";
+            document.getElementById('p_addr').innerText = u.address || "--";
             document.getElementById('edit_name').value = u.name;
             document.getElementById('edit_address').value = u.address || "";
         }
@@ -252,25 +302,16 @@ function updateProfile() {
     if(n) db.ref('users/'+user.mobile).update({name:n, address:a}).then(()=>{ alert("Updated!"); loadProfile(); });
 }
 
-// TRIP LIST
+// TRIP LIST (SAFE FIX)
 function loadTrips() {
     db.ref('users/'+user.mobile+'/history').on('value', async s => {
         const list = document.getElementById('userTripList'); list.innerHTML = "";
-        
         let codes = [];
-        if(s.exists()) {
-            const val = s.val();
-            // SAFE ARRAY FIX: Whether object or array, convert to array
-            codes = Array.isArray(val) ? val : Object.values(val);
-        }
-
-        if(codes.length === 0) { list.innerHTML = "<p class='text-center text-muted'>No trips joined yet.</p>"; return; }
-        
+        if(s.exists()) { const val = s.val(); codes = Array.isArray(val) ? val : Object.values(val); }
+        if(codes.length === 0) { list.innerHTML = "<p class='text-center text-muted'>No trips joined.</p>"; return; }
         for(const c of codes) {
             const snap = await db.ref('trips/'+c).once('value');
-            if(snap.exists()) {
-                list.innerHTML += `<div class="card p-3 mb-2 shadow-sm" onclick="enterTrip('${c}')"><b>${snap.val().name}</b> <small class="text-muted float-end">Code: ${c}</small></div>`;
-            }
+            if(snap.exists()) list.innerHTML += `<div class="card p-3 mb-2 shadow-sm" onclick="enterTrip('${c}')"><b>${snap.val().name}</b> <small class="text-muted float-end">${c}</small></div>`;
         }
     });
 }
@@ -282,50 +323,37 @@ function loadGlobal() {
         const data = s.val(); if(!data) { div.innerHTML="<p class='text-muted text-center'>No stories.</p>"; return; }
         Object.keys(data).reverse().forEach(key => {
             const p = data[key];
-            let imgHTML = "";
-            if(p.imgs && p.imgs.length > 0) {
-                let slides = ""; p.imgs.forEach(src => { slides += `<img src="${src}" class="feed-img">`; });
-                imgHTML = `<div class="img-scroll-container">${slides}</div>`;
-            }
-            let qaHTML = "";
-            if(p.comments) Object.values(p.comments).forEach(c => {
-                const reply = c.reply ? `<span class="reply-text">↳ ${p.who}: ${c.reply}</span>` : "";
-                const rBtn = (user.name === p.who && !c.reply) ? `<small class="text-primary cursor-pointer" onclick="replyQ('${key}','${c.id}')">Reply</small>` : "";
-                qaHTML += `<div class="qa-item"><b>${c.who}:</b> ${c.txt} ${rBtn} ${reply}</div>`;
-            });
+            let imgHTML = ""; if(p.imgs) p.imgs.forEach(src => imgHTML += `<img src="${src}" class="feed-img">`);
+            let qaHTML = ""; if(p.comments) Object.values(p.comments).forEach(c => qaHTML += `<div class="qa-item"><b>${c.who}:</b> ${c.txt} ${c.reply ? '<br>↳ '+c.reply : ''}</div>`);
             div.innerHTML += `
             <div class="feed-card">
-                <div class="p-3 pb-2"><div class="d-flex justify-content-between align-items-center"><div><span class="fw-bold fs-5">👤 ${p.who}</span> <small class="text-muted d-block">${p.loc}</small></div>${p.cost?`<span class="cost-badge">₹${p.cost}</span>`:''}</div></div>
-                ${imgHTML}
-                <div class="p-3 pt-2"><p class="mb-2"><b>${p.who}:</b> ${p.txt}</p><button class="btn btn-sm btn-outline-dark w-100 mb-2" onclick="askQ('${key}')">💬 Ask Plan</button><div class="qa-box">${qaHTML}</div></div>
+                <div class="p-3 pb-2"><div class="d-flex justify-content-between"><div><span class="fw-bold fs-5">👤 ${p.who}</span> <small class="d-block">${p.loc}</small></div>${p.cost?`<span class="cost-badge">₹${p.cost}</span>`:''}</div></div>
+                <div class="img-scroll-container">${imgHTML}</div>
+                <div class="p-3 pt-2"><p><b>${p.who}:</b> ${p.txt}</p><button class="btn btn-sm btn-outline-dark w-100" onclick="askQ('${key}')">💬 Ask</button><div class="qa-box">${qaHTML}</div></div>
             </div>`;
         });
     });
 }
 function askQ(key) { const q=prompt("Question:"); if(q) db.ref('global_public_feed/'+key+'/comments/'+Date.now()).set({id:Date.now(), who:user.name, txt:q}); }
-function replyQ(pk, cid) { const r=prompt("Reply:"); if(r) db.ref('global_public_feed/'+pk+'/comments/'+cid+'/reply').set(r); }
 
 // TRIP FEED
 function renderTripFeed() {
     const div = document.getElementById('tripFeedArea'); div.innerHTML = "";
     const highlights = tripData.highlights || [];
     if(highlights.length === 0) div.innerHTML = "<p class='text-center text-muted'>No posts yet.</p>";
-    
     [...highlights].reverse().forEach(h => {
-        let imgHTML = "";
-        if(h.imgs) h.imgs.forEach(src => imgHTML += `<img src="${src}" class="mem-img-full">`);
+        let imgHTML = ""; if(h.imgs) h.imgs.forEach(src => imgHTML += `<img src="${src}" class="mem-img-full">`);
         div.innerHTML += `
         <div class="mem-card">
             <div class="mem-head" onclick="this.nextElementSibling.style.display=(this.nextElementSibling.style.display==='block'?'none':'block')">
-                <span class="fw-bold"><i class="bi bi-caret-right-fill"></i> ${h.txt}</span>
-                <small class="text-muted">${h.who}</small>
+                <span class="fw-bold"><i class="bi bi-caret-right-fill"></i> ${h.txt}</span><small>${h.who}</small>
             </div>
             <div class="mem-body"><small>📍 ${h.loc}</small>${imgHTML}</div>
         </div>`;
     });
 }
 
-// TRIP LOGIC (FIXED MEMBER LOAD)
+// TRIP LOGIC
 function menuAction(a) { toggleMenu(); if(a==='create'){const n=prompt("Trip Name:");if(n){const id="T"+Math.floor(1000+Math.random()*9000);db.ref('trips/'+id).set({name:n,members:[user.name]}).then(()=>{addHistory(id);enterTrip(id);});}} if(a==='join'){const id=prompt("Code:").toUpperCase();db.ref('trips/'+id).once('value',s=>{if(s.exists()){addHistory(id);enterTrip(id);}else alert("Invalid Code");});} if(a==='profile'){hideAll();document.getElementById('profileScreen').style.display='block';loadProfile();} }
 function addHistory(id) { db.ref('users/'+user.mobile+'/history').once('value', s=>{ let h=s.val(); if(!h) h=[]; else if(!Array.isArray(h)) h=Object.values(h); if(!h.includes(id)){ h.push(id); db.ref('users/'+user.mobile+'/history').set(h); } }); }
 
@@ -333,20 +361,9 @@ function enterTrip(id) {
     tid=id; hideAll(); document.getElementById('mainApp').style.display='block'; 
     db.ref('trips/'+tid).on('value', s=>{ 
         tripData=s.val(); if(!tripData)return; 
-        
-        // SAFE MEMBER CHECK
-        let members = tripData.members || [];
-        if(!Array.isArray(members)) members = Object.values(members);
-        
-        if(!members.includes(user.name)) {
-            // Add user and save back
-            db.ref('trips/'+tid+'/members').set([...members, user.name]); 
-        }
-        
-        // Ensure tripData has array for renderUI
-        tripData.members = members;
-        
-        renderUI(); renderTripFeed(); 
+        let members = tripData.members || []; if(!Array.isArray(members)) members = Object.values(members);
+        if(!members.includes(user.name)) db.ref('trips/'+tid+'/members').set([...members, user.name]); 
+        tripData.members = members; renderUI(); renderTripFeed(); initMap(); 
     }); 
 }
 
@@ -363,22 +380,16 @@ function renderUI() {
 
     const mDiv=document.getElementById('memList'); mDiv.innerHTML="";
     const sel=document.getElementById('depMem'); sel.innerHTML="";
-    
-    // SAFE RENDER MEMBERS
-    const mems = tripData.members || []; // Already handled in enterTrip but safe check
-    mems.forEach(m=>{ 
-        mDiv.innerHTML+=`<span class="badge bg-white text-dark border p-2 me-1">${m===tripData.head?'👑':''} ${m}</span>`; 
-        sel.innerHTML+=`<option value="${m}">${m}</option>`; 
-    });
+    tripData.members.forEach(m=>{ mDiv.innerHTML+=`<span class="badge bg-white text-dark border p-2 me-1">${m===tripData.head?'👑':''} ${m}</span>`; sel.innerHTML+=`<option value="${m}">${m}</option>`; });
     
     let tin=(tripData.deposits||[]).reduce((s,x)=>s+x.amt,0), tout=(tripData.expenses||[]).reduce((s,x)=>s+x.a,0);
     document.getElementById('cashHand').innerText = tin - tout;
-    document.getElementById('perPersonDisplay').innerText = mems.length ? Math.round(tout/mems.length) : 0;
+    document.getElementById('perPersonDisplay').innerText = tripData.members.length ? Math.round(tout/tripData.members.length) : 0;
 
     const fDiv=document.getElementById('finalList'); fDiv.innerHTML="";
-    let ph=Math.round(tout/mems.length), pd={}; mems.forEach(m=>pd[m]=0);
+    let ph=Math.round(tout/tripData.members.length), pd={}; tripData.members.forEach(m=>pd[m]=0);
     (tripData.deposits||[]).forEach(d=>{ if(pd[d.who]!==undefined) pd[d.who]+=d.amt; });
-    mems.forEach(m=>{ let bal=ph-pd[m]; fDiv.innerHTML+=`<div class="d-flex justify-content-between border-bottom py-1"><span>${m}</span><span>${bal>0?'Pay: '+bal:'Get: '+Math.abs(bal)}</span></div>`; });
+    tripData.members.forEach(m=>{ let bal=ph-pd[m]; fDiv.innerHTML+=`<div class="d-flex justify-content-between border-bottom py-1"><span>${m}</span><span>${bal>0?'Pay: '+bal:'Get: '+Math.abs(bal)}</span></div>`; });
 }
 
 function editExp(ts){ const e=tripData.expenses.find(x=>x.t===ts); if(e){ const nr=prompt("New Reason:",e.r), na=prompt("New Amount:",e.a); if(nr&&na) db.ref('trips/'+tid+'/expenses').set(tripData.expenses.map(x=>x.t===ts?{...x,r:nr,a:parseFloat(na)}:x)); } }
