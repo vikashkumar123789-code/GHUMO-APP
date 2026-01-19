@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GHUMO PRO - Fixed Trips</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
+        .full-screen { height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
+        .card { border-radius: 15px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        .app-header { background: #203a43; color: white; padding: 15px; border-radius: 0 0 20px 20px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .menu-content button { width: 260px; margin-bottom: 12px; padding: 12px; border-radius: 30px; font-weight: bold; }
+        
+        .stat-box { padding: 15px; border-radius: 12px; text-align: center; color: white; height: 100%; }
+        .bg-cash { background: linear-gradient(45deg, #11998e, #38ef7d); }
+        .bg-head { background: linear-gradient(45deg, #3a7bd5, #00d2ff); }
+
+        .mem-card { background: white; border-radius: 10px; overflow: hidden; margin-bottom: 8px; border: 1px solid #ddd; }
+        .mem-head { padding: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #fff3cd; border-left: 5px solid #ffc107; }
+        .mem-body { display: none; padding: 15px; background: #fff; border-top: 1px solid #eee; }
+        .mem-img-full { width: 100%; border-radius: 8px; margin-top: 10px; }
+
+        .feed-card { background: white; border-radius: 15px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative; }
+        .img-scroll-container { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; background: #000; }
+        .feed-img { flex: 0 0 100%; width: 100%; height: 300px; object-fit: contain; scroll-snap-align: center; }
+        .cost-badge { background: #27ae60; color: white; padding: 4px 10px; border-radius: 15px; font-size: 0.85rem; font-weight: bold; float: right; }
+        
+        .qa-box { background: #f8f9fa; padding: 10px; border-top: 1px solid #eee; font-size: 0.9rem; }
+        .qa-item { background: white; padding: 8px; margin-bottom: 5px; border-radius: 8px; border-left: 3px solid #203a43; }
+        .reply-text { color: #d35400; font-weight: bold; display: block; margin-top: 2px; }
+
+        .money-out { border-left: 5px solid #e74c3c; background: #fff; padding: 10px; margin-bottom: 5px; border-radius: 5px; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; }
+        .preview-box { display: flex; gap: 5px; overflow-x: auto; padding: 5px; }
+        .thumb-img { height: 60px; width: 60px; object-fit: cover; border-radius: 5px; border: 1px solid #ccc; }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<div id="menuOverlay" class="menu-overlay" onclick="toggleMenu()">
+    <div class="menu-content text-center" onclick="event.stopPropagation()">
+        <h2 class="text-white mb-4">🌎 GHUMO</h2>
+        <button class="btn btn-warning text-dark" onclick="menuAction('profile')">👤 My Profile</button>
+        <button class="btn btn-primary" onclick="menuAction('create')">➕ Create New Trip</button>
+        <button class="btn btn-light" onclick="menuAction('join')">🚀 Join Trip</button>
+        <button class="btn btn-info text-white" onclick="showHome()">🏠 Home / Feed</button>
+        <hr class="text-white w-75 mx-auto">
+        <button class="btn btn-outline-danger" onclick="doUnregister()">❌ Delete Account</button>
+        <button class="btn btn-danger mt-3" onclick="doLogout()">Log Out</button>
+    </div>
+</div>
+
+<div id="authScreen" class="full-screen">
+    <div class="card p-4 text-center" style="width: 350px;">
+        <h1 class="text-primary fw-bold">GHUMO</h1>
+        <div id="loginForm">
+            <input type="number" id="l_mobile" class="form-control mb-2" placeholder="Mobile">
+            <input type="password" id="l_pass" class="form-control mb-2" placeholder="Password">
+            <button class="btn btn-primary w-100" onclick="doLogin()">LOGIN</button>
+            <button class="btn btn-link mt-2" onclick="showReg()">New Account</button>
+        </div>
+        <div id="regForm" style="display:none;">
+            <input type="text" id="r_name" class="form-control mb-2" placeholder="Full Name">
+            <input type="number" id="r_mobile" class="form-control mb-2" placeholder="Mobile">
+            <input type="text" id="r_address" class="form-control mb-2" placeholder="Address">
+            <input type="password" id="r_pass" class="form-control mb-2" placeholder="Password">
+            <button class="btn btn-success w-100 mt-2" onclick="doRegister()">REGISTER</button>
+            <button class="btn btn-link mt-2" onclick="showLogin()">Back</button>
+        </div>
+    </div>
+</div>
+
+<div id="homeScreen" style="display:none; max-width: 500px; margin: auto;">
+    <div class="app-header d-flex justify-content-between align-items-center">
+        <i class="bi bi-list fs-1" style="cursor:pointer" onclick="toggleMenu()"></i>
+        <div class="fw-bold fs-3">GHUMO</div>
+        <div style="width:40px"></div>
+    </div>
+    <div class="container py-3">
+        <h6 class="fw-bold text-muted mb-2">MY TRIPS (Joined)</h6>
+        <div id="userTripList">
+            <p class="text-center text-muted">Loading trips...</p>
+        </div>
+        <hr>
+        <h6 class="text-primary fw-bold mb-3"><i class="bi bi-globe"></i> EXPLORE WORLD</h6>
+        <div id="globalFeed"></div>
+    </div>
+</div>
+
+<div id="profileScreen" style="display:none; max-width: 500px; margin: auto;">
+    <div class="app-header d-flex justify-content-between align-items-center">
+        <i class="bi bi-arrow-left fs-2" onclick="showHome()"></i>
+        <h5 class="m-0">My Profile</h5>
+        <div style="width:30px"></div>
+    </div>
+    <div class="container py-4">
+        <div class="card p-4 shadow-sm">
+            <div class="text-center mb-4"><i class="bi bi-person-circle" style="font-size: 4rem; color:#203a43;"></i></div>
+            <p><b>Name:</b> <span id="p_name">--</span></p>
+            <p><b>Mobile:</b> <span id="p_mobile">--</span></p>
+            <p><b>Address:</b> <span id="p_addr">--</span></p>
+            <hr>
+            <h6>Edit Profile</h6>
+            <input type="text" id="edit_name" class="form-control mb-2" placeholder="Name">
+            <input type="text" id="edit_address" class="form-control mb-2" placeholder="Address">
+            <button class="btn btn-dark w-100" onclick="updateProfile()">UPDATE</button>
+        </div>
+    </div>
+</div>
+
+<div id="mainApp" style="display:none; max-width: 500px; margin: auto;">
+    <div class="app-header d-flex justify-content-between align-items-center">
+        <i class="bi bi-arrow-left fs-2" onclick="showHome()"></i>
+        <div class="text-center"><h5 id="dispName" class="m-0 fw-bold">Trip</h5></div>
+        <i class="bi bi-list fs-2" onclick="toggleMenu()"></i>
+    </div>
+
+    <div class="container p-3 pb-5">
+        <div class="row g-3 mb-3">
+            <div class="col-6"><div class="stat-box bg-cash shadow-sm"><small>CASH IN HAND</small><h3 class="fw-bold m-0">₹<span id="cashHand">0</span></h3></div></div>
+            <div class="col-6"><div class="stat-box bg-head shadow-sm"><small>PER PERSON</small><h3 class="fw-bold m-0">₹<span id="perPersonDisplay">0</span></h3></div></div>
+        </div>
+
+        <div class="card p-3 border-danger mb-3 shadow-sm">
+            <h6 class="text-danger fw-bold">💸 EXPENSE</h6>
+            <div class="input-group input-group-sm mb-2">
+                <input type="text" id="expRea" class="form-control" placeholder="Item Name">
+                <input type="number" id="expAmt" class="form-control" placeholder="₹">
+                <button class="btn btn-danger" onclick="addExp()">Add</button>
+            </div>
+            <div id="expList" style="max-height:150px; overflow:auto;"></div>
+        </div>
+
+        <div class="card p-3 border-success mb-3 shadow-sm">
+            <h6 class="text-success fw-bold">💰 DEPOSIT</h6>
+            <div class="input-group input-group-sm">
+                <select id="depMem" class="form-select"></select>
+                <input type="number" id="depAmt" class="form-control" placeholder="₹">
+                <button class="btn btn-success" onclick="addDep()">Deposit</button>
+            </div>
+        </div>
+
+        <div class="card p-3 border-info mb-3">
+            <h6 class="text-info fw-bold">⛽ Transport Cost</h6>
+            <div class="input-group input-group-sm">
+                <input type="number" id="fDist" class="form-control" placeholder="KM">
+                <input type="number" id="fMil" class="form-control" placeholder="Avg">
+                <input type="number" id="fRate" class="form-control" placeholder="Price">
+                <button class="btn btn-info text-white" onclick="addFuel()">Add</button>
+            </div>
+        </div>
+
+        <div class="card p-3 mb-3 bg-light">
+            <div class="d-flex justify-content-between mb-2">
+                <h6 class="m-0">👥 Members</h6>
+                <small class="text-warning cursor-pointer" onclick="setHead()">Set Head</small>
+            </div>
+            <div id="memList" class="d-flex flex-wrap gap-1"></div>
+        </div>
+
+        <h6 class="text-muted fw-bold small mt-4">TRIP MEMORIES</h6>
+        <div id="tripFeedArea" class="mb-4"></div>
+
+        <div id="memBox" class="card p-3 mt-4 border-warning shadow">
+            <h6 class="text-warning fw-bold">📸 Share Memory</h6>
+            <input type="text" id="highTxt" class="form-control mb-2" placeholder="Caption...">
+            <div class="row g-2 mb-2">
+                <div class="col-7"><input type="text" id="highLoc" class="form-control" placeholder="Location"></div>
+                <div class="col-5"><input type="number" id="highCost" class="form-control" placeholder="Est. Cost ₹"></div>
+            </div>
+            <label class="btn btn-outline-secondary w-100 mb-2 btn-sm">
+                <i class="bi bi-images"></i> Select Photos (Multiple)
+                <input type="file" id="highImg" class="form-control" accept="image/*" multiple hidden onchange="encodeImgs(this)">
+            </label>
+            <div id="imgPreview" class="preview-box mb-2" style="display:none;"></div>
+            <div class="row g-2">
+                <div class="col-6"><button class="btn btn-warning btn-sm w-100 fw-bold" onclick="saveMem('world')">POST WORLD</button></div>
+                <div class="col-6"><button class="btn btn-primary btn-sm w-100 fw-bold" onclick="saveMem('trip')">POST TRIP</button></div>
+            </div>
+        </div>
+
+        <div class="card p-3 bg-dark text-white mt-3">
+            <h6 class="text-warning">📊 Settlement</h6>
+            <div id="finalList" class="small mt-2"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const firebaseConfig = {
+      apiKey: "AIzaSyCp_ctBvgHAmqxpU9xDbxaufDftKulcJXk",
+      authDomain: "akproject-176c7.firebaseapp.com",
+      databaseURL: "https://akproject-176c7-default-rtdb.firebaseio.com",
+      projectId: "akproject-176c7",
+      storageBucket: "akproject-176c7.firebasestorage.app",
+      messagingSenderId: "769234833598",
+      appId: "1:769234833598:web:db90a08802c07d94810eef"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+let user = null, tid = "", tripData = {}, tempImages = [];
+
+window.onload = () => { 
+    const saved = localStorage.getItem('yatra_user');
+    if(saved) { user = JSON.parse(saved); showHome(); }
+};
+
+function hideAll() { ['authScreen','homeScreen','mainApp','profileScreen'].forEach(id => document.getElementById(id).style.display='none'); }
+function showLogin() { hideAll(); document.getElementById('authScreen').style.display='flex'; document.getElementById('loginForm').style.display='block'; document.getElementById('regForm').style.display='none'; }
+function showReg() { document.getElementById('loginForm').style.display='none'; document.getElementById('regForm').style.display='block'; }
+function showHome() { hideAll(); document.getElementById('homeScreen').style.display='block'; loadTrips(); loadGlobal(); }
+function toggleMenu() { const m = document.getElementById('menuOverlay'); m.style.display = m.style.display==='flex' ? 'none' : 'flex'; }
+
+// AUTH
+function doRegister() {
+    const n=document.getElementById('r_name').value, m=document.getElementById('r_mobile').value, a=document.getElementById('r_address').value, p=document.getElementById('r_pass').value;
+    if(n&&m&&a&&p) db.ref('users/'+m).set({name:n, mobile:m, address:a, password:p, history:[]}).then(()=>{ alert("Account Created! Login Now."); showLogin(); });
+    else alert("Fill all details");
+}
+function doLogin() {
+    const m=document.getElementById('l_mobile').value, p=document.getElementById('l_pass').value;
+    db.ref('users/'+m).once('value', s => {
+        if(s.exists() && s.val().password === p) { user = s.val(); localStorage.setItem('yatra_user', JSON.stringify(user)); showHome(); } else alert("Invalid Credentials");
+    });
+}
+function doLogout() { localStorage.removeItem('yatra_user'); location.reload(); }
+function doUnregister() { if(confirm("Delete Account?")) db.ref('users/'+user.mobile).remove().then(()=>doLogout()); }
+
+// --- PROFILE FIX ---
+function loadProfile() {
+    db.ref('users/'+user.mobile).once('value', s => {
+        const u = s.val();
+        if(u) {
+            user = u; localStorage.setItem('yatra_user', JSON.stringify(user));
+            document.getElementById('p_name').innerText = u.name;
+            document.getElementById('p_mobile').innerText = u.mobile;
+            document.getElementById('p_addr').innerText = u.address || "Not Provided";
+            document.getElementById('edit_name').value = u.name;
+            document.getElementById('edit_address').value = u.address || "";
+        }
+    });
+}
+function updateProfile() {
+    const n=document.getElementById('edit_name').value, a=document.getElementById('edit_address').value;
+    if(n) db.ref('users/'+user.mobile).update({name:n, address:a}).then(()=>{ alert("Updated!"); loadProfile(); });
+}
+
+// --- TRIP LIST FIX (IMPORTANT) ---
+function loadTrips() {
+    db.ref('users/'+user.mobile+'/history').on('value', async s => {
+        const list = document.getElementById('userTripList'); list.innerHTML = "";
+        
+        // Handle if history is Array or Object
+        let codes = [];
+        if(s.exists()) {
+            const val = s.val();
+            codes = Array.isArray(val) ? val : Object.values(val);
+        }
+
+        if(codes.length === 0) { list.innerHTML = "<p class='text-center text-muted'>No trips joined yet.</p>"; return; }
+        
+        for(const c of codes) {
+            const snap = await db.ref('trips/'+c).once('value');
+            if(snap.exists()) {
+                list.innerHTML += `<div class="card p-3 mb-2 shadow-sm" onclick="enterTrip('${c}')"><b>${snap.val().name}</b> <small class="text-muted float-end">Code: ${c}</small></div>`;
+            }
+        }
+    });
+}
+
+// --- GLOBAL FEED ---
+function loadGlobal() {
+    db.ref('global_public_feed').limitToLast(15).on('value', s => {
+        const div = document.getElementById('globalFeed'); div.innerHTML="";
+        const data = s.val(); if(!data) { div.innerHTML="<p class='text-muted text-center'>No stories.</p>"; return; }
+        Object.keys(data).reverse().forEach(key => {
+            const p = data[key];
+            let imgHTML = "";
+            if(p.imgs && p.imgs.length > 0) {
+                let slides = ""; p.imgs.forEach(src => { slides += `<img src="${src}" class="feed-img">`; });
+                imgHTML = `<div class="img-scroll-container">${slides}</div>`;
+            }
+            let qaHTML = "";
+            if(p.comments) Object.values(p.comments).forEach(c => {
+                const reply = c.reply ? `<span class="reply-text">↳ ${p.who}: ${c.reply}</span>` : "";
+                const rBtn = (user.name === p.who && !c.reply) ? `<small class="text-primary cursor-pointer" onclick="replyQ('${key}','${c.id}')">Reply</small>` : "";
+                qaHTML += `<div class="qa-item"><b>${c.who}:</b> ${c.txt} ${rBtn} ${reply}</div>`;
+            });
+            div.innerHTML += `
+            <div class="feed-card">
+                <div class="p-3 pb-2"><div class="d-flex justify-content-between align-items-center"><div><span class="fw-bold fs-5">👤 ${p.who}</span> <small class="text-muted d-block">${p.loc}</small></div>${p.cost?`<span class="cost-badge">₹${p.cost}</span>`:''}</div></div>
+                ${imgHTML}
+                <div class="p-3 pt-2"><p class="mb-2"><b>${p.who}:</b> ${p.txt}</p><button class="btn btn-sm btn-outline-dark w-100 mb-2" onclick="askQ('${key}')">💬 Ask Plan</button><div class="qa-box">${qaHTML}</div></div>
+            </div>`;
+        });
+    });
+}
+function askQ(key) { const q=prompt("Question:"); if(q) db.ref('global_public_feed/'+key+'/comments/'+Date.now()).set({id:Date.now(), who:user.name, txt:q}); }
+function replyQ(pk, cid) { const r=prompt("Reply:"); if(r) db.ref('global_public_feed/'+pk+'/comments/'+cid+'/reply').set(r); }
+
+// --- TRIP FEED FIX ---
+function renderTripFeed() {
+    const div = document.getElementById('tripFeedArea'); div.innerHTML = "";
+    const highlights = tripData.highlights || [];
+    if(highlights.length === 0) div.innerHTML = "<p class='text-center text-muted'>No posts yet.</p>";
+    
+    [...highlights].reverse().forEach(h => {
+        let imgHTML = "";
+        if(h.imgs) h.imgs.forEach(src => imgHTML += `<img src="${src}" class="mem-img-full">`);
+        div.innerHTML += `
+        <div class="mem-card">
+            <div class="mem-head" onclick="this.nextElementSibling.style.display=(this.nextElementSibling.style.display==='block'?'none':'block')">
+                <span class="fw-bold"><i class="bi bi-caret-right-fill"></i> ${h.txt}</span>
+                <small class="text-muted">${h.who}</small>
+            </div>
+            <div class="mem-body"><small>📍 ${h.loc}</small>${imgHTML}</div>
+        </div>`;
+    });
+}
+
+// TRIP LOGIC
+function menuAction(a) { toggleMenu(); if(a==='create'){const n=prompt("Trip Name:");if(n){const id="T"+Math.floor(1000+Math.random()*9000);db.ref('trips/'+id).set({name:n,members:[user.name]}).then(()=>{addHistory(id);enterTrip(id);});}} if(a==='join'){const id=prompt("Code:").toUpperCase();db.ref('trips/'+id).once('value',s=>{if(s.exists()){addHistory(id);enterTrip(id);}else alert("Invalid Code");});} if(a==='profile'){hideAll();document.getElementById('profileScreen').style.display='block';loadProfile();} }
+function addHistory(id) { db.ref('users/'+user.mobile+'/history').once('value', s=>{ let h=s.val(); if(!h) h=[]; else if(!Array.isArray(h)) h=Object.values(h); if(!h.includes(id)){ h.push(id); db.ref('users/'+user.mobile+'/history').set(h); } }); }
+function enterTrip(id) { tid=id; hideAll(); document.getElementById('mainApp').style.display='block'; db.ref('trips/'+tid).on('value', s=>{ tripData=s.val(); if(!tripData)return; if(!tripData.members.includes(user.name)) db.ref('trips/'+tid+'/members').set([...tripData.members, user.name]); renderUI(); renderTripFeed(); }); }
+
+function renderUI() {
+    document.getElementById('dispName').innerText = tripData.name;
+    document.getElementById('dispCode').innerText = tid;
+    const isHead = (user.name.toUpperCase() === (tripData.head||"").toUpperCase());
+    
+    const eDiv=document.getElementById('expList'); eDiv.innerHTML="";
+    (tripData.expenses||[]).slice().reverse().forEach(e=>{
+        const btns = isHead ? `<div><i class="bi bi-pencil-fill text-warning me-2" onclick="editExp(${e.t})"></i><i class="bi bi-trash-fill text-danger" onclick="delExp(${e.t})"></i></div>` : "";
+        eDiv.innerHTML+=`<div class="money-out"><div><span>${e.r}</span><br><b>₹${e.a}</b></div>${btns}</div>`;
+    });
+
+    const mDiv=document.getElementById('memList'); mDiv.innerHTML="";
+    const sel=document.getElementById('depMem'); sel.innerHTML="";
+    tripData.members.forEach(m=>{ mDiv.innerHTML+=`<span class="badge bg-white text-dark border p-2 me-1">${m===tripData.head?'👑':''} ${m}</span>`; sel.innerHTML+=`<option value="${m}">${m}</option>`; });
+    
+    let tin=(tripData.deposits||[]).reduce((s,x)=>s+x.amt,0), tout=(tripData.expenses||[]).reduce((s,x)=>s+x.a,0);
+    document.getElementById('cashHand').innerText = tin - tout;
+    document.getElementById('perPersonDisplay').innerText = tripData.members.length ? Math.round(tout/tripData.members.length) : 0;
+
+    const fDiv=document.getElementById('finalList'); fDiv.innerHTML="";
+    let ph=Math.round(tout/tripData.members.length), pd={}; tripData.members.forEach(m=>pd[m]=0);
+    (tripData.deposits||[]).forEach(d=>{ if(pd[d.who]!==undefined) pd[d.who]+=d.amt; });
+    tripData.members.forEach(m=>{ let bal=ph-pd[m]; fDiv.innerHTML+=`<div class="d-flex justify-content-between border-bottom py-1"><span>${m}</span><span>${bal>0?'Pay: '+bal:'Get: '+Math.abs(bal)}</span></div>`; });
+}
+
+function editExp(ts){ const e=tripData.expenses.find(x=>x.t===ts); if(e){ const nr=prompt("New Reason:",e.r), na=prompt("New Amount:",e.a); if(nr&&na) db.ref('trips/'+tid+'/expenses').set(tripData.expenses.map(x=>x.t===ts?{...x,r:nr,a:parseFloat(na)}:x)); } }
+function delExp(ts){ if(confirm("Delete?")) db.ref('trips/'+tid+'/expenses').set(tripData.expenses.filter(x=>x.t!==ts)); }
+function addExp(){ const r=document.getElementById('expRea').value, a=parseFloat(document.getElementById('expAmt').value); if(r&&a) db.ref('trips/'+tid+'/expenses').set([...(tripData.expenses||[]), {r,a,t:Date.now()}]); }
+function addDep(){ const w=document.getElementById('depMem').value, a=parseFloat(document.getElementById('depAmt').value); if(w&&a) db.ref('trips/'+tid+'/deposits').set([...(tripData.deposits||[]), {who:w, amt:a, t:Date.now()}]); }
+function addFuel(){ const d=document.getElementById('fDist').value, m=document.getElementById('fMil').value, r=document.getElementById('fRate').value; if(d&&m&&r) db.ref('trips/'+tid+'/expenses').set([...(tripData.expenses||[]), {r:`⛽ Fuel (${d}km)`, a:Math.round((d/m)*r), t:Date.now()}]); }
+function setHead(){ const h=prompt("Head Name:"); if(h) db.ref('trips/'+tid+'/head').set(h.toUpperCase()); }
+function encodeImgs(i){ tempImages=[]; if(i.files){ Array.from(i.files).forEach(f=>{ const r=new FileReader(); r.onload=(e)=>{ const img=new Image(); img.src=e.target.result; img.onload=()=>{ const c=document.createElement('canvas'), ctx=c.getContext('2d'); const w=500, sc=w/img.width; c.width=w; c.height=img.height*sc; ctx.drawImage(img,0,0,c.width,c.height); tempImages.push(c.toDataURL('image/jpeg',0.6)); document.getElementById('imgPreview').innerHTML+=`<img src="${c.toDataURL('image/jpeg',0.6)}" class="thumb-img">`; } }; r.readAsDataURL(f); }); document.getElementById('imgPreview').style.display='flex'; } }
+function saveMem(t){ const txt=document.getElementById('highTxt').value, loc=document.getElementById('highLoc').value, c=document.getElementById('highCost').value; if(!txt)return; const p={who:user.name, txt, loc, cost:c, imgs:tempImages, t:Date.now()}; if(t==='world') db.ref('global_public_feed').push(p); else db.ref('trips/'+tid+'/highlights').set([...(tripData.highlights||[]), p]); alert("Posted!"); document.getElementById('highTxt').value=""; tempImages=[]; document.getElementById('imgPreview').innerHTML=""; }
+function toggleMenu() { const m = document.getElementById('menuOverlay'); m.style.display = m.style.display==='flex' ? 'none' : 'flex'; }
+</script>
+</body>
+</html>
