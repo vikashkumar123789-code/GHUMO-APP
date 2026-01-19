@@ -3,316 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GHUMO PRO - Soft Future</title>
+    <title>GHUMO PRO - Fixed Login</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <style>
-        :root {
-            --bg: #e0e5ec;
-            --text: #4d4d4d;
-            --shadow-light: #ffffff;
-            --shadow-dark: #a3b1c6;
-            --primary: #6d5dfc;
-            --danger: #e53935;
-            --success: #00b894;
-        }
-
+        :root { --glass: rgba(255, 255, 255, 0.92); --text: #333; }
         body { 
-            background-color: var(--bg); 
-            color: var(--text);
-            font-family: 'Nunito', sans-serif;
-            padding-bottom: 30px;
-            user-select: none;
+            font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+            background-attachment: fixed;
+            min-height: 100vh; color: var(--text); padding-bottom: 30px; user-select: none;
         }
-
-        /* --- NEUMORPHISM UTILS --- */
-        .neu-card {
-            background: var(--bg);
-            border-radius: 20px;
-            box-shadow: 9px 9px 16px rgba(163,177,198,0.6), -9px -9px 16px rgba(255,255,255, 0.5);
-            padding: 20px;
-            margin-bottom: 20px;
-            border: none;
+        .vibrant-card {
+            background: var(--glass); backdrop-filter: blur(10px); border-radius: 20px;
+            padding: 20px; margin-bottom: 15px; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.18); transition: transform 0.2s;
         }
-
-        .neu-btn {
-            background: var(--bg);
-            color: var(--text);
-            border: none;
-            border-radius: 50px;
-            padding: 12px 20px;
-            font-weight: 700;
-            box-shadow: 6px 6px 10px 0 rgba(163,177,198, 0.7), -6px -6px 10px 0 rgba(255,255,255, 0.8);
-            transition: all 0.2s ease;
-            width: 100%;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        .neu-btn:active {
-            box-shadow: inset 4px 4px 8px rgba(163,177,198, 0.7), inset -4px -4px 8px rgba(255,255,255, 0.8);
-            transform: translateY(2px);
-        }
-        .neu-btn-primary { color: var(--primary); }
-        .neu-btn-danger { color: var(--danger); }
-        .neu-btn-success { color: var(--success); }
-
-        .neu-input {
-            background: var(--bg);
-            border: none;
-            border-radius: 15px;
-            padding: 15px;
-            width: 100%;
-            box-shadow: inset 6px 6px 10px 0 rgba(163,177,198, 0.7), inset -6px -6px 10px 0 rgba(255,255,255, 0.8);
-            color: var(--text);
-            outline: none;
-            margin-bottom: 15px;
-        }
-        .neu-input::placeholder { color: #a0a0a0; }
-
-        /* HEADER */
+        .vibrant-card:active { transform: scale(0.99); }
         .app-header {
-            background: var(--bg);
-            padding: 20px;
-            position: sticky; top: 0; z-index: 1000;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 5px 5px 10px rgba(163,177,198,0.6);
-            border-radius: 0 0 25px 25px;
-            margin-bottom: 20px;
+            background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); padding: 15px 20px;
+            position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.3); color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        .logo-text { font-weight: 800; font-size: 1.4rem; color: var(--text); letter-spacing: 1px; }
-
-        /* UTILITIES */
-        .full-screen { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: var(--bg); 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            z-index: 9999;
-        }
-        .toggle-form { display: none; margin-top: 15px; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from{opacity:0;transform:translateY(-10px);} to{opacity:1;transform:translateY(0);} }
-
-        /* LIST ITEMS */
-        .list-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px;
-            border-radius: 15px;
-            margin-bottom: 10px;
-            box-shadow: inset 3px 3px 6px rgba(163,177,198,0.4), inset -3px -3px 6px rgba(255,255,255,0.5);
-        }
-        .list-item-green { border-left: 5px solid var(--success); }
-        .list-item-red { border-left: 5px solid var(--danger); }
-
-        /* HEAD BADGE */
-        .head-badge {
-            color: #f39c12 !important;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border: 2px solid #f39c12;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.75rem;
-        }
-
-        /* MODALS */
-        .custom-modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(224, 229, 236, 0.9); z-index: 2000;
-            align-items: center; justify-content: center;
-            backdrop-filter: blur(5px);
-        }
-        .modal-box {
-            background: var(--bg); padding: 30px; border-radius: 30px; width: 85%; max-width: 350px;
-            text-align: center;
-            box-shadow: 20px 20px 60px #bebebe, -20px -20px 60px #ffffff;
-            position: relative;
-        }
-        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: var(--danger); }
-
-        /* STATS */
-        .stat-text { font-size: 2rem; font-weight: 800; }
+        .btn-grad { border: none; border-radius: 50px; padding: 12px; font-weight: 700; color: white; width: 100%; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .btn-grad:active { transform: scale(0.95); }
+        .bg-orange { background: linear-gradient(to right, #FF512F, #DD2476); }
+        .bg-green { background: linear-gradient(to right, #11998e, #38ef7d); }
+        .bg-blue { background: linear-gradient(to right, #2193b0, #6dd5ed); }
+        .bg-dark-grad { background: linear-gradient(to right, #232526, #414345); }
+        .vib-input { border: none; background: #f0f2f5; padding: 12px; border-radius: 15px; width: 100%; margin-bottom: 10px; outline: none; }
+        .stat-text { font-size: 1.8rem; font-weight: 800; background: -webkit-linear-gradient(#fd1d1d, #fcb045); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .head-badge { background: linear-gradient(45deg, #FFD700, #FF8C00); color: white; padding: 5px 10px; border-radius: 20px; font-weight: bold; box-shadow: 0 4px 10px rgba(255, 215, 0, 0.4); }
+        .member-chip { background: white; padding: 8px 12px; border-radius: 20px; margin-right: 5px; margin-bottom: 5px; display: inline-block; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; border: 1px solid #eee; }
+        .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-box { background: white; padding: 25px; border-radius: 25px; width: 90%; max-width: 350px; text-align: center; position: relative; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from{transform:translateY(50px);opacity:0;} to{transform:translateY(0);opacity:1;} }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #aaa; }
+        .hidden { display: none !important; }
+        .full-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); }
+        .toggle-form { display: none; margin-top: 15px; }
+        .list-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; align-items: center; }
+        .post-del-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); padding: 5px 10px; border-radius: 20px; cursor: pointer; color: red; font-size: 0.8rem; font-weight: bold; z-index: 5; }
+        .feed-img { width: 100%; height: 250px; object-fit: cover; border-radius: 10px; margin-top: 5px; }
     </style>
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
 
-<div id="qrModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('qrModal')">×</span><h5 class="text-success fw-bold">Support Dev</h5><div id="qrImage" class="my-3"></div><h3 class="mt-2">₹<span id="qrAmount">0</span></h3><a id="payLink" href="#" class="neu-btn neu-btn-primary mt-3">Open UPI App</a></div></div>
+<div id="estModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('estModal')">×</span><h4 class="fw-bold mb-3 text-primary">📊 Estimate Trip</h4><h6 class="text-start text-muted small fw-bold">⛽ Fuel Cost</h6><div class="d-flex gap-2"><input type="number" id="eDist" class="vib-input" placeholder="KM"><input type="number" id="eMil" class="vib-input" placeholder="Avg"></div><input type="number" id="eRate" class="vib-input" placeholder="Fuel Price"><h6 class="text-start text-muted small fw-bold mt-2">🏨 Stay & Other</h6><input type="number" id="eHotel" class="vib-input" placeholder="Total Hotel Cost"><input type="number" id="eOther" class="vib-input" placeholder="Food/Tickets etc."><h6 class="text-start text-muted small fw-bold mt-2">👥 Travelers</h6><input type="number" id="ePpl" class="vib-input" placeholder="Number of People"><button class="btn-grad bg-blue mt-2" onclick="calculateEstimate()">Calculate</button><div id="estResult" class="mt-3 p-3 bg-light rounded hidden"><h2 class="text-primary fw-bold">₹<span id="resTotal">0</span></h2><small>Total Cost</small><hr><h4 class="text-success fw-bold">₹<span id="resPerHead">0</span></h4><small>Per Person</small></div></div></div>
 
-<div id="payHeadModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('payHeadModal')">×</span><h5 class="text-primary fw-bold">Pay to Head</h5><p id="headNameDisplay" class="small mt-2">--</p><div id="headQrImage" class="my-3"></div><h3 class="mt-2">₹<span id="headPayAmt">0</span></h3><a id="headPayLink" href="#" class="neu-btn neu-btn-success mb-3">Pay Now</a><button class="neu-btn" onclick="confirmHeadPayment()">✅ Paid</button></div></div>
-
-<div id="headSetupModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('headSetupModal')">×</span><h5>Setup Collection</h5><input type="text" id="headUPIInput" class="neu-input mt-3" placeholder="Enter UPI ID"><button class="neu-btn neu-btn-primary" onclick="saveHeadUPI()">Save</button></div></div>
-
-<div id="aboutModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('aboutModal')">×</span><h4>GHUMO PRO</h4><p class="small">Soft Future Edition</p><hr><p class="small"><b>Dev:</b> <span id="devNameAbout">--</span></p></div></div>
+<div id="qrModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('qrModal')">×</span><h5 class="text-success fw-bold">Support Dev</h5><div id="qrImage" class="my-3"></div><h3 class="mt-2">₹<span id="qrAmount">0</span></h3><a id="payLink" href="#" class="btn-grad bg-dark-grad mt-3" style="text-decoration:none;">Open UPI App</a></div></div>
+<div id="payHeadModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('payHeadModal')">×</span><h5 class="text-primary fw-bold">Pay to Head</h5><p id="headNameDisplay" class="small mt-2">--</p><div id="headQrImage" class="my-3"></div><h3 class="mt-2">₹<span id="headPayAmt">0</span></h3><a id="headPayLink" href="#" class="btn-grad bg-green mb-3" style="text-decoration:none;">Pay Now</a><button class="btn-grad bg-dark-grad" onclick="confirmHeadPayment()">✅ I Have Paid</button></div></div>
+<div id="headSetupModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('headSetupModal')">×</span><h5>Setup Collection</h5><input type="text" id="headUPIInput" class="vib-input mt-3" placeholder="Enter UPI ID"><button class="btn-grad bg-blue" onclick="saveHeadUPI()">Save</button></div></div>
+<div id="aboutModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('aboutModal')">×</span><h4>GHUMO PRO</h4><p class="small text-muted">Vibrant Edition 2.5</p><hr><p class="small"><b>Dev:</b> <span id="devNameAbout">--</span></p></div></div>
 
 <div id="authScreen" class="full-screen">
-    <div style="width: 300px; text-align: center;">
-        <h1 class="logo-text mb-4" style="font-size: 2.5rem; color: var(--primary);">GHUMO</h1>
+    <div class="vibrant-card text-center" style="width: 320px; background: white;">
+        <h1 class="fw-bold mb-4" style="color:#fd1d1d;">GHUMO</h1>
         
         <div id="loginForm">
-            <input type="number" id="l_mobile" class="neu-input" placeholder="Mobile Number">
-            <input type="password" id="l_pass" class="neu-input" placeholder="Password">
-            <button class="neu-btn neu-btn-primary mb-3" onclick="doLogin()">LOGIN</button>
-            <button class="neu-btn" onclick="showReg()">Create Account</button>
+            <input type="number" id="l_mobile" class="vib-input" placeholder="Mobile Number">
+            <input type="password" id="l_pass" class="vib-input" placeholder="Password">
+            <button class="btn-grad bg-orange mb-3" onclick="doLogin()">LOGIN</button>
+            <button class="btn btn-link text-muted" style="text-decoration:none;" onclick="showReg()">Create Account</button>
         </div>
         
-        <div id="regForm" style="display:none;">
-            <input type="text" id="r_name" class="neu-input" placeholder="Full Name">
-            <input type="number" id="r_mobile" class="neu-input" placeholder="Mobile">
-            <input type="text" id="r_address" class="neu-input" placeholder="Address">
-            <input type="password" id="r_pass" class="neu-input" placeholder="Password">
-            <button class="neu-btn neu-btn-success mb-3" onclick="doRegister()">REGISTER</button>
-            <button class="neu-btn" onclick="showLogin()">Back</button>
+        <div id="regForm" class="hidden">
+            <input type="text" id="r_name" class="vib-input" placeholder="Full Name">
+            <input type="number" id="r_mobile" class="vib-input" placeholder="Mobile">
+            <input type="text" id="r_address" class="vib-input" placeholder="Address">
+            <input type="password" id="r_pass" class="vib-input" placeholder="Password">
+            <button class="btn-grad bg-green mb-3" onclick="doRegister()">REGISTER</button>
+            <button class="btn btn-link text-muted" onclick="showLogin()">Back to Login</button>
         </div>
-        <p class="mt-5 small text-muted">Version 3.0 • Soft UI</p>
+        
+        <p id="loadingMsg" class="small text-warning hidden">Connecting to Server...</p>
     </div>
 </div>
 
-<div id="homeScreen" style="display:none;">
+<div id="homeScreen" class="hidden">
     <div class="app-header">
-        <div class="logo-text">GHUMO <small style="font-size:0.8rem; opacity:0.6;">| <span id="headerUserName">User</span></small></div>
-        <i class="bi bi-gear-fill fs-4" style="color:var(--text); cursor:pointer;" onclick="openSettings()"></i>
+        <div class="fw-bold fs-5">GHUMO <small style="font-size:0.7rem;">| <span id="headerUserName">User</span></small></div>
+        <i class="bi bi-gear-fill fs-4" style="cursor:pointer;" onclick="openSettings()"></i>
     </div>
 
-    <div class="container">
+    <div class="container py-3">
         <div class="row g-3 mb-4">
-            <div class="col-6"><button class="neu-btn neu-btn-primary" style="height:100px; flex-direction:column;" onclick="createTrip()"><i class="bi bi-plus-circle fs-1"></i>Create</button></div>
-            <div class="col-6"><button class="neu-btn" style="height:100px; flex-direction:column;" onclick="joinTrip()"><i class="bi bi-rocket-takeoff fs-1"></i>Join</button></div>
+            <div class="col-6"><button class="btn-grad bg-blue" style="height:100px; display:flex; flex-direction:column; align-items:center; justify-content:center;" onclick="createTrip()"><i class="bi bi-plus-circle fs-1 mb-2"></i>Create</button></div>
+            <div class="col-6"><button class="btn-grad bg-dark-grad" style="height:100px; display:flex; flex-direction:column; align-items:center; justify-content:center;" onclick="joinTrip()"><i class="bi bi-rocket-takeoff fs-1 mb-2"></i>Join</button></div>
         </div>
 
-        <div class="neu-card">
-            <h6 class="fw-bold mb-3"><i class="bi bi-fire text-warning"></i> OFFERS</h6>
+        <div class="vibrant-card">
+            <h6 class="fw-bold mb-3">🔥 DEALS</h6>
             <div class="d-flex gap-3" style="overflow-x:auto;">
-                <button class="neu-btn" style="min-width:100px;" onclick="window.open('https://booking.com')">🏨 Hotel</button>
-                <button class="neu-btn" style="min-width:100px;" onclick="window.open('https://makemytrip.com')">✈️ Flight</button>
-                <button class="neu-btn" style="min-width:100px;" onclick="window.open('https://amazon.in')">🎒 Gear</button>
+                <button class="btn btn-light btn-sm rounded-pill border" onclick="window.open('https://booking.com')">🏨 Hotel</button>
+                <button class="btn btn-light btn-sm rounded-pill border" onclick="window.open('https://makemytrip.com')">✈️ Flight</button>
+                <button class="btn btn-light btn-sm rounded-pill border" onclick="window.open('https://amazon.in')">🎒 Gear</button>
             </div>
         </div>
 
-        <h6 class="fw-bold ms-2 mb-2">MY TRIPS</h6>
-        <div id="userTripList"><p class="text-center small">Loading...</p></div>
+        <h6 class="fw-bold text-white ps-2 mb-2">MY TRIPS</h6>
+        <div id="userTripList"><p class="text-center text-white small">Loading...</p></div>
         
         <br>
-        <button class="neu-btn neu-btn-danger mb-4" onclick="donateUPI()">❤️ Support Dev</button>
+        <button class="btn-grad bg-white text-danger mb-4" onclick="donateUPI()">❤️ Support Dev</button>
+        <div id="globalFeed"></div>
     </div>
 </div>
 
-<div id="mainApp" style="display:none;">
+<div id="mainApp" class="hidden">
     <div class="app-header">
         <i class="bi bi-chevron-left fs-3" onclick="showHome()" style="cursor:pointer;"></i>
         <div class="text-center">
             <span class="fw-bold fs-5" id="dispName">Trip</span><br>
-            <small style="font-size:0.7rem; color:var(--primary);" id="dispCode"></small>
+            <small style="font-size:0.7rem;" id="dispCode"></small>
         </div>
         <div></div>
     </div>
 
-    <div class="container">
-        <div class="row g-3 mb-4">
-            <div class="col-6">
-                <div class="neu-card text-center py-3 mb-0">
-                    <small>BALANCE</small><br>
-                    <span class="stat-text text-success">₹<span id="cashHand">0</span></span>
-                </div>
-            </div>
-            <div class="col-6">
-                <div class="neu-card text-center py-3 mb-0">
-                    <small>PER HEAD</small><br>
-                    <span class="stat-text text-primary">₹<span id="perPersonDisplay">0</span></span>
-                </div>
+    <div class="container py-3">
+        <div class="vibrant-card text-center">
+            <div class="row">
+                <div class="col-6 border-end"><small class="text-muted">BALANCE</small><br><span class="stat-text">₹<span id="cashHand">0</span></span></div>
+                <div class="col-6"><small class="text-muted">PER HEAD</small><br><span class="stat-text">₹<span id="perPersonDisplay">0</span></span></div>
             </div>
         </div>
 
-        <div id="headActionArea" class="mb-4"></div>
+        <div id="headActionArea" class="mb-3"></div>
 
-        <div class="d-flex justify-content-between gap-2 mb-3">
-            <button class="neu-btn neu-btn-danger" onclick="toggleForm('formExp')"><i class="bi bi-dash-circle"></i> Exp</button>
-            <button class="neu-btn neu-btn-success" onclick="toggleForm('formDep')"><i class="bi bi-plus-circle"></i> Dep</button>
-            <button class="neu-btn" onclick="toggleForm('formMem')"><i class="bi bi-camera"></i> Post</button>
-        </div>
-
-        <div id="formExp" class="neu-card toggle-form">
-            <h6 class="text-danger">Add Expense</h6>
-            <input type="text" id="expRea" class="neu-input" placeholder="Item Name">
-            <input type="number" id="expAmt" class="neu-input" placeholder="₹ Amount">
-            <button class="neu-btn neu-btn-danger" onclick="addExp()">Save</button>
-        </div>
-        <div id="formDep" class="neu-card toggle-form">
-            <h6 class="text-success">Cash Deposit</h6>
-            <select id="depMem" class="neu-input"></select>
-            <input type="number" id="depAmt" class="neu-input" placeholder="₹ Amount">
-            <button class="neu-btn neu-btn-success" onclick="addDep()">Save</button>
-        </div>
-        <div id="formMem" class="neu-card toggle-form">
-            <h6 class="text-warning">Post Memory</h6>
-            <input type="text" id="highTxt" class="neu-input" placeholder="Caption...">
-            <input type="file" id="highImg" class="neu-input" accept="image/*" multiple onchange="encodeImgs(this)">
-            <button class="neu-btn" onclick="saveMem('trip')">Post</button>
+        <div class="row g-2 mb-3">
+            <div class="col-6"><button class="btn-grad bg-orange small" onclick="toggleForm('formExp')">💸 Expense</button></div>
+            <div class="col-6"><button class="btn-grad bg-green small" onclick="toggleForm('formDep')">💰 Deposit</button></div>
+            <div class="col-6"><button class="btn-grad bg-blue small" onclick="document.getElementById('estModal').style.display='flex'">📊 Estimate</button></div>
+            <div class="col-6"><button class="btn-grad bg-dark-grad small" onclick="toggleForm('formMem')">📸 Post</button></div>
         </div>
 
-        <div class="neu-card">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="fw-bold m-0 text-primary">🚌 Transport</h6>
-                <select id="transType" class="neu-input py-1 px-2 w-auto mb-0" style="font-size:0.8rem;" onchange="toggleTransportMode()">
-                    <option value="fuel">Fuel</option><option value="public">Public</option>
-                </select>
+        <div id="formExp" class="vibrant-card toggle-form">
+            <h6 class="text-danger fw-bold">Add Expense</h6>
+            <input type="text" id="expRea" class="vib-input" placeholder="Item Name"><input type="number" id="expAmt" class="vib-input" placeholder="₹ Amount">
+            <button class="btn-grad bg-orange" onclick="addExp()">Add</button>
+        </div>
+        <div id="formDep" class="vibrant-card toggle-form">
+            <h6 class="text-success fw-bold">Deposit Money</h6>
+            <select id="depMem" class="vib-input"></select><input type="number" id="depAmt" class="vib-input" placeholder="₹ Amount">
+            <button class="btn-grad bg-green" onclick="addDep()">Deposit</button>
+        </div>
+        <div id="formMem" class="vibrant-card toggle-form">
+            <h6 class="text-dark fw-bold">Create Post</h6>
+            <input type="text" id="highTxt" class="vib-input" placeholder="Caption...">
+            <input type="file" id="highImg" class="vib-input" accept="image/*" multiple onchange="encodeImgs(this)">
+            <div id="imgPreview" class="d-flex gap-2 mt-2 mb-2" style="overflow-x:auto;"></div>
+            <div class="d-flex gap-2">
+                <button class="btn-grad bg-dark-grad" onclick="saveMem('trip')">To Trip</button>
+                <button class="btn-grad bg-blue" onclick="saveMem('world')">To World</button>
             </div>
-            
-            <div id="fuelInputs">
-                <div class="d-flex gap-2 mb-2">
-                    <input type="number" id="fDist" class="neu-input mb-0" placeholder="KM">
-                    <input type="number" id="fMil" class="neu-input mb-0" placeholder="Avg">
-                </div>
-                <input type="number" id="fRate" class="neu-input" placeholder="Price">
-                <button class="neu-btn neu-btn-primary" onclick="addFuel()">Add Fuel Cost</button>
-            </div>
-            <div id="publicInputs" style="display:none;">
-                <div class="d-flex gap-2 mb-2">
-                    <input type="text" id="ptFrom" class="neu-input mb-0" placeholder="From">
-                    <input type="text" id="ptTo" class="neu-input mb-0" placeholder="To">
-                </div>
-                <div class="d-flex gap-2 mb-2">
-                    <select id="ptMode" class="neu-input mb-0"><option>Bus</option><option>Train</option></select>
-                    <input type="number" id="ptFare" class="neu-input mb-0" placeholder="₹">
-                </div>
-                <button class="neu-btn neu-btn-primary" onclick="addPublicTransport()">Add Ticket</button>
-            </div>
-            <button class="neu-btn neu-btn-success mt-3" onclick="shareFullRoute()"><i class="bi bi-whatsapp"></i> Share Plan</button>
         </div>
 
-        <div class="neu-card p-3">
+        <div class="vibrant-card">
             <h6 class="text-muted small fw-bold mb-3">RECENT ACTIVITY</h6>
             <div id="expList" style="max-height:300px; overflow-y:auto;"></div>
         </div>
 
-        <div class="neu-card">
-            <div class="d-flex justify-content-between mb-2"><h6 class="fw-bold m-0">Members</h6><small class="text-primary" style="cursor:pointer;" onclick="setHead()">Set Head</small></div>
-            <div id="memList" class="d-flex flex-wrap gap-2"></div>
+        <div class="vibrant-card">
+            <h6 class="fw-bold mb-2">Members <small class="text-muted fw-normal">(Tap name to make Head)</small></h6>
+            <div id="memList"></div>
         </div>
 
-        <h6 class="text-muted fw-bold small mt-4 ps-2">MEMORIES</h6>
+        <h6 class="text-white fw-bold small mt-4 ps-2">MEMORIES</h6>
         <div id="tripFeedArea"></div>
-        
-        <div class="neu-card mt-3"><h6 class="text-primary mb-3">Final Settlement</h6><div id="finalList" class="small"></div></div>
+        <div class="vibrant-card mt-3"><h6 class="text-primary mb-3">Settlement</h6><div id="finalList" class="small"></div></div>
     </div>
 </div>
 
-<div id="settingsScreen" style="display:none;">
+<div id="settingsScreen" class="hidden">
     <div class="app-header"><i class="bi bi-chevron-left fs-3" onclick="showHome()"></i> Settings <div></div></div>
-    <div class="container text-center">
-        <div class="neu-card">
+    <div class="container text-center py-4">
+        <div class="vibrant-card">
             <h4 id="s_name" class="mb-3">--</h4>
-            <input type="text" id="up_name" class="neu-input" placeholder="Name">
-            <input type="text" id="up_address" class="neu-input" placeholder="Address">
-            <input type="text" id="up_pass" class="neu-input" placeholder="New Password">
-            <button class="neu-btn neu-btn-primary" onclick="saveSettings()">Update Profile</button>
+            <input type="text" id="up_name" class="vib-input" placeholder="Name">
+            <input type="text" id="up_address" class="vib-input" placeholder="Address">
+            <input type="text" id="up_pass" class="vib-input" placeholder="New Password">
+            <button class="btn-grad bg-blue" onclick="saveSettings()">Update Profile</button>
         </div>
-        <button class="neu-btn mb-3" onclick="document.getElementById('aboutModal').style.display='flex'">ℹ️ About App</button>
-        <button class="neu-btn neu-btn-danger" onclick="doLogout()">Log Out</button>
+        <button class="btn-grad bg-white text-dark mb-3" onclick="document.getElementById('aboutModal').style.display='flex'">ℹ️ About App</button>
+        <button class="btn-grad bg-orange" onclick="doLogout()">Log Out</button>
     </div>
 </div>
 
@@ -337,24 +216,103 @@ let user=null, tid="", tripData={}, tempImages=[], headPayAmt=0;
 function safeArray(d){ return d ? (Array.isArray(d)?d:Object.values(d)) : []; }
 function closeModal(id){ document.getElementById(id).style.display='none'; }
 
-// AUTH
+// AUTH & NAV (FIXED)
 window.onload = () => { 
     document.querySelectorAll('#devNameAbout').forEach(e=>e.innerText=DEV_NAME); 
     const s=localStorage.getItem('yatra_user'); 
-    if(s){ user=JSON.parse(s); document.getElementById('headerUserName').innerText=user.name; showHome(); } 
-    else { document.getElementById('authScreen').style.display='flex'; } 
+    if(s){ 
+        user=JSON.parse(s); 
+        document.getElementById('headerUserName').innerText=user.name; 
+        showHome(); 
+    } else { 
+        document.getElementById('authScreen').classList.remove('hidden'); 
+        document.getElementById('homeScreen').classList.add('hidden'); // Ensure dashboard is hidden
+    } 
 };
 
-function hideAll() { ['authScreen','homeScreen','mainApp','settingsScreen'].forEach(i => document.getElementById(i).style.display='none'); }
-function showLogin() { hideAll(); document.getElementById('authScreen').style.display='flex'; document.getElementById('loginForm').style.display='block'; document.getElementById('regForm').style.display='none'; }
-function showReg() { document.getElementById('loginForm').style.display='none'; document.getElementById('regForm').style.display='block'; }
-function showHome() { hideAll(); document.getElementById('homeScreen').style.display='block'; loadTrips(); }
-function openSettings() { hideAll(); document.getElementById('settingsScreen').style.display='block'; db.ref('users/'+user.mobile).once('value',s=>{const u=s.val();document.getElementById('s_name').innerText=u.name;document.getElementById('up_name').value=u.name;document.getElementById('up_address').value=u.address||"";document.getElementById('up_pass').value=u.password;}); }
-function toggleForm(id) { const el = document.getElementById(id); el.style.display = (el.style.display === 'block') ? 'none' : 'block'; }
+function hideAll() { 
+    ['authScreen','homeScreen','mainApp','settingsScreen'].forEach(i => document.getElementById(i).classList.add('hidden')); 
+}
 
-// LOGIC
-function doRegister(){const n=document.getElementById('r_name').value,m=document.getElementById('r_mobile').value,a=document.getElementById('r_address').value,p=document.getElementById('r_pass').value; if(n&&m&&a&&p) db.ref('users/'+m).set({name:n,mobile:m,address:a,password:p,history:[]}).then(()=>{alert("Created!");showLogin();});}
-function doLogin(){const m=document.getElementById('l_mobile').value,p=document.getElementById('l_pass').value; if(!m||!p)return; db.ref('users/'+m).once('value',s=>{if(s.exists()&&s.val().password==p){user=s.val();localStorage.setItem('yatra_user',JSON.stringify(user));document.getElementById('headerUserName').innerText=user.name;showHome();}else alert("Invalid");});}
+function showLogin() { 
+    hideAll(); 
+    document.getElementById('authScreen').classList.remove('hidden'); 
+    document.getElementById('loginForm').classList.remove('hidden'); 
+    document.getElementById('regForm').classList.add('hidden'); 
+}
+
+function showReg() { 
+    document.getElementById('loginForm').classList.add('hidden'); 
+    document.getElementById('regForm').classList.remove('hidden'); 
+}
+
+function showHome() { 
+    hideAll(); 
+    document.getElementById('homeScreen').classList.remove('hidden'); 
+    loadTrips(); 
+    loadGlobal();
+}
+
+function openSettings() { 
+    hideAll(); 
+    document.getElementById('settingsScreen').classList.remove('hidden'); 
+    db.ref('users/'+user.mobile).once('value',s=>{
+        const u=s.val();
+        document.getElementById('s_name').innerText=u.name;
+        document.getElementById('up_name').value=u.name;
+        document.getElementById('up_address').value=u.address||"";
+        document.getElementById('up_pass').value=u.password;
+    }); 
+}
+
+function toggleForm(id) { 
+    const el = document.getElementById(id); 
+    el.style.display = (el.style.display === 'block') ? 'none' : 'block'; 
+}
+
+// LOGIC WITH ERROR HANDLING
+function doRegister(){
+    const n=document.getElementById('r_name').value,m=document.getElementById('r_mobile').value,a=document.getElementById('r_address').value,p=document.getElementById('r_pass').value; 
+    if(!n||!m||!p) { alert("Please fill details"); return; }
+    
+    document.getElementById('loadingMsg').classList.remove('hidden');
+    db.ref('users/'+m).set({name:n,mobile:m,address:a,password:p,history:[]})
+    .then(()=>{
+        alert("Created! Login now.");
+        showLogin();
+        document.getElementById('loadingMsg').classList.add('hidden');
+    })
+    .catch(e => {
+        alert("Error: " + e.message);
+        document.getElementById('loadingMsg').classList.add('hidden');
+    });
+}
+
+function doLogin(){
+    const m=document.getElementById('l_mobile').value,p=document.getElementById('l_pass').value; 
+    if(!m||!p) { alert("Enter Mobile & Password"); return; }
+    
+    document.getElementById('loadingMsg').classList.remove('hidden');
+    db.ref('users/'+m).once('value',s=>{
+        if(s.exists()){
+            if(s.val().password==p){
+                user=s.val();
+                localStorage.setItem('yatra_user',JSON.stringify(user));
+                document.getElementById('headerUserName').innerText=user.name;
+                showHome();
+            } else {
+                alert("Wrong Password!");
+            }
+        } else {
+            alert("Number not registered.");
+        }
+        document.getElementById('loadingMsg').classList.add('hidden');
+    }).catch(e => {
+        alert("DB Error: " + e.message + "\nCheck Internet/Config");
+        document.getElementById('loadingMsg').classList.add('hidden');
+    });
+}
+
 function doLogout(){localStorage.removeItem('yatra_user');location.reload();}
 function saveSettings(){const n=document.getElementById('up_name').value,a=document.getElementById('up_address').value,p=document.getElementById('up_pass').value; if(n) db.ref('users/'+user.mobile).update({name:n,address:a,password:p}).then(()=>{user.name=n;localStorage.setItem('yatra_user',JSON.stringify(user));alert("Saved!");showHome();});}
 
@@ -362,16 +320,16 @@ function createTrip(){const n=prompt("Trip Name:");if(n){const id="T"+Math.floor
 function joinTrip(){const id=prompt("Code:");if(id)db.ref('trips/'+id.toUpperCase()).once('value',s=>{if(s.exists()){addHistory(id.toUpperCase());enterTrip(id.toUpperCase());}else alert("Invalid");});}
 function addHistory(id){db.ref('users/'+user.mobile+'/history').once('value',s=>{let h=safeArray(s.val());if(!h.includes(id)){h.push(id);db.ref('users/'+user.mobile+'/history').set(h);}});}
 function deleteTrip(id,e){e.stopPropagation();if(confirm("Delete?"))db.ref('users/'+user.mobile+'/history').once('value',s=>{db.ref('users/'+user.mobile+'/history').set(safeArray(s.val()).filter(x=>x!==id));});}
-function loadTrips(){db.ref('users/'+user.mobile+'/history').on('value',async s=>{const l=document.getElementById('userTripList');l.innerHTML="";const c=safeArray(s.val());if(c.length===0){l.innerHTML="<p class='small text-muted'>No trips.</p>";return;}for(const i of c){const sp=await db.ref('trips/'+i).once('value');if(sp.exists()){l.innerHTML+=`<div class="neu-card d-flex justify-content-between align-items-center p-3 mb-3" style="cursor:pointer;" onclick="enterTrip('${i}')"><div><b>${sp.val().name}</b><br><small class="text-muted">${i}</small></div><i class="bi bi-trash text-danger" onclick="deleteTrip('${i}',event)"></i></div>`;}}});}
+function loadTrips(){db.ref('users/'+user.mobile+'/history').on('value',async s=>{const l=document.getElementById('userTripList');l.innerHTML="";const c=safeArray(s.val());if(c.length===0){l.innerHTML="<p class='small text-white'>No trips.</p>";return;}for(const i of c){const sp=await db.ref('trips/'+i).once('value');if(sp.exists()){l.innerHTML+=`<div class="vibrant-card d-flex justify-content-between align-items-center p-3 mb-3" style="cursor:pointer; background:rgba(255,255,255,0.9);" onclick="enterTrip('${i}')"><div><b>${sp.val().name}</b><br><small class="text-muted">${i}</small></div><i class="bi bi-trash text-danger" onclick="deleteTrip('${i}',event)"></i></div>`;}}});}
 
-function enterTrip(id){tid=id;hideAll();document.getElementById('mainApp').style.display='block';db.ref('trips/'+tid).on('value',s=>{tripData=s.val();if(!tripData)return;let m=safeArray(tripData.members);if(!m.includes(user.name)){m.push(user.name);db.ref('trips/'+tid+'/members').set(m);}tripData.members=m;renderUI();renderTripFeed();});}
+function enterTrip(id){tid=id;hideAll();document.getElementById('mainApp').classList.remove('hidden');db.ref('trips/'+tid).on('value',s=>{tripData=s.val();if(!tripData)return;let m=safeArray(tripData.members);if(!m.includes(user.name)){m.push(user.name);db.ref('trips/'+tid+'/members').set(m);}tripData.members=m;renderUI();renderTripFeed();});}
 
 function renderUI(){
     document.getElementById('dispName').innerText=tripData.name; document.getElementById('dispCode').innerText=tid;
     const isHead=(user.name.toLowerCase()===(tripData.head||"").toLowerCase());
     const hDiv=document.getElementById('headActionArea'); hDiv.innerHTML="";
-    if(isHead) hDiv.innerHTML=`<button class="neu-btn neu-btn-primary mb-3" onclick="document.getElementById('headSetupModal').style.display='flex'">🏦 Setup UPI</button>`;
-    else if(tripData.head) hDiv.innerHTML=`<button class="neu-btn neu-btn-success mb-3" onclick="payHead()">💸 Pay Head</button>`;
+    if(isHead) hDiv.innerHTML=`<button class="btn-grad bg-blue mb-3" onclick="document.getElementById('headSetupModal').style.display='flex'">🏦 Setup UPI</button>`;
+    else if(tripData.head) hDiv.innerHTML=`<button class="btn-grad bg-green mb-3" onclick="payHead()">💸 Pay Head</button>`;
 
     const l=document.getElementById('expList'); l.innerHTML="";
     
@@ -379,20 +337,20 @@ function renderUI(){
     safeArray(tripData.deposits).slice().reverse().forEach(d=>{
         const canDel = (d.who === user.name || isHead);
         const delBtn = canDel ? `<i class="bi bi-trash text-danger ms-2" onclick="delDep(${d.t})" style="cursor:pointer;"></i>` : "";
-        l.innerHTML+=`<div class="list-item list-item-green"><div><small class="text-muted">${new Date(d.t).toLocaleDateString()}</small><br><b>${d.who}</b></div><div><b class="text-success">+₹${d.amt}</b> ${delBtn}</div></div>`;
+        l.innerHTML+=`<div class="list-item" style="border-left:4px solid #2ecc71;"><div><small class="text-muted">${new Date(d.t).toLocaleDateString()}</small><br><b>${d.who}</b></div><div><b class="text-success">+₹${d.amt}</b> ${delBtn}</div></div>`;
     });
 
     // Expenses
     safeArray(tripData.expenses).slice().reverse().forEach(e=>{
         const isR=e.r.includes("➔"); const share=isR?`<i class="bi bi-whatsapp text-success ms-2" onclick="shareR('${e.r}',${e.a})"></i>`:"";
         const del=isHead?`<i class="bi bi-trash text-danger ms-2" onclick="delExp(${e.t})" style="cursor:pointer;"></i>`:"";
-        l.innerHTML+=`<div class="list-item list-item-red"><div><small class="text-muted">${new Date(e.t).toLocaleDateString()}</small><br><span>${e.r}</span></div><div class="text-end"><b class="text-danger">-₹${e.a}</b><br>${share}${del}</div></div>`;
+        l.innerHTML+=`<div class="list-item" style="border-left:4px solid #e74c3c;"><div><small class="text-muted">${new Date(e.t).toLocaleDateString()}</small><br><span>${e.r}</span></div><div class="text-end"><b class="text-danger">-₹${e.a}</b><br>${share}${del}</div></div>`;
     });
 
     const mDiv=document.getElementById('memList'); mDiv.innerHTML=""; const sel=document.getElementById('depMem'); sel.innerHTML="";
     tripData.members.forEach(m=>{
         const isH=(tripData.head&&m.toLowerCase()===tripData.head.toLowerCase());
-        mDiv.innerHTML+=`<span class="badge ${isH?'bg-warning text-dark border border-warning':'bg-light text-dark'} p-2 me-1">${isH?'👑':''} ${m}</span>`;
+        mDiv.innerHTML+=`<span class="${isH?'head-badge':'member-chip'}" onclick="makeHead('${m}')">${isH?'👑':''} ${m}</span>`;
         sel.innerHTML+=`<option value="${m}">${m}</option>`;
     });
 
@@ -410,21 +368,62 @@ function addDep(){const w=document.getElementById('depMem').value,a=parseFloat(d
 function delExp(t){if(confirm("Delete Expense?"))db.ref('trips/'+tid+'/expenses').set(safeArray(tripData.expenses).filter(x=>x.t!==t));}
 function delDep(t){if(confirm("Delete this Deposit?"))db.ref('trips/'+tid+'/deposits').set(safeArray(tripData.deposits).filter(x=>x.t!==t));}
 
-function setHead(){const h=prompt("Head Name:");if(h)db.ref('trips/'+tid+'/head').set(h);}
+// ESTIMATE CALCULATOR
+function calculateEstimate() {
+    const dist = parseFloat(document.getElementById('eDist').value) || 0;
+    const mil = parseFloat(document.getElementById('eMil').value) || 1;
+    const rate = parseFloat(document.getElementById('eRate').value) || 0;
+    const hotel = parseFloat(document.getElementById('eHotel').value) || 0;
+    const other = parseFloat(document.getElementById('eOther').value) || 0;
+    const ppl = parseFloat(document.getElementById('ePpl').value) || 1;
+
+    const fuelCost = (dist / mil) * rate;
+    const total = Math.round(fuelCost + hotel + other);
+    const perHead = Math.round(total / ppl);
+
+    document.getElementById('resTotal').innerText = total;
+    document.getElementById('resPerHead').innerText = perHead;
+    document.getElementById('estResult').classList.remove('hidden');
+}
+
+// ONE TAP HEAD
+function makeHead(name) {
+    if(confirm(`Make ${name} the Trip Head?`)) {
+        db.ref('trips/'+tid+'/head').set(name);
+    }
+}
+
 function saveHeadUPI(){const u=document.getElementById('headUPIInput').value;if(u){db.ref('trips/'+tid+'/headUPI').set(u);closeModal('headSetupModal');}}
 function payHead(){const a=prompt("Amount:");if(a){if(!tripData.headUPI){alert("No UPI Set");return;} headPayAmt=parseFloat(a); const l=`upi://pay?pa=${tripData.headUPI}&pn=${tripData.head}&am=${a}&cu=INR`; document.getElementById('payHeadModal').style.display='flex'; document.getElementById('headNameDisplay').innerText="To: "+tripData.head; document.getElementById('headPayAmt').innerText=a; document.getElementById('headPayLink').href=l; document.getElementById('headQrImage').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(l)}">`; }}
 function confirmHeadPayment(){db.ref('trips/'+tid+'/deposits').set([...safeArray(tripData.deposits),{who:user.name,amt:headPayAmt,t:Date.now()}]);closeModal('payHeadModal');alert("Added!");}
 function donateUPI(){const a=prompt("Amount:");if(a){const l=`upi://pay?pa=${DEV_UPI_ID}&pn=${DEV_NAME}&am=${a}&cu=INR`; document.getElementById('qrModal').style.display='flex'; document.getElementById('qrAmount').innerText=a; document.getElementById('payLink').href=l; document.getElementById('qrImage').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(l)}">`;}}
 
-function toggleTransportMode(){const m=document.getElementById('transType').value;document.getElementById('fuelInputs').style.display=(m==='fuel'?'block':'none');document.getElementById('publicInputs').style.display=(m==='public'?'block':'none');}
-function addFuel(){const d=document.getElementById('fDist').value,m=document.getElementById('fMil').value,r=document.getElementById('fRate').value;if(d&&m&&r)db.ref('trips/'+tid+'/expenses').set([...safeArray(tripData.expenses),{r:`⛽ Fuel ${d}km`,a:Math.round((d/m)*r),t:Date.now()}]);}
-function addPublicTransport(){const f=document.getElementById('ptFrom').value,t=document.getElementById('ptTo').value,m=document.getElementById('ptMode').value,a=parseFloat(document.getElementById('ptFare').value);if(f&&t&&a){db.ref('trips/'+tid+'/expenses').set([...safeArray(tripData.expenses),{r:`${m}: ${f} ➔ ${t}`,a,t:Date.now()}]);alert("Added!");}}
-function shareR(r,a){window.open(`https://wa.me/?text=${encodeURIComponent(`🚌 Route: ${r}\n💰 Fare: ₹${a}\nvia GHUMO PRO`)}`,'_blank');}
-function shareFullRoute(){const r=safeArray(tripData.expenses).filter(e=>e.r.includes("➔"));if(!r.length)return alert("No routes");let m=`🚀 *TRIP PLAN: ${tripData.name}*\n\n`,t=0;r.forEach((x,i)=>{m+=`✅ Step ${i+1}: ${x.r} (₹${x.a})\n`;t+=x.a;});m+=`\n💰 Total Transport: ₹${t}`;window.open(`https://wa.me/?text=${encodeURIComponent(m)}`,'_blank');}
+function renderTripFeed(){const d=document.getElementById('tripFeedArea');d.innerHTML="";safeArray(tripData.highlights).reverse().forEach(h=>{let im="";if(h.imgs)h.imgs.forEach(i=>im+=`<img src="${i}" class="feed-img">`);
+    const isOwner = (h.who === user.name || tripData.head === user.name);
+    const delBtn = isOwner ? `<div class="post-del-btn" onclick="delPost('${h.t}','trip')"><i class="bi bi-trash"></i></div>` : "";
+    d.innerHTML+=`<div class="vibrant-card p-0 overflow-hidden position-relative">${delBtn}<div class="p-3 border-bottom d-flex justify-content-between"><b>${h.who}</b><span>${h.txt}</span></div><div class="p-2 img-scroll">${im}</div></div>`;
+});}
 
-function renderTripFeed(){const d=document.getElementById('tripFeedArea');d.innerHTML="";safeArray(tripData.highlights).reverse().forEach(h=>{let im="";if(h.imgs)h.imgs.forEach(i=>im+=`<img src="${i}" style="width:100%; border-radius:10px; margin-top:5px;">`);d.innerHTML+=`<div class="neu-card p-3 mb-3"><b>${h.who}</b><br>${h.txt}<div>${im}</div></div>`;});}
-function encodeImgs(i){tempImages=[];if(i.files)Array.from(i.files).forEach(f=>{const r=new FileReader();r.onload=e=>{const img=new Image();img.src=e.target.result;img.onload=()=>{const c=document.createElement('canvas'),ctx=c.getContext('2d');const w=500,sc=w/img.width;c.width=w;c.height=img.height*sc;ctx.drawImage(img,0,0,c.width,c.height);tempImages.push(c.toDataURL('image/jpeg',0.6));}};r.readAsDataURL(f);});}
-function saveMem(t){const x=document.getElementById('highTxt').value;if(!x)return;db.ref('trips/'+tid+'/highlights').set([...safeArray(tripData.highlights),{who:user.name,txt:x,imgs:tempImages,t:Date.now()}]);alert("Posted!");toggleForm('formMem');}
+function delPost(timestamp, type) {
+    if(!confirm("Delete Post?")) return;
+    if(type === 'trip') {
+        const newFeed = safeArray(tripData.highlights).filter(h => h.t !== timestamp);
+        db.ref('trips/'+tid+'/highlights').set(newFeed);
+    } else {
+        // World feed requires unique key tracking, simplifying for now
+        alert("Admin delete only for world posts.");
+    }
+}
+
+function loadGlobal(){db.ref('global_public_feed').limitToLast(10).on('value',s=>{const d=document.getElementById('globalFeed');d.innerHTML="";safeArray(s.val()).reverse().forEach(k=>{let im="";if(k.imgs)k.imgs.forEach(i=>im+=`<img src="${i}" class="feed-img">`);d.innerHTML+=`<div class="vibrant-card p-0 overflow-hidden bg-white"><div class="p-3"><b>${k.who}</b><p class="mb-0">${k.txt}</p></div><div class="img-scroll p-2">${im}</div></div>`;});});}
+
+function encodeImgs(i){tempImages=[];if(i.files)Array.from(i.files).forEach(f=>{const r=new FileReader();r.onload=e=>{const img=new Image();img.src=e.target.result;img.onload=()=>{const c=document.createElement('canvas'),ctx=c.getContext('2d');const w=500,sc=w/img.width;c.width=w;c.height=img.height*sc;ctx.drawImage(img,0,0,c.width,c.height);tempImages.push(c.toDataURL('image/jpeg',0.6));document.getElementById('imgPreview').innerHTML+=`<img src="${c.toDataURL('image/jpeg',0.6)}" class="thumb-img">`;}};r.readAsDataURL(f);});}
+function saveMem(type){const x=document.getElementById('highTxt').value;if(!x)return;
+    const post = {who:user.name,txt:x,imgs:tempImages,t:Date.now()};
+    if(type==='trip') db.ref('trips/'+tid+'/highlights').set([...safeArray(tripData.highlights),post]);
+    else db.ref('global_public_feed').push(post);
+    alert("Posted!"); toggleForm('formMem'); document.getElementById('highTxt').value=""; document.getElementById('imgPreview').innerHTML=""; tempImages=[];
+}
 </script>
 </body>
 </html>
