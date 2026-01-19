@@ -3,37 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHUMO PRO - Google Maps Tracking</title>
+    <title>GHUMO PRO - QR Donation</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
     <style>
-        body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; user-select: none; }
+        body { background: #f8f9fa; font-family: 'Segoe UI', sans-serif; user-select: none; }
         .full-screen { height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
-        .card { border-radius: 15px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        .card { border-radius: 15px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; }
         .app-header { background: #203a43; color: white; padding: 15px; border-radius: 0 0 20px 20px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: flex; justify-content: space-between; align-items: center; }
         
-        /* Dashboard & Stats */
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        
+        .action-btn-large { padding: 15px; border-radius: 12px; color: white; text-align: center; cursor: pointer; transition: 0.2s; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 10px; display: block; width: 100%; border: none; }
+        .action-btn-large:active { transform: scale(0.98); }
+        .btn-exp { background: linear-gradient(45deg, #FF416C, #FF4B2B); }
+        .btn-dep { background: linear-gradient(45deg, #11998e, #38ef7d); }
+        .btn-mem { background: linear-gradient(45deg, #f12711, #f5af19); }
+
+        .affiliate-box { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; }
+        .aff-card { min-width: 120px; background: white; border: 1px solid #eee; border-radius: 10px; padding: 10px; text-align: center; cursor: pointer; }
+        .aff-card i { font-size: 1.5rem; color: #FF512F; }
+        .aff-card span { display: block; font-size: 0.8rem; font-weight: bold; margin-top: 5px; color: #333; }
+
+        .toggle-form { display: none; background: white; padding: 15px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 15px; }
+
+        /* QR Modal */
+        #qrModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; align-items: center; justify-content: center; }
+        .qr-content { background: white; padding: 20px; border-radius: 15px; text-align: center; width: 90%; max-width: 350px; position: relative; }
+        .close-qr { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #333; }
+
+        /* Tracking List */
+        .track-card { background: #e3f2fd; padding: 12px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #90caf9; display: flex; justify-content: space-between; align-items: center; }
+        .track-btn { text-decoration: none; background: #1565c0; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
+
         .stat-box { padding: 15px; border-radius: 12px; text-align: center; color: white; height: 100%; }
-        .bg-cash { background: linear-gradient(45deg, #11998e, #38ef7d); }
-        .bg-head { background: linear-gradient(45deg, #3a7bd5, #00d2ff); }
+        .bg-cash { background: #34495e; }
+        .bg-head { background: #2980b9; }
 
-        /* Tracking List Style */
-        .track-card { background: #e3f2fd; padding: 10px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #90caf9; display: flex; justify-content: space-between; align-items: center; }
-        .track-btn { background: #fff; color: #1976d2; border: 1px solid #1976d2; font-weight: bold; font-size: 0.85rem; padding: 5px 10px; border-radius: 20px; text-decoration: none; }
-        .track-btn:hover { background: #1976d2; color: white; }
-
-        /* General Styles */
+        .feed-card { background: white; border-radius: 15px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .img-scroll-container { display: flex; overflow-x: auto; background: #000; scroll-snap-type: x mandatory; }
+        .feed-img { flex: 0 0 100%; width: 100%; height: 300px; object-fit: contain; scroll-snap-align: center; }
+        .cost-badge { background: #27ae60; color: white; padding: 4px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; }
+        
+        .qa-box { background: #f8f9fa; padding: 10px; border-top: 1px solid #eee; font-size: 0.9rem; }
+        .post-actions { position: absolute; top: 10px; right: 10px; z-index: 10; background: rgba(255,255,255,0.9); border-radius: 20px; padding: 2px 8px; }
+        
+        .money-out { border-left: 5px solid #e74c3c; background: #fff; padding: 10px; margin-bottom: 5px; border-radius: 5px; display: flex; justify-content: space-between; }
         .mem-card { background: white; border-radius: 10px; overflow: hidden; margin-bottom: 8px; border: 1px solid #ddd; }
         .mem-head { padding: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #fff3cd; border-left: 5px solid #ffc107; }
         .mem-body { display: none; padding: 15px; }
-        
-        .feed-card { background: white; border-radius: 15px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .feed-img { width: 100%; height: 250px; object-fit: cover; }
-        .img-scroll-container { display: flex; overflow-x: auto; background: #000; }
-        
-        .money-out { border-left: 5px solid #e74c3c; background: #fff; padding: 10px; margin-bottom: 5px; border-radius: 5px; display: flex; justify-content: space-between; }
+        .mem-img-full { width: 100%; border-radius: 8px; margin-top: 10px; }
         .preview-box { display: flex; gap: 5px; overflow-x: auto; padding: 5px; }
         .thumb-img { height: 60px; width: 60px; object-fit: cover; border-radius: 5px; border: 1px solid #ccc; }
     </style>
@@ -43,6 +64,16 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
+
+<div id="qrModal" style="display:none;">
+    <div class="qr-content">
+        <span class="close-qr" onclick="closeQR()">&times;</span>
+        <h5 class="fw-bold mb-3 text-success">Scan to Pay</h5>
+        <div id="qrImage"></div> <h3 class="mt-2">₹<span id="qrAmount">0</span></h3>
+        <p class="text-muted small">Scan with GPay / PhonePe / Paytm</p>
+        <a id="payLink" href="#" class="btn btn-primary w-100 fw-bold mt-2">Open UPI App (Mobile Only)</a>
+    </div>
+</div>
 
 <div id="authScreen" class="full-screen">
     <div class="card p-4 text-center" style="width: 350px;">
@@ -54,7 +85,7 @@
             <button class="btn btn-link mt-2" onclick="showReg()">Create Account</button>
         </div>
         <div id="regForm" style="display:none;">
-            <input type="text" id="r_name" class="form-control mb-2" placeholder="Full Name">
+            <input type="text" id="r_name" class="form-control mb-2" placeholder="Name">
             <input type="number" id="r_mobile" class="form-control mb-2" placeholder="Mobile">
             <input type="text" id="r_address" class="form-control mb-2" placeholder="Address">
             <input type="password" id="r_pass" class="form-control mb-2" placeholder="Password">
@@ -68,7 +99,7 @@
     <div class="app-header">
         <div class="fw-bold fs-4">🌎 GHUMO</div>
         <div class="dropdown">
-            <i class="bi bi-three-dots-vertical fs-3 text-white" data-bs-toggle="dropdown" style="cursor: pointer;"></i>
+            <i class="bi bi-three-dots-vertical fs-3 text-white" data-bs-toggle="dropdown"></i>
             <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="#" onclick="openSettings()">👤 Profile & Settings</a></li>
                 <li><hr class="dropdown-divider"></li>
@@ -81,10 +112,34 @@
             <div class="col-6"><button class="btn btn-primary w-100 py-3 fw-bold" onclick="createTrip()">➕ Create Trip</button></div>
             <div class="col-6"><button class="btn btn-outline-primary w-100 py-3 fw-bold" onclick="joinTrip()">🚀 Join Trip</button></div>
         </div>
+        
+        <div class="card p-3 mb-3 border-warning">
+            <h6 class="fw-bold text-dark mb-2">🔥 OFFERS & BOOKINGS</h6>
+            <div class="affiliate-box">
+                <div class="aff-card" onclick="window.open('https://www.booking.com', '_blank')">
+                    <i class="bi bi-building"></i> <span>Book Hotel</span>
+                </div>
+                <div class="aff-card" onclick="window.open('https://www.makemytrip.com/flights', '_blank')">
+                    <i class="bi bi-airplane-fill"></i> <span>Flight/Train</span>
+                </div>
+                <div class="aff-card" onclick="window.open('https://www.amazon.in/s?k=travel+bag', '_blank')">
+                    <i class="bi bi-bag-fill"></i> <span>Travel Gear</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-3 mb-3 border-danger text-center shadow-sm">
+            <h6 class="fw-bold text-danger">❤️ SUPPORT DEVELOPER</h6>
+            <p class="text-muted small mb-2">If you like this app, buy me a coffee!</p>
+            <button class="btn btn-danger w-100 fw-bold" onclick="donateUPI()">
+                <i class="bi bi-qr-code"></i> Donate via UPI
+            </button>
+        </div>
+
         <h6 class="fw-bold text-muted mb-2">MY TRIPS</h6>
         <div id="userTripList"><p class="text-center text-muted">Loading...</p></div>
         <hr>
-        <h6 class="text-primary fw-bold mb-3">EXPLORE WORLD</h6>
+        <h6 class="text-primary fw-bold mb-3">🌎 TRIP HIGHLIGHTS</h6>
         <div id="globalFeed"></div>
     </div>
 </div>
@@ -96,6 +151,7 @@
         <h4 id="s_name" class="mt-2">--</h4>
         <input type="text" id="up_name" class="form-control mb-2" placeholder="Name">
         <input type="text" id="up_address" class="form-control mb-2" placeholder="Address">
+        <input type="text" id="up_pass" class="form-control mb-3" placeholder="New Password">
         <button class="btn btn-dark w-100" onclick="saveSettings()">UPDATE</button>
     </div>
 </div>
@@ -111,11 +167,11 @@
         
         <div class="card p-3 border-primary mb-3 shadow">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="text-primary fw-bold m-0"><i class="bi bi-geo-alt-fill"></i> LIVE MEMBERS</h6>
+                <h6 class="text-primary fw-bold m-0"><i class="bi bi-geo-alt-fill"></i> LIVE TRACKING</h6>
                 <button id="gpsBtn" class="btn btn-sm btn-primary" onclick="startTracking()">🔴 Start GPS</button>
             </div>
             <div id="locationList">
-                <p class="text-center text-muted small">Start GPS to see others & be seen.</p>
+                <p class="text-center text-muted small">Click 'Start GPS' to share location.</p>
             </div>
         </div>
 
@@ -124,45 +180,30 @@
             <div class="col-6"><div class="stat-box bg-head shadow-sm"><small>PER PERSON</small><h3 class="fw-bold m-0">₹<span id="perPersonDisplay">0</span></h3></div></div>
         </div>
 
-        <div class="card p-3 border-info mb-3">
-            <h6 class="text-info fw-bold">⛽ Fuel Calculator</h6>
-            <div class="input-group input-group-sm">
-                <input type="number" id="fDist" class="form-control" placeholder="KM">
-                <input type="number" id="fMil" class="form-control" placeholder="Avg">
-                <input type="number" id="fRate" class="form-control" placeholder="Price">
-                <button class="btn btn-info text-white" onclick="addFuel()">Add</button>
-            </div>
+        <div class="row g-2 mb-3">
+            <div class="col-6"><button class="action-btn-large btn-exp" onclick="toggleForm('formExp')">💸 Expense</button></div>
+            <div class="col-6"><button class="action-btn-large btn-dep" onclick="toggleForm('formDep')">💰 Deposit</button></div>
+            <div class="col-12"><button class="action-btn-large btn-mem" onclick="toggleForm('formMem')">📸 Share Memory</button></div>
         </div>
 
-        <div class="card p-3 border-danger mb-3 shadow-sm">
-            <h6 class="text-danger fw-bold">💸 EXPENSE</h6>
-            <div class="input-group input-group-sm mb-2">
+        <div id="formExp" class="toggle-form">
+            <h6 class="text-danger fw-bold">Add Expense</h6>
+            <div class="input-group mb-2">
                 <input type="text" id="expRea" class="form-control" placeholder="Item Name">
                 <input type="number" id="expAmt" class="form-control" placeholder="₹">
                 <button class="btn btn-danger" onclick="addExp()">Add</button>
             </div>
-            <div id="expList" style="max-height:150px; overflow:auto;"></div>
         </div>
-
-        <div class="card p-3 border-success mb-3 shadow-sm">
-            <h6 class="text-success fw-bold">💰 DEPOSIT</h6>
-            <div class="input-group input-group-sm">
+        <div id="formDep" class="toggle-form">
+            <h6 class="text-success fw-bold">Deposit Money</h6>
+            <div class="input-group">
                 <select id="depMem" class="form-select"></select>
                 <input type="number" id="depAmt" class="form-control" placeholder="₹">
                 <button class="btn btn-success" onclick="addDep()">Add</button>
             </div>
         </div>
-
-        <div class="card p-3 mb-3 bg-light">
-            <div class="d-flex justify-content-between mb-2">
-                <h6 class="m-0">👥 Members List</h6>
-                <small class="text-warning cursor-pointer" onclick="setHead()">Set Head</small>
-            </div>
-            <div id="memList" class="d-flex flex-wrap gap-1"></div>
-        </div>
-
-        <div id="memBox" class="card p-3 mt-4 border-warning shadow">
-            <h6 class="text-warning fw-bold">📸 Share Memory</h6>
+        <div id="formMem" class="toggle-form">
+            <h6 class="text-warning fw-bold">Post to Timeline</h6>
             <input type="text" id="highTxt" class="form-control mb-2" placeholder="Caption...">
             <div class="row g-2 mb-2">
                 <div class="col-7"><input type="text" id="highLoc" class="form-control" placeholder="Location"></div>
@@ -171,12 +212,35 @@
             <input type="file" id="highImg" class="form-control mb-2" accept="image/*" multiple onchange="encodeImgs(this)">
             <div id="imgPreview" class="preview-box mb-2"></div>
             <div class="row g-2">
-                <div class="col-6"><button class="btn btn-warning btn-sm w-100 fw-bold" onclick="saveMem('world')">POST WORLD</button></div>
-                <div class="col-6"><button class="btn btn-primary btn-sm w-100 fw-bold" onclick="saveMem('trip')">POST TRIP</button></div>
+                <div class="col-6"><button class="btn btn-warning w-100 fw-bold" onclick="saveMem('world')">POST WORLD</button></div>
+                <div class="col-6"><button class="btn btn-dark w-100 fw-bold" onclick="saveMem('trip')">POST TRIP</button></div>
             </div>
         </div>
 
-        <h6 class="text-muted fw-bold small mt-3">TRIP MEMORIES</h6>
+        <div class="card p-3 mb-3">
+            <h6 class="text-muted fw-bold small">RECENT ACTIVITY</h6>
+            <div id="expList" style="max-height:200px; overflow:auto;"></div>
+        </div>
+
+        <div class="card p-3 border-info mb-3">
+            <h6 class="text-info fw-bold">⛽ Transport Cost</h6>
+            <div class="input-group input-group-sm">
+                <input type="number" id="fDist" class="form-control" placeholder="KM">
+                <input type="number" id="fMil" class="form-control" placeholder="Avg">
+                <input type="number" id="fRate" class="form-control" placeholder="Price">
+                <button class="btn btn-info text-white" onclick="addFuel()">Add</button>
+            </div>
+        </div>
+
+        <div class="card p-3 mb-3 bg-light">
+            <div class="d-flex justify-content-between mb-2">
+                <h6 class="m-0">👥 Members</h6>
+                <small class="text-warning cursor-pointer" onclick="setHead()">Set Head</small>
+            </div>
+            <div id="memList" class="d-flex flex-wrap gap-1"></div>
+        </div>
+
+        <h6 class="text-muted fw-bold small mt-4">TRIP MEMORIES</h6>
         <div id="tripFeedArea" class="mb-4"></div>
 
         <div class="card p-3 bg-dark text-white mt-3">
@@ -187,6 +251,10 @@
 </div>
 
 <script>
+// --- DONATION SETUP (QR & Link) ---
+const MY_UPI_ID = "YOUR_UPI_ID_HERE"; // <--- CHANGE THIS (e.g. 9876543210@paytm)
+const MY_NAME = "GhumoApp";
+
 const firebaseConfig = {
       apiKey: "AIzaSyCp_ctBvgHAmqxpU9xDbxaufDftKulcJXk",
       authDomain: "akproject-176c7.firebaseapp.com",
@@ -202,11 +270,7 @@ const db = firebase.database();
 let user = null, tid = "", tripData = {}, tempImages = [];
 let watchId = null, myLat = null, myLng = null;
 
-function safeArray(data) {
-    if (!data) return [];
-    if (Array.isArray(data)) return data;
-    return Object.values(data);
-}
+function safeArray(data) { if (!data) return []; return Array.isArray(data) ? data : Object.values(data); }
 
 window.onload = () => { 
     const saved = localStorage.getItem('yatra_user');
@@ -217,18 +281,57 @@ function hideAll() { ['authScreen','homeScreen','mainApp','settingsScreen'].forE
 function showLogin() { hideAll(); document.getElementById('authScreen').style.display='flex'; document.getElementById('loginForm').style.display='block'; document.getElementById('regForm').style.display='none'; }
 function showReg() { document.getElementById('loginForm').style.display='none'; document.getElementById('regForm').style.display='block'; }
 function showHome() { hideAll(); document.getElementById('homeScreen').style.display='block'; loadTrips(); loadGlobal(); stopTracking(); }
+function toggleForm(id) { const el = document.getElementById(id); el.style.display = (el.style.display === 'block') ? 'none' : 'block'; }
 
-// AUTH
+// DONATE with QR
+function donateUPI() {
+    if(MY_UPI_ID === "YOUR_UPI_ID_HERE") { alert("UPI ID not set by developer."); return; }
+    const amt = prompt("Amount (₹):", "50");
+    
+    if(amt) {
+        // Generate UPI URL
+        const upiLink = `upi://pay?pa=${MY_UPI_ID}&pn=${MY_NAME}&tn=SupportApp&am=${amt}&cu=INR`;
+        
+        // Show Modal
+        document.getElementById('qrModal').style.display = "flex";
+        document.getElementById('qrAmount').innerText = amt;
+        document.getElementById('payLink').href = upiLink;
+        
+        // Generate QR using Free API
+        document.getElementById('qrImage').innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}" style="width:200px; border-radius:10px;">`;
+    }
+}
+function closeQR() { document.getElementById('qrModal').style.display = "none"; }
+
+// AUTH - FIXED LOGIN
 function doRegister() {
     const n=document.getElementById('r_name').value, m=document.getElementById('r_mobile').value, a=document.getElementById('r_address').value, p=document.getElementById('r_pass').value;
-    if(n&&m&&a&&p) db.ref('users/'+m).set({name:n, mobile:m, address:a, password:p, history:[]}).then(()=>{ alert("Created!"); showLogin(); });
+    if(n&&m&&a&&p) db.ref('users/'+m).set({name:n, mobile:m, address:a, password:p, history:[]}).then(()=>{ alert("Account Created! Login now."); showLogin(); });
+    else alert("Fill all details");
 }
+
 function doLogin() {
-    const m=document.getElementById('l_mobile').value, p=document.getElementById('l_pass').value;
+    const m = document.getElementById('l_mobile').value;
+    const p = document.getElementById('l_pass').value;
+    
+    if(!m || !p) { alert("Enter Mobile & Password"); return; }
+
     db.ref('users/'+m).once('value', s => {
-        if(s.exists() && s.val().password === p) { user = s.val(); localStorage.setItem('yatra_user', JSON.stringify(user)); showHome(); } else alert("Invalid");
+        if(s.exists()) {
+            const userData = s.val();
+            if(userData.password == p) {
+                user = userData;
+                localStorage.setItem('yatra_user', JSON.stringify(user));
+                showHome();
+            } else {
+                alert("Wrong Password!");
+            }
+        } else {
+            alert("Number not registered. Create Account first.");
+        }
     });
 }
+
 function doLogout() { localStorage.removeItem('yatra_user'); location.reload(); }
 function doUnregister() { if(confirm("Delete Account?")) db.ref('users/'+user.mobile).remove().then(()=>doLogout()); }
 
@@ -240,41 +343,51 @@ function openSettings() {
         document.getElementById('s_name').innerText = u.name;
         document.getElementById('up_name').value = u.name;
         document.getElementById('up_address').value = u.address || "";
+        document.getElementById('up_pass').value = u.password;
     });
 }
 function saveSettings() {
-    const n = document.getElementById('up_name').value, a = document.getElementById('up_address').value;
-    if(n) db.ref('users/'+user.mobile).update({name:n, address:a}).then(()=>{ 
+    const n = document.getElementById('up_name').value, a = document.getElementById('up_address').value, p = document.getElementById('up_pass').value;
+    if(n) db.ref('users/'+user.mobile).update({name:n, address:a, password:p}).then(()=>{ 
         user.name=n; user.address=a; localStorage.setItem('yatra_user', JSON.stringify(user)); alert("Saved!"); showHome();
     });
 }
 
-// DASHBOARD
+// TRIP LOGIC
 function createTrip() { const n=prompt("Trip Name:"); if(n) { const id="T"+Math.floor(10000+Math.random()*90000); db.ref('trips/'+id).set({name:n, members:[user.name]}).then(()=>{ addHistory(id); enterTrip(id); }); }}
 function joinTrip() { const id=prompt("Trip Code:"); if(id) db.ref('trips/'+id.toUpperCase()).once('value', s=>{ if(s.exists()) { addHistory(id.toUpperCase()); enterTrip(id.toUpperCase()); } else alert("Invalid Code"); }); }
 function addHistory(id) { db.ref('users/'+user.mobile+'/history').once('value', s=>{ let h=safeArray(s.val()); if(!h.includes(id)) { h.push(id); db.ref('users/'+user.mobile+'/history').set(h); } }); }
-function deleteTrip(id) { if(confirm("Remove Trip?")) { db.ref('users/'+user.mobile+'/history').once('value', s=>{ db.ref('users/'+user.mobile+'/history').set(safeArray(s.val()).filter(x=>x!==id)); }); } }
+function deleteTrip(id) { if(confirm("Delete Trip?")) db.ref('users/'+user.mobile+'/history').once('value', s=>{ db.ref('users/'+user.mobile+'/history').set(safeArray(s.val()).filter(x=>x!==id)); }); }
 
 function loadTrips() {
     db.ref('users/'+user.mobile+'/history').on('value', async s => {
         const list = document.getElementById('userTripList'); list.innerHTML = "";
         const codes = safeArray(s.val());
-        if(codes.length===0) { list.innerHTML="<small class='text-muted'>No trips.</small>"; return; }
+        if(codes.length===0) { list.innerHTML="<small>No trips joined.</small>"; return; }
         for(const c of codes) {
             const snap = await db.ref('trips/'+c).once('value');
             if(snap.exists()) {
-                list.innerHTML += `<div class="card p-3 mb-2 shadow-sm d-flex flex-row justify-content-between align-items-center">
-                    <div onclick="enterTrip('${c}')" style="flex-grow:1; cursor:pointer;"><b>${snap.val().name}</b><br><small class="text-muted">Code: ${c}</small></div>
-                    <i class="bi bi-trash text-danger" onclick="deleteTrip('${c}')"></i>
-                </div>`;
+                list.innerHTML += `<div class="card p-3 shadow-sm d-flex flex-row justify-content-between align-items-center mb-2"><div onclick="enterTrip('${c}')" style="flex-grow:1; cursor:pointer;"><b>${snap.val().name}</b><br><small>${c}</small></div><i class="bi bi-trash text-danger" onclick="deleteTrip('${c}')"></i></div>`;
             }
         }
     });
 }
 
-// --- NEW GOOGLE MAPS TRACKING ---
+function enterTrip(id) { 
+    tid=id; hideAll(); document.getElementById('mainApp').style.display='block'; 
+    db.ref('trips/'+tid).on('value', s=>{ 
+        tripData=s.val(); if(!tripData) return;
+        let members = safeArray(tripData.members);
+        if(!members.includes(user.name)) { members.push(user.name); db.ref('trips/'+tid+'/members').set(members); }
+        tripData.members = members; renderUI(); renderTripFeed(); 
+        
+        if(tripData.locations) renderLocationList(tripData.locations);
+    }); 
+}
+
+// TRACKING
 function startTracking() {
-    if(!navigator.geolocation) return alert("GPS needed");
+    if(!navigator.geolocation) return alert("Enable GPS");
     document.getElementById('gpsBtn').innerText = "🟢 GPS ON";
     watchId = navigator.geolocation.watchPosition(pos => {
         myLat = pos.coords.latitude;
@@ -285,59 +398,31 @@ function startTracking() {
 function stopTracking() { if(watchId) navigator.geolocation.clearWatch(watchId); }
 
 function renderLocationList(locs) {
-    const div = document.getElementById('locationList');
-    div.innerHTML = "";
-    
-    if(!locs) return;
-    
-    Object.keys(locs).forEach(member => {
-        if(member === user.name) return; // Don't show self in list
-        
-        const data = locs[member];
-        // Calculate Distance
-        let distDisplay = "";
+    const div = document.getElementById('locationList'); div.innerHTML = "";
+    Object.keys(locs).forEach(m => {
+        if(m === user.name) return; // Hide self
+        const d = locs[m];
+        let dist = "";
         if(myLat && myLng) {
-            const d = getDistance(myLat, myLng, data.lat, data.lng);
-            distDisplay = `<span class="badge bg-secondary ms-2">${d.toFixed(1)} km</span>`;
+            const distKm = getDistance(myLat, myLng, d.lat, d.lng).toFixed(1);
+            dist = `<span class="badge bg-secondary ms-2">${distKm} km</span>`;
         }
-
         div.innerHTML += `
         <div class="track-card">
-            <div>
-                <b>${member}</b> ${distDisplay}
-                <div class="small text-muted" style="font-size:10px;">Updated: ${new Date(data.t).toLocaleTimeString()}</div>
-            </div>
-            <a href="https://www.google.com/maps/dir/?api=1&destination=${data.lat},${data.lng}" target="_blank" class="track-btn">
-                📍 Open G-Map
-            </a>
+            <div><b>${m}</b> ${dist} <br><small style="font-size:9px;">${new Date(d.t).toLocaleTimeString()}</small></div>
+            <a href="https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lng}" target="_blank" class="track-btn">📍 Track</a>
         </div>`;
     });
 }
 
 function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; 
-    const dLat = (lat2-lat1) * Math.PI/180;
-    const dLon = (lon2-lon1) * Math.PI/180;
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+    const R = 6371; const dLat = (lat2-lat1)*Math.PI/180; const dLon = (lon2-lon1)*Math.PI/180;
+    const a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
-// TRIP CORE
-function enterTrip(id) { 
-    tid=id; hideAll(); document.getElementById('mainApp').style.display='block'; 
-    db.ref('trips/'+tid).on('value', s=>{ 
-        tripData=s.val(); if(!tripData) return;
-        let members = safeArray(tripData.members);
-        if(!members.includes(user.name)) { members.push(user.name); db.ref('trips/'+tid+'/members').set(members); }
-        tripData.members = members; renderUI(); renderTripFeed();
-        
-        // Listen to locations
-        if(tripData.locations) renderLocationList(tripData.locations);
-    });
-}
-
 function renderUI() {
-    document.getElementById('dispName').innerText = tripData.name;
+    document.getElementById('dispName').innerText = `${tripData.name} (${tid})`;
     const isHead = (user.name.toUpperCase() === (tripData.head||"").toUpperCase());
     
     const eDiv=document.getElementById('expList'); eDiv.innerHTML="";
@@ -348,10 +433,7 @@ function renderUI() {
 
     const mDiv=document.getElementById('memList'); mDiv.innerHTML="";
     const sel=document.getElementById('depMem'); sel.innerHTML="";
-    tripData.members.forEach(m => {
-        mDiv.innerHTML+=`<span class="badge bg-white text-dark border p-2 me-1">${m===tripData.head?'👑':''} ${m}</span>`;
-        sel.innerHTML+=`<option value="${m}">${m}</option>`;
-    });
+    tripData.members.forEach(m=>{ mDiv.innerHTML+=`<span class="badge bg-white text-dark border p-2 me-1">${m===tripData.head?'👑':''} ${m}</span>`; sel.innerHTML+=`<option value="${m}">${m}</option>`; });
 
     let tin = safeArray(tripData.deposits).reduce((s,x)=>s+x.amt,0);
     let tout = safeArray(tripData.expenses).reduce((s,x)=>s+x.a,0);
@@ -368,25 +450,38 @@ function renderUI() {
     });
 }
 
-function addExp() { const r=document.getElementById('expRea').value, a=parseFloat(document.getElementById('expAmt').value); if(r&&a) db.ref('trips/'+tid+'/expenses').set([...safeArray(tripData.expenses), {r,a,t:Date.now()}]); }
-function addDep() { const w=document.getElementById('depMem').value, a=parseFloat(document.getElementById('depAmt').value); if(w&&a) db.ref('trips/'+tid+'/deposits').set([...safeArray(tripData.deposits), {who:w, amt:a, t:Date.now()}]); }
-function setHead() { const h=prompt("Head Name:"); if(h) db.ref('trips/'+tid+'/head').set(h.toUpperCase()); }
-function editExp(ts){ const exps=safeArray(tripData.expenses); const e=exps.find(x=>x.t===ts); if(e){ const nr=prompt("New Reason:",e.r), na=prompt("New Amount:",e.a); if(nr&&na) db.ref('trips/'+tid+'/expenses').set(exps.map(x=>x.t===ts?{...x,r:nr,a:parseFloat(na)}:x)); } }
-function delExp(ts){ if(confirm("Delete?")) db.ref('trips/'+tid+'/expenses').set(safeArray(tripData.expenses).filter(x=>x.t!==ts)); }
+function addExp() { const r=document.getElementById('expRea').value, a=parseFloat(document.getElementById('expAmt').value); if(r&&a) { db.ref('trips/'+tid+'/expenses').set([...safeArray(tripData.expenses), {r,a,t:Date.now()}]); toggleForm('formExp'); } }
+function addDep() { const w=document.getElementById('depMem').value, a=parseFloat(document.getElementById('depAmt').value); if(w&&a) { db.ref('trips/'+tid+'/deposits').set([...safeArray(tripData.deposits), {who:w, amt:a, t:Date.now()}]); toggleForm('formDep'); } }
 function addFuel(){ const d=document.getElementById('fDist').value, m=document.getElementById('fMil').value, r=document.getElementById('fRate').value; if(d&&m&&r) db.ref('trips/'+tid+'/expenses').set([...safeArray(tripData.expenses), {r:`⛽ Fuel (${d}km)`, a:Math.round((d/m)*r), t:Date.now()}]); }
+function setHead(){ const h=prompt("Head Name:"); if(h) db.ref('trips/'+tid+'/head').set(h.toUpperCase()); }
+function editExp(ts){ const exps=safeArray(tripData.expenses); const e=exps.find(x=>x.t===ts); if(e){ const nr=prompt("Reason:",e.r), na=prompt("Amount:",e.a); if(nr&&na) db.ref('trips/'+tid+'/expenses').set(exps.map(x=>x.t===ts?{...x,r:nr,a:parseFloat(na)}:x)); } }
+function delExp(ts){ if(confirm("Delete?")) db.ref('trips/'+tid+'/expenses').set(safeArray(tripData.expenses).filter(x=>x.t!==ts)); }
 
-// FEED & MEMORIES
 function loadGlobal() {
     db.ref('global_public_feed').limitToLast(10).on('value', s => {
         const d = document.getElementById('globalFeed'); d.innerHTML="";
-        const data = s.val(); if(!data) { d.innerHTML="<p class='text-center text-muted'>No posts.</p>"; return; }
+        const data = s.val(); if(!data) { d.innerHTML="<small>No posts.</small>"; return; }
         Object.keys(data).reverse().forEach(k => {
             const p = data[k];
             let imgHTML = ""; if(p.imgs) p.imgs.forEach(i => imgHTML+=`<img src="${i}" class="feed-img">`);
-            d.innerHTML += `<div class="feed-card"><div class="p-2 d-flex justify-content-between"><b>${p.who}</b> ${p.cost?`<span class="cost-badge">₹${p.cost}</span>`:''}</div><div class="img-scroll-container">${imgHTML}</div><div class="p-2"><p>${p.txt}</p></div></div>`;
+            let qa = ""; if(p.comments) Object.values(p.comments).forEach(c=>qa+=`<div class="qa-item"><b>${c.who}:</b> ${c.txt} ${c.reply?'<br>↳ '+c.reply:''}</div>`);
+            
+            let actions = "";
+            if(p.who === user.name) actions = `<div class="post-actions"><i class="bi bi-pencil-square text-primary me-2" onclick="editPost('${k}')"></i><i class="bi bi-trash text-danger" onclick="delPost('${k}')"></i></div>`;
+
+            d.innerHTML += `
+            <div class="feed-card position-relative">
+                ${actions}
+                <div class="p-2 d-flex justify-content-between"><b>${p.who}</b> ${p.cost?`<span class="cost-badge">₹${p.cost}</span>`:''}</div>
+                <div class="img-scroll-container">${imgHTML}</div>
+                <div class="p-2"><p><b>${p.who}:</b> ${p.txt}</p><button class="btn btn-sm btn-outline-dark w-100" onclick="ask('${k}')">💬 Ask</button><div class="qa-box">${qa}</div></div>
+            </div>`;
         });
     });
 }
+function ask(k){ const q=prompt("Ask:"); if(q) db.ref('global_public_feed/'+k+'/comments/'+Date.now()).set({who:user.name, txt:q}); }
+function delPost(k){ if(confirm("Delete Post?")) db.ref('global_public_feed/'+k).remove(); }
+function editPost(k){ db.ref('global_public_feed/'+k).once('value', s=>{ const t=prompt("New Caption:", s.val().txt); if(t) db.ref('global_public_feed/'+k).update({txt:t}); }); }
 
 function renderTripFeed() {
     const d = document.getElementById('tripFeedArea'); d.innerHTML="";
@@ -398,7 +493,7 @@ function renderTripFeed() {
 }
 
 function encodeImgs(i){ tempImages=[]; if(i.files){ Array.from(i.files).forEach(f=>{ const r=new FileReader(); r.onload=(e)=>{ const img=new Image(); img.src=e.target.result; img.onload=()=>{ const c=document.createElement('canvas'), ctx=c.getContext('2d'); const w=500, sc=w/img.width; c.width=w; c.height=img.height*sc; ctx.drawImage(img,0,0,c.width,c.height); tempImages.push(c.toDataURL('image/jpeg',0.6)); document.getElementById('imgPreview').innerHTML+=`<img src="${c.toDataURL('image/jpeg',0.6)}" class="thumb-img">`; } }; r.readAsDataURL(f); }); document.getElementById('imgPreview').style.display='flex'; } }
-function saveMem(t){ const txt=document.getElementById('highTxt').value, loc=document.getElementById('highLoc').value, c=document.getElementById('highCost').value; if(!txt)return; const p={who:user.name, txt, loc, cost:c, imgs:tempImages, t:Date.now()}; if(t==='world') db.ref('global_public_feed').push(p); else db.ref('trips/'+tid+'/highlights').set([...safeArray(tripData.highlights), p]); alert("Posted!"); document.getElementById('highTxt').value=""; tempImages=[]; document.getElementById('imgPreview').innerHTML=""; }
+function saveMem(t){ const txt=document.getElementById('highTxt').value, loc=document.getElementById('highLoc').value, c=document.getElementById('highCost').value; if(!txt)return; const p={who:user.name, txt, loc, cost:c, imgs:tempImages, t:Date.now()}; if(t==='world') db.ref('global_public_feed').push(p); else db.ref('trips/'+tid+'/highlights').set([...safeArray(tripData.highlights), p]); alert("Posted!"); document.getElementById('highTxt').value=""; tempImages=[]; document.getElementById('imgPreview').innerHTML=""; toggleForm('formMem'); }
 </script>
 </body>
 </html>
