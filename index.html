@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GHUMO PRO - Photo Fixed</title>
+    <title>GHUMO PRO - Auto Travel</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -52,7 +52,7 @@
         .hidden { display: none !important; }
         .full-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); }
         .feed-img { width: 100%; height: 250px; object-fit: cover; border-radius: 10px; margin-top: 5px; }
-        .profile-pic-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid white; margin-bottom: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); background: #eee; }
+        .profile-pic-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid white; margin-bottom: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         .action-icon { cursor: pointer; margin-left: 10px; font-size: 1.1rem; }
         
         .offer-btn { min-width: 90px; text-align: center; margin-right: 10px; cursor: pointer; }
@@ -70,7 +70,7 @@
 <div id="headSetupModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('headSetupModal')">×</span><h5>🏦 Head UPI Setup</h5><input type="text" id="headUPIInput" class="vib-input mt-3" placeholder="Enter UPI ID"><button class="btn-grad bg-blue" onclick="saveHeadUPI()">Save</button></div></div>
 <div id="payHeadModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('payHeadModal')">×</span><h5 class="text-primary">Pay to Head</h5><p id="hName" class="small text-muted">--</p><div id="hQr" class="my-2"></div><h3 class="mt-2">₹<span id="hAmt">0</span></h3><a id="hLink" class="btn-grad bg-green mb-2" href="#">Pay Now</a><button class="btn-grad bg-dark" onclick="confPay()">✅ I Paid</button></div></div>
 <div id="qrModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('qrModal')">×</span><h5 class="text-success">Support Dev</h5><div id="dQr" class="my-2"></div><h3 class="mt-2">₹<span id="dAmt">0</span></h3><a id="dLink" class="btn-grad bg-dark" href="#">Pay via UPI</a></div></div>
-<div id="aboutModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('aboutModal')">×</span><h4>GHUMO PRO</h4><p class="small text-muted">Version 12.0 (Photo Fix)</p><hr><p class="small"><b>Dev:</b> <span id="devNameAbout">--</span></p></div></div>
+<div id="aboutModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('aboutModal')">×</span><h4>GHUMO PRO</h4><p class="small text-muted">Version 13.0 (Auto-Offers)</p><hr><p class="small"><b>Dev:</b> <span id="devNameAbout">--</span></p></div></div>
 
 <div id="authScreen" class="full-screen">
     <div class="vibrant-card text-center" style="width:340px; background:white;">
@@ -82,7 +82,6 @@
             <div onclick="biometricLogin()" style="cursor:pointer;" class="mb-3 text-primary"><i class="bi bi-fingerprint fs-1"></i><br><small>Biometric Login</small></div>
             <button class="btn btn-link text-muted" onclick="showReg()">Create New Account</button>
         </div>
-        
         <div id="regForm" class="hidden text-start">
             <h5 class="text-center mb-3">Create Profile</h5>
             <div class="text-center">
@@ -116,7 +115,7 @@
             <div class="col-6"><button class="btn-grad bg-dark" onclick="joinTrip()"><i class="bi bi-rocket-takeoff"></i> Join</button></div>
         </div>
         <div class="vibrant-card p-2">
-            <h6 class="fw-bold ps-2 mb-3">🔥 OFFERS</h6>
+            <h6 class="fw-bold ps-2 mb-3">🔥 OFFERS (Manual)</h6>
             <div class="d-flex gap-1 overflow-auto pb-2">
                 <div class="offer-btn" onclick="win('https://booking.com')"><div class="offer-icon">🏨</div><br><small>Hotel</small></div>
                 <div class="offer-btn" onclick="win('https://makemytrip.com')"><div class="offer-icon">✈️</div><br><small>Flight</small></div>
@@ -141,12 +140,22 @@
     </div>
 
     <div class="container py-3">
+        
+        <div id="smartOfferBox" class="vibrant-card p-3 hidden" style="background: #fff; border-left: 5px solid #FFD700; animation: fadeIn 0.5s;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold text-dark m-0"><i class="bi bi-stars text-warning"></i> Smart Suggestions</h6>
+                <small class="text-muted" id="smDest">for Your Destination</small>
+            </div>
+            <div class="d-flex gap-2 mt-3" id="smButtons" style="overflow-x:auto;">
+                </div>
+        </div>
+
         <div class="row g-2 mb-2">
             <div class="col-6">
-                <div class="vibrant-card text-center py-2" style="background:rgba(255,255,255,0.9); margin-bottom:0;">
+                <div class="vibrant-card text-center py-2" style="background:rgba(255,255,255,0.9); margin-bottom:0; cursor:pointer;" onclick="editDashEst()">
                     <div class="d-flex justify-content-between px-2">
                         <small class="text-muted fw-bold" style="font-size:0.65rem;">ESTIMATE</small>
-                        <i class="bi bi-pencil-square text-primary" style="cursor:pointer; font-size:0.8rem;" onclick="editDashEst()"></i>
+                        <i class="bi bi-pencil-square text-primary" style="font-size:0.8rem;"></i>
                     </div>
                     <h5 class="fw-bold text-dark m-0">₹<span id="dashEst">0</span></h5>
                 </div>
@@ -199,13 +208,19 @@
         </div>
 
         <div class="vibrant-card border-info" style="border-left:5px solid #0dcaf0;">
-            <h6 class="text-info fw-bold">🚌 Route Planner</h6>
+            <h6 class="text-info fw-bold">🚌 Smart Route Planner</h6>
             <div class="d-flex gap-2">
-                <select id="trMode" class="vib-input w-50"><option>Bus</option><option>Train</option><option>Flight</option><option>Taxi</option></select>
+                <select id="trMode" class="vib-input w-50" onchange="checkCarMode()">
+                    <option value="Bus">Bus</option>
+                    <option value="Train">Train</option>
+                    <option value="Flight">Flight</option>
+                    <option value="Rental Car">Rental Car</option>
+                    <option value="Own Car">Own Car</option>
+                </select>
                 <input type="number" id="trFare" class="vib-input w-50" placeholder="Fare ₹">
             </div>
-            <div class="d-flex gap-2"><input type="text" id="trFrom" class="vib-input" placeholder="From"><input type="text" id="trTo" class="vib-input" placeholder="To"></div>
-            <button class="btn-grad bg-blue mb-2" onclick="addTrans()">Add Route</button>
+            <div class="d-flex gap-2"><input type="text" id="trFrom" class="vib-input" placeholder="From (City)"><input type="text" id="trTo" class="vib-input" placeholder="To (City)"></div>
+            <button class="btn-grad bg-blue mb-2" onclick="addTrans()">Add Route & Get Offers</button>
             <button class="btn-grad bg-green" onclick="shareRoute()">📲 Share Itinerary</button>
         </div>
 
@@ -244,10 +259,7 @@
         <div class="vibrant-card text-start">
             <small class="text-muted">Name</small><input type="text" id="upN" class="vib-input">
             <small class="text-muted">Mobile (Read Only)</small><input type="text" id="upMob" class="vib-input" readonly style="background:#eee;">
-            <small class="text-muted">Gender</small>
-            <select id="upGen" class="vib-input">
-                <option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option>
-            </select>
+            <small class="text-muted">Gender</small><select id="upGen" class="vib-input"><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select>
             <small class="text-muted">Address</small><input type="text" id="upAdd" class="vib-input">
             <small class="text-muted">Password</small><input type="password" id="upP" class="vib-input">
             <button class="btn-grad bg-blue mt-2" onclick="updProf()">Update Profile</button>
@@ -318,7 +330,6 @@ function biometricLogin() {
     }
 }
 
-// FIXED: COMPRESS IMAGE AND SHOW PREVIEW
 function previewRegImg(input, targetId) {
     if(input.files && input.files[0]) {
         const reader = new FileReader();
@@ -326,11 +337,10 @@ function previewRegImg(input, targetId) {
             const img = new Image(); img.src = e.target.result;
             img.onload = () => {
                 const c = document.createElement('canvas'); const ctx = c.getContext('2d');
-                // Aggressive compression for Realtime DB
                 const w = 100; const sc = w/img.width; 
                 c.width=w; c.height=img.height*sc;
                 ctx.drawImage(img,0,0,c.width,c.height);
-                regImgBase64 = c.toDataURL('image/jpeg', 0.5); // Quality 0.5
+                regImgBase64 = c.toDataURL('image/jpeg', 0.5); 
                 document.getElementById(targetId).src = regImgBase64;
             }
         }
@@ -344,7 +354,6 @@ function doRegister(){
     if(!n||!m||!p) { setStatus("Name, Mobile & Pass Required"); return; }
     
     setStatus("Creating Account...");
-    // Use uploaded photo or default empty string
     const finalPhoto = regImgBase64 || "";
     const newUser = {name:n, mobile:m, password:p, address:add, gender:gen, photo:finalPhoto, history:[]};
     
@@ -362,9 +371,7 @@ function doLogout(){ localStorage.removeItem('yatra_user'); location.reload(); }
 
 function updProf(){ 
     const n=document.getElementById('upN').value, p=document.getElementById('upP').value, a=document.getElementById('upAdd').value, g=document.getElementById('upGen').value; 
-    // Use new photo if uploaded, else keep old one
     const pPic = regImgBase64 || user.photo || "";
-    
     if(n) db.ref('users/'+user.mobile).update({name:n,password:p,address:a,gender:g, photo:pPic}).then(()=>{
         user.name=n;user.address=a;user.password=p;user.gender=g;user.photo=pPic;
         localStorage.setItem('yatra_user',JSON.stringify(user));
@@ -419,8 +426,7 @@ function renderUI(){
         if(filter === 'All' || filter === e.cat) {
             const del=(isHead||e.who===user.name)?`<div class="d-flex gap-2"><i class="bi bi-pencil text-primary action-icon" onclick="edE(${e.t},'${e.r}','${e.a}')"></i><i class="bi bi-trash text-danger action-icon" onclick="delE(${e.t})"></i></div>`:"";
             const date = e.date ? new Date(e.date).toLocaleString() : "";
-            const badge = e.cat ? `<span class="badge bg-secondary" style="font-size:0.6rem;">${e.cat}</span>` : "";
-            l.innerHTML+=`<div class="list-item" style="border-left:4px solid #e74c3c"><div><small>${e.r || e.cat}</small> ${badge}<br><small style="font-size:0.7rem;">${date}</small><br><b>-₹${e.a}</b></div>${del}</div>`;
+            l.innerHTML+=`<div class="list-item" style="border-left:4px solid #e74c3c"><div><small>${e.r || e.cat}</small><br><small style="font-size:0.7rem;">${date}</small><br><b>-₹${e.a}</b></div>${del}</div>`;
         }
     });
 
@@ -452,6 +458,13 @@ function renderUI(){
 }
 
 function editTripName() { const n = prompt("Enter new Trip Name:", trip.name); if(n) db.ref('trips/'+tid+'/name').set(n); }
+function editDashEst() { const newTot = prompt("Edit Estimate:", trip.estBudget || 0); if(newTot) db.ref('trips/'+tid).update({estBudget: parseFloat(newTot)}); }
+function checkCarMode() {
+    const m = document.getElementById('trMode').value;
+    const p = document.getElementById('trFare');
+    if(m==='Own Car') p.placeholder = "Fuel/Toll Cost"; else p.placeholder = "Fare/Rent ₹";
+}
+
 function addExp(){const cat = document.getElementById('exCat').value; const r=document.getElementById('exR').value || cat; const a=parseFloat(document.getElementById('exA').value); if(a){db.ref('trips/'+tid+'/expenses').set([...safe(trip.expenses),{r,a,cat,who:user.name,date:Date.now(),t:Date.now()}]);toggle('formExp');}}
 function addDep(){const w=document.getElementById('dpM').value,a=parseFloat(document.getElementById('dpA').value);if(w&&a){db.ref('trips/'+tid+'/deposits').set([...safe(trip.deposits),{who:w,amt:a,t:Date.now()}]);toggle('formDep');}}
 function delE(t){if(confirm("Delete?"))db.ref('trips/'+tid+'/expenses').set(safe(trip.expenses).filter(x=>x.t!==t));}
@@ -461,10 +474,25 @@ function mkHead(n){if(confirm("Make "+n+" Head?"))db.ref('trips/'+tid+'/head').s
 function saveHeadUPI(){const u=document.getElementById('headUPIInput').value;if(u){db.ref('trips/'+tid+'/headUPI').set(u);closeModal('headSetupModal');}}
 function payH(){const a=prompt("Amount:");if(a){if(!trip.headUPI){alert("No UPI");return;}hPay=parseFloat(a);const l=`upi://pay?pa=${trip.headUPI}&pn=${trip.head}&am=${a}&cu=INR`;document.getElementById('payHeadModal').style.display='flex';document.getElementById('hName').innerText="To: "+trip.head;document.getElementById('hAmt').innerText=a;document.getElementById('hLink').href=l;document.getElementById('hQr').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(l)}">`;}}
 function confPay(){db.ref('trips/'+tid+'/deposits').set([...safe(trip.deposits),{who:user.name,amt:hPay,t:Date.now()}]);closeModal('payHeadModal');alert("Added!");}
-function addTrans(){const m=document.getElementById('trMode').value,f=document.getElementById('trFrom').value,t=document.getElementById('trTo').value,a=parseFloat(document.getElementById('trFare').value);if(f&&t&&a){db.ref('trips/'+tid+'/expenses').set([...safe(trip.expenses),{r:`${m}: ${f} ➔ ${t}`,a,cat:'Fare',who:user.name,date:Date.now(),t:Date.now()}]);alert("Added!");}}
+
+// SMART ROUTE LOGIC
+function addTrans(){
+    const m=document.getElementById('trMode').value,f=document.getElementById('trFrom').value,t=document.getElementById('trTo').value,a=parseFloat(document.getElementById('trFare').value);
+    if(f&&t&&a){
+        db.ref('trips/'+tid+'/expenses').set([...safe(trip.expenses),{r:`${m}: ${f} ➔ ${t}`,a,cat:'Fare',who:user.name,date:Date.now(),t:Date.now()}]);
+        document.getElementById('smDest').innerText = "for " + t;
+        const b = document.getElementById('smButtons');
+        b.innerHTML = `<button class="btn btn-sm btn-light border" onclick="win('https://www.booking.com/searchresults.html?ss=${t}')">🏨 Hotels in ${t}</button>`;
+        if(m==='Bus') b.innerHTML += `<button class="btn btn-sm btn-danger ms-1" onclick="win('https://www.redbus.in')">🚌 Book Bus</button>`;
+        if(m==='Flight') b.innerHTML += `<button class="btn btn-sm btn-primary ms-1" onclick="win('https://www.makemytrip.com/flights')">✈️ Flights</button>`;
+        if(m==='Train') b.innerHTML += `<button class="btn btn-sm btn-warning ms-1" onclick="win('https://www.irctc.co.in')">🚆 Trains</button>`;
+        document.getElementById('smartOfferBox').classList.remove('hidden');
+        alert("Added!");
+    }
+}
+
 function shareRoute(){const r=safe(trip.expenses).filter(e=>e.r.includes("➔"));if(!r.length)return alert("No routes");let m=`🚀 *TRIP PLAN: ${trip.name}*\n\n`,t=0;r.forEach((x,i)=>{m+=`✅ ${x.r} (₹${x.a})\n`;t+=x.a;});m+=`\n💰 Total: ₹${t}`;window.open(`https://wa.me/?text=${encodeURIComponent(m)}`,'_blank');}
 function calcEst(){const t=parseFloat(document.getElementById('eTravel').value)||0;const h=parseFloat(document.getElementById('eHotel').value)||0;const o=parseFloat(document.getElementById('eOther').value)||0;const p=parseFloat(document.getElementById('ePpl').value)||1;const tot = t + h + o;const ph = Math.round(tot / p);db.ref('trips/'+tid).update({estBudget: tot, estPerHead: ph});alert("Saved!");closeModal('estModal');}
-function editDashEst() { const newTot = prompt("Enter New Total Budget:", trip.estBudget || 0); if(newTot) { const tot = parseFloat(newTot); const memCount = trip.members ? trip.members.length : 1; const ph = Math.round(tot / memCount); db.ref('trips/'+tid).update({estBudget: tot, estPerHead: ph}); } }
 function encImg(i){imgs=[];if(i.files)Array.from(i.files).forEach(f=>{const r=new FileReader();r.onload=e=>{const c=document.createElement('canvas'),x=c.getContext('2d'),w=500,i=new Image();i.src=e.target.result;i.onload=()=>{const sc=w/i.width;c.width=w;c.height=i.height*sc;x.drawImage(i,0,0,w,c.height);imgs.push(c.toDataURL('image/jpeg',0.6));}};r.readAsDataURL(f);});}
 function saveMem(type){const t=document.getElementById('mTxt').value, l=document.getElementById('mLoc').value; if(!t)return; const p={who:user.name,txt:t,loc:l,imgs:imgs,t:Date.now()}; if(type==='trip') db.ref('trips/'+tid+'/highlights').set([...safe(trip.highlights),p]); else db.ref('global_public_feed').push(p); alert("Posted!"); toggle('formMem'); imgs=[];}
 function renderFeed(){const d=document.getElementById('feedArea'); d.innerHTML=""; safe(trip.highlights).reverse().forEach(h=>{let im=""; if(h.imgs)h.imgs.forEach(i=>im+=`<img src="${i}" class="feed-img">`); const del = (h.who===user.name || user.name===trip.head) ? `<i class="bi bi-trash text-danger position-absolute top-0 end-0 m-2 bg-white p-1 rounded action-icon" onclick="delPost('${h.t}')"></i>` : ""; d.innerHTML+=`<div class="vibrant-card p-0 overflow-hidden position-relative">${del}<div class="p-3"><b>${h.who}</b> <small class="text-muted">at ${h.loc||"Unknown"}</small><p>${h.txt}</p></div>${im}</div>`;});}
