@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GHUMO PRO - Data Fixed</title>
+    <title>GHUMO PRO - Photo Fixed</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -25,7 +25,7 @@
         }
 
         .app-header {
-            background: rgba(255,255,255,0.3); backdrop-filter: blur(12px); padding: 15px 20px;
+            background: rgba(255,255,255,0.25); backdrop-filter: blur(12px); padding: 15px 20px;
             position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center;
             border-bottom: 1px solid rgba(255,255,255,0.3); color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
@@ -40,7 +40,7 @@
         .bg-purple { background: linear-gradient(to right, #8E2DE2, #4A00E0); }
         .bg-red { background: linear-gradient(to right, #cb2d3e, #ef473a); }
 
-        .vib-input { border: 1px solid #ddd; background: #fff; padding: 12px; border-radius: 12px; width: 100%; margin-bottom: 10px; outline: none; }
+        .vib-input { border: 1px solid #ddd; background: #fff; padding: 10px; border-radius: 12px; width: 100%; margin-bottom: 8px; outline: none; }
         
         .list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; position: relative; }
         .head-badge { background: gold; color: black; padding: 3px 8px; border-radius: 10px; font-weight: bold; border: 1px solid orange; box-shadow: 0 0 10px gold; }
@@ -52,8 +52,8 @@
         .hidden { display: none !important; }
         .full-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); }
         .feed-img { width: 100%; height: 250px; object-fit: cover; border-radius: 10px; margin-top: 5px; }
+        .profile-pic-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid white; margin-bottom: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); background: #eee; }
         .action-icon { cursor: pointer; margin-left: 10px; font-size: 1.1rem; }
-        .profile-pic-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid white; margin-bottom: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         
         .offer-btn { min-width: 90px; text-align: center; margin-right: 10px; cursor: pointer; }
         .offer-icon { font-size: 1.5rem; background: #fff; padding: 10px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 5px; display: inline-block; }
@@ -65,27 +65,21 @@
 </head>
 <body>
 
-<div id="estModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('estModal')">×</span><h4 class="text-primary fw-bold">📊 Estimate Trip</h4><div class="text-start small fw-bold text-muted">Fuel/Travel</div><input type="number" id="eTravel" class="vib-input" placeholder="Total Travel Cost"><div class="text-start small fw-bold text-muted mt-2">Stay & Food</div><input type="number" id="eHotel" class="vib-input" placeholder="Hotel Cost"><input type="number" id="eOther" class="vib-input" placeholder="Food/Misc"><div class="text-start small fw-bold text-muted mt-2">Members</div><input type="number" id="ePpl" class="vib-input" placeholder="No. of People" value="1"><button class="btn-grad bg-blue mt-2" onclick="calcEst()">Save Estimate</button></div></div>
+<div id="estModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('estModal')">×</span><h4 class="text-primary fw-bold">📊 Budget Calculator</h4><div class="text-start small fw-bold text-muted">Estimated Travel Cost</div><input type="number" id="eTravel" class="vib-input" placeholder="Fare/Fuel Total"><div class="text-start small fw-bold text-muted mt-2">Estimated Stay</div><input type="number" id="eHotel" class="vib-input" placeholder="Hotel Cost"><input type="number" id="eOther" class="vib-input" placeholder="Food/Misc"><div class="text-start small fw-bold text-muted mt-2">Members</div><input type="number" id="ePpl" class="vib-input" placeholder="No. of People" value="1"><button class="btn-grad bg-blue mt-2" onclick="calcEst()">Save Budget</button></div></div>
 
 <div id="headSetupModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('headSetupModal')">×</span><h5>🏦 Head UPI Setup</h5><input type="text" id="headUPIInput" class="vib-input mt-3" placeholder="Enter UPI ID"><button class="btn-grad bg-blue" onclick="saveHeadUPI()">Save</button></div></div>
-
 <div id="payHeadModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('payHeadModal')">×</span><h5 class="text-primary">Pay to Head</h5><p id="hName" class="small text-muted">--</p><div id="hQr" class="my-2"></div><h3 class="mt-2">₹<span id="hAmt">0</span></h3><a id="hLink" class="btn-grad bg-green mb-2" href="#">Pay Now</a><button class="btn-grad bg-dark" onclick="confPay()">✅ I Paid</button></div></div>
-
 <div id="qrModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('qrModal')">×</span><h5 class="text-success">Support Dev</h5><div id="dQr" class="my-2"></div><h3 class="mt-2">₹<span id="dAmt">0</span></h3><a id="dLink" class="btn-grad bg-dark" href="#">Pay via UPI</a></div></div>
-
-<div id="aboutModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('aboutModal')">×</span><h4>GHUMO PRO</h4><p class="small text-muted">Version 9.0 (Join Fixed)</p><hr><p class="small"><b>Dev:</b> <span id="devNameAbout">--</span></p></div></div>
+<div id="aboutModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('aboutModal')">×</span><h4>GHUMO PRO</h4><p class="small text-muted">Version 12.0 (Photo Fix)</p><hr><p class="small"><b>Dev:</b> <span id="devNameAbout">--</span></p></div></div>
 
 <div id="authScreen" class="full-screen">
     <div class="vibrant-card text-center" style="width:340px; background:white;">
         <h1 class="fw-bold mb-4" style="color:#fd1d1d;">GHUMO</h1>
-        
         <div id="loginForm">
             <input type="number" id="l_mobile" class="vib-input" placeholder="Mobile Number">
             <input type="password" id="l_pass" class="vib-input" placeholder="Password (XXXX)">
             <button class="btn-grad bg-orange mb-3" onclick="doLogin()">LOGIN</button>
-            <div onclick="biometricLogin()" style="cursor:pointer;" class="mb-3 text-primary">
-                <i class="bi bi-fingerprint fs-1"></i><br><small>Biometric Login</small>
-            </div>
+            <div onclick="biometricLogin()" style="cursor:pointer;" class="mb-3 text-primary"><i class="bi bi-fingerprint fs-1"></i><br><small>Biometric Login</small></div>
             <button class="btn btn-link text-muted" onclick="showReg()">Create New Account</button>
         </div>
         
@@ -93,25 +87,17 @@
             <h5 class="text-center mb-3">Create Profile</h5>
             <div class="text-center">
                 <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" id="regPreview" class="profile-pic-preview">
-                <input type="file" id="r_pic" accept="image/*" class="d-none" onchange="previewRegImg(this)">
+                <input type="file" id="r_pic" accept="image/*" class="d-none" onchange="previewRegImg(this, 'regPreview')">
                 <br><label for="r_pic" class="badge bg-secondary mb-2 cursor-pointer">Upload Photo (Optional)</label>
             </div>
-            
-            <input type="text" id="r_name" class="vib-input" placeholder="Full Name (Required)">
-            <input type="number" id="r_mobile" class="vib-input" placeholder="Mobile (Required)">
-            <input type="password" id="r_pass" class="vib-input" placeholder="Password (Required)">
-            
-            <input type="text" id="r_address" class="vib-input" placeholder="Address (Optional)">
-            <select id="r_gender" class="vib-input text-muted">
-                <option value="">Select Gender (Optional)</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-            </select>
-            
+            <input type="text" id="r_name" class="vib-input" placeholder="Name">
+            <input type="number" id="r_mobile" class="vib-input" placeholder="Mobile">
+            <input type="password" id="r_pass" class="vib-input" placeholder="Password">
+            <input type="text" id="r_address" class="vib-input" placeholder="Address">
+            <select id="r_gender" class="vib-input text-muted"><option value="">Gender</option><option value="Male">Male</option><option value="Female">Female</option></select>
             <button class="btn-grad bg-green mb-2" onclick="doRegister()">REGISTER</button>
-            <button class="btn btn-link text-muted w-100" onclick="showLogin()">Back to Login</button>
+            <button class="btn btn-link text-muted w-100" onclick="showLogin()">Back</button>
         </div>
-        
         <p id="statusMsg" class="mt-3 small text-danger"></p>
     </div>
 </div>
@@ -119,7 +105,7 @@
 <div id="homeScreen" class="hidden">
     <div class="app-header">
         <div class="d-flex align-items-center">
-            <img src="" id="userHeaderImg" style="width:35px; height:35px; border-radius:50%; margin-right:10px; background:#ddd;">
+            <img src="" id="userHeaderImg" style="width:35px; height:35px; border-radius:50%; margin-right:10px; background:#ddd; object-fit:cover;">
             <div class="fw-bold lh-1">GHUMO<br><small style="font-weight:normal; font-size:0.7rem;" id="uName">User</small></div>
         </div>
         <i class="bi bi-gear-fill fs-4" style="cursor:pointer;" onclick="openSettings()"></i>
@@ -129,25 +115,17 @@
             <div class="col-6"><button class="btn-grad bg-blue" onclick="createTrip()"><i class="bi bi-plus-circle"></i> Create</button></div>
             <div class="col-6"><button class="btn-grad bg-dark" onclick="joinTrip()"><i class="bi bi-rocket-takeoff"></i> Join</button></div>
         </div>
-        
         <div class="vibrant-card p-2">
-            <h6 class="fw-bold ps-2 mb-3">🔥 TRAVEL OFFERS</h6>
+            <h6 class="fw-bold ps-2 mb-3">🔥 OFFERS</h6>
             <div class="d-flex gap-1 overflow-auto pb-2">
                 <div class="offer-btn" onclick="win('https://booking.com')"><div class="offer-icon">🏨</div><br><small>Hotel</small></div>
-                <div class="offer-btn" onclick="win('https://hotels.com')"><div class="offer-icon">🛌</div><br><small>Motel</small></div>
                 <div class="offer-btn" onclick="win('https://makemytrip.com')"><div class="offer-icon">✈️</div><br><small>Flight</small></div>
-                <div class="offer-btn" onclick="win('https://irctc.co.in')"><div class="offer-icon">🚆</div><br><small>Train</small></div>
-                <div class="offer-btn" onclick="win('https://redbus.in')"><div class="offer-icon">🚌</div><br><small>Bus</small></div>
-                <div class="offer-btn" onclick="win('https://zoomcar.com')"><div class="offer-icon">🚗</div><br><small>Rent Car</small></div>
-                <div class="offer-btn" onclick="win('https://www.royalbrothers.com/')"><div class="offer-icon">🛵</div><br><small>2-Wheel</small></div>
+                <div class="offer-btn" onclick="win('https://zoomcar.com')"><div class="offer-icon">🚗</div><br><small>Rental</small></div>
                 <div class="offer-btn" onclick="win('https://amazon.in')"><div class="offer-icon">🎒</div><br><small>Accessory</small></div>
             </div>
         </div>
-
         <h6 class="text-white fw-bold ps-2">MY TRIPS</h6>
         <div id="userTripList"><p class="text-center text-white small">Loading...</p></div>
-        
-        <br><button class="btn-grad bg-white text-danger mb-4" onclick="donate()">❤️ Support Dev</button>
         <div id="globalFeed"></div>
     </div>
 </div>
@@ -156,8 +134,7 @@
     <div class="app-header">
         <i class="bi bi-arrow-left fs-3" style="cursor:pointer;" onclick="goBackLogic()"></i>
         <div class="text-center">
-            <span class="fw-bold" id="tName">Trip</span> 
-            <i class="bi bi-pencil-square text-white ms-1" style="cursor:pointer; font-size:0.9rem;" onclick="editTripName()"></i>
+            <span class="fw-bold" id="tName">Trip</span> <i class="bi bi-pencil-square text-white ms-1" style="cursor:pointer; font-size:0.8rem;" onclick="editTripName()"></i>
             <br><small id="tCode" style="opacity:0.8"></small>
         </div>
         <div></div>
@@ -167,13 +144,16 @@
         <div class="row g-2 mb-2">
             <div class="col-6">
                 <div class="vibrant-card text-center py-2" style="background:rgba(255,255,255,0.9); margin-bottom:0;">
-                    <small class="text-muted fw-bold">ESTIMATE</small>
+                    <div class="d-flex justify-content-between px-2">
+                        <small class="text-muted fw-bold" style="font-size:0.65rem;">ESTIMATE</small>
+                        <i class="bi bi-pencil-square text-primary" style="cursor:pointer; font-size:0.8rem;" onclick="editDashEst()"></i>
+                    </div>
                     <h5 class="fw-bold text-dark m-0">₹<span id="dashEst">0</span></h5>
                 </div>
             </div>
             <div class="col-6">
                 <div class="vibrant-card text-center py-2" style="background:rgba(255,255,255,0.9); margin-bottom:0;">
-                    <small class="text-muted fw-bold">NET EXPENSE</small>
+                    <small class="text-muted fw-bold" style="font-size:0.65rem;">NET EXPENSE</small>
                     <h5 class="fw-bold text-danger m-0">₹<span id="netExp">0</span></h5>
                 </div>
             </div>
@@ -198,14 +178,9 @@
         <div id="formExp" class="vibrant-card hidden">
             <h6 class="text-danger fw-bold">Add Expense</h6>
             <select id="exCat" class="vib-input">
-                <option value="Food">Food</option>
-                <option value="Hotel">Hotel</option>
-                <option value="Fare">Fare/Travel</option>
-                <option value="Petrol">Petrol/Fuel</option>
-                <option value="Toll">Toll</option>
-                <option value="Other">Other</option>
+                <option value="Food">Food</option><option value="Hotel">Hotel</option><option value="Fare">Travel Fare</option><option value="Petrol">Petrol</option><option value="Other">Other</option>
             </select>
-            <input type="text" id="exR" class="vib-input" placeholder="Item Name (Optional)">
+            <input type="text" id="exR" class="vib-input" placeholder="Details (Optional)">
             <input type="number" id="exA" class="vib-input" placeholder="Amount ₹">
             <button class="btn-grad bg-orange" onclick="addExp()">Add</button>
         </div>
@@ -220,10 +195,7 @@
             <input type="text" id="mTxt" class="vib-input" placeholder="Caption...">
             <input type="text" id="mLoc" class="vib-input" placeholder="📍 Location">
             <input type="file" id="mImg" class="vib-input" multiple onchange="encImg(this)">
-            <div class="d-flex gap-2 mt-2">
-                <button class="btn-grad bg-dark" onclick="saveMem('trip')">To Trip</button>
-                <button class="btn-grad bg-purple" onclick="saveMem('world')">To World</button>
-            </div>
+            <div class="d-flex gap-2 mt-2"><button class="btn-grad bg-dark" onclick="saveMem('trip')">To Trip</button><button class="btn-grad bg-purple" onclick="saveMem('world')">To World</button></div>
         </div>
 
         <div class="vibrant-card border-info" style="border-left:5px solid #0dcaf0;">
@@ -232,10 +204,7 @@
                 <select id="trMode" class="vib-input w-50"><option>Bus</option><option>Train</option><option>Flight</option><option>Taxi</option></select>
                 <input type="number" id="trFare" class="vib-input w-50" placeholder="Fare ₹">
             </div>
-            <div class="d-flex gap-2">
-                <input type="text" id="trFrom" class="vib-input" placeholder="From">
-                <input type="text" id="trTo" class="vib-input" placeholder="To">
-            </div>
+            <div class="d-flex gap-2"><input type="text" id="trFrom" class="vib-input" placeholder="From"><input type="text" id="trTo" class="vib-input" placeholder="To"></div>
             <button class="btn-grad bg-blue mb-2" onclick="addTrans()">Add Route</button>
             <button class="btn-grad bg-green" onclick="shareRoute()">📲 Share Itinerary</button>
         </div>
@@ -244,12 +213,7 @@
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h6 class="text-muted small fw-bold m-0">RECENT ACTIVITY</h6>
                 <select id="filterCat" class="vib-input py-1 px-2 w-auto mb-0" style="font-size:0.8rem;" onchange="renderUI()">
-                    <option value="All">All</option>
-                    <option value="Food">Food</option>
-                    <option value="Hotel">Hotel</option>
-                    <option value="Fare">Fare</option>
-                    <option value="Petrol">Petrol</option>
-                    <option value="Toll">Toll</option>
+                    <option value="All">All</option><option value="Food">Food</option><option value="Hotel">Hotel</option><option value="Fare">Fare</option><option value="Petrol">Petrol</option>
                 </select>
             </div>
             <div id="actList" style="max-height:250px; overflow-y:auto;"></div>
@@ -271,16 +235,23 @@
 <div id="settingsScreen" class="hidden full-screen" style="background:white; z-index:3000; overflow-y:auto; display:block;">
     <div class="app-header"><i class="bi bi-arrow-left fs-3" style="cursor:pointer;" onclick="showHome()"></i> Settings <div></div></div>
     <div class="container text-center py-5">
-        <img src="" id="setProfImg" style="width:100px; height:100px; border-radius:50%; margin-bottom:10px; border:2px solid #333;">
-        <h4 id="setName">--</h4>
+        <div class="text-center mb-3">
+            <img src="" id="setProfImg" class="profile-pic-preview">
+            <input type="file" id="up_pic" accept="image/*" class="d-none" onchange="previewRegImg(this, 'setProfImg')">
+            <br><label for="up_pic" class="badge bg-secondary cursor-pointer">Change Photo</label>
+        </div>
+        
         <div class="vibrant-card text-start">
-            <small>Name</small><input type="text" id="upN" class="vib-input">
-            <small>Address</small><input type="text" id="upAdd" class="vib-input">
-            <small>Gender</small><input type="text" id="upGen" class="vib-input" readonly>
-            <small>Password</small><input type="password" id="upP" class="vib-input">
+            <small class="text-muted">Name</small><input type="text" id="upN" class="vib-input">
+            <small class="text-muted">Mobile (Read Only)</small><input type="text" id="upMob" class="vib-input" readonly style="background:#eee;">
+            <small class="text-muted">Gender</small>
+            <select id="upGen" class="vib-input">
+                <option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option>
+            </select>
+            <small class="text-muted">Address</small><input type="text" id="upAdd" class="vib-input">
+            <small class="text-muted">Password</small><input type="password" id="upP" class="vib-input">
             <button class="btn-grad bg-blue mt-2" onclick="updProf()">Update Profile</button>
         </div>
-        <button class="btn-grad bg-white text-dark mb-3 shadow-sm border" onclick="document.getElementById('aboutModal').style.display='flex'">ℹ️ About App</button>
         <button class="btn-grad bg-orange" onclick="doLogout()">Log Out</button>
     </div>
 </div>
@@ -305,18 +276,20 @@ window.onload=()=>{
 };
 function updateUserDisplay(){
     document.getElementById('uName').innerText=user.name;
-    document.getElementById('userHeaderImg').src = user.photo || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+    const ph = user.photo || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+    document.getElementById('userHeaderImg').src = ph;
+    document.getElementById('setProfImg').src = ph;
 }
 function hideAll(){ ['authScreen','homeScreen','mainApp','settingsScreen'].forEach(i=>document.getElementById(i).classList.add('hidden')); }
 function showHome(){ hideAll(); document.getElementById('homeScreen').classList.remove('hidden'); loadTrips(); loadWorld(); }
 function openSettings(){ 
     hideAll(); document.getElementById('settingsScreen').classList.remove('hidden'); 
-    document.getElementById('setName').innerText=user.name; 
     document.getElementById('upN').value=user.name; 
+    document.getElementById('upMob').value=user.mobile; 
+    document.getElementById('upGen').value=user.gender; 
     document.getElementById('upAdd').value=user.address||""; 
-    document.getElementById('upGen').value=user.gender||""; 
     document.getElementById('upP').value=user.password;
-    document.getElementById('setProfImg').src = user.photo || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+    updateUserDisplay();
 }
 
 function doLogin(){
@@ -345,18 +318,20 @@ function biometricLogin() {
     }
 }
 
-function previewRegImg(input) {
+// FIXED: COMPRESS IMAGE AND SHOW PREVIEW
+function previewRegImg(input, targetId) {
     if(input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = function(e) {
             const img = new Image(); img.src = e.target.result;
             img.onload = () => {
                 const c = document.createElement('canvas'); const ctx = c.getContext('2d');
-                const w = 150; const sc = w/img.width; 
+                // Aggressive compression for Realtime DB
+                const w = 100; const sc = w/img.width; 
                 c.width=w; c.height=img.height*sc;
                 ctx.drawImage(img,0,0,c.width,c.height);
-                regImgBase64 = c.toDataURL('image/jpeg', 0.7);
-                document.getElementById('regPreview').src = regImgBase64;
+                regImgBase64 = c.toDataURL('image/jpeg', 0.5); // Quality 0.5
+                document.getElementById(targetId).src = regImgBase64;
             }
         }
         reader.readAsDataURL(input.files[0]);
@@ -369,37 +344,41 @@ function doRegister(){
     if(!n||!m||!p) { setStatus("Name, Mobile & Pass Required"); return; }
     
     setStatus("Creating Account...");
-    db.ref('users/'+m).set({name:n, mobile:m, password:p, address:add, gender:gen, photo:regImgBase64, history:[]})
+    // Use uploaded photo or default empty string
+    const finalPhoto = regImgBase64 || "";
+    const newUser = {name:n, mobile:m, password:p, address:add, gender:gen, photo:finalPhoto, history:[]};
+    
+    db.ref('users/'+m).set(newUser)
     .then(()=>{
-        user={name:n, mobile:m, password:p, address:add, gender:gen, photo:regImgBase64};
+        user=newUser;
         localStorage.setItem('yatra_user',JSON.stringify(user)); updateUserDisplay(); showHome();
-    })
-    .catch(e => setStatus("Error: " + e.message));
+    }).catch(e => setStatus("Error: " + e.message));
 }
 
 function setStatus(msg) { document.getElementById('statusMsg').innerText = msg; }
 function showReg(){ toggle('loginForm'); toggle('regForm'); setStatus(""); }
 function showLogin(){ toggle('loginForm'); toggle('regForm'); setStatus(""); }
 function doLogout(){ localStorage.removeItem('yatra_user'); location.reload(); }
-function updProf(){ const n=document.getElementById('upN').value, p=document.getElementById('upP').value, a=document.getElementById('upAdd').value; if(n) db.ref('users/'+user.mobile).update({name:n,password:p,address:a}).then(()=>{user.name=n;user.address=a;user.password=p;localStorage.setItem('yatra_user',JSON.stringify(user));alert("Updated!");showHome();}); }
+
+function updProf(){ 
+    const n=document.getElementById('upN').value, p=document.getElementById('upP').value, a=document.getElementById('upAdd').value, g=document.getElementById('upGen').value; 
+    // Use new photo if uploaded, else keep old one
+    const pPic = regImgBase64 || user.photo || "";
+    
+    if(n) db.ref('users/'+user.mobile).update({name:n,password:p,address:a,gender:g, photo:pPic}).then(()=>{
+        user.name=n;user.address=a;user.password=p;user.gender=g;user.photo=pPic;
+        localStorage.setItem('yatra_user',JSON.stringify(user));
+        updateUserDisplay();
+        alert("Updated!");showHome();
+    }); 
+}
 
 // TRIP
 function createTrip(){const n=prompt("Name:");if(n){const id="T"+Math.floor(10000+Math.random()*90000);db.ref('trips/'+id).set({name:n,members:[user.name]}).then(()=>{addHist(id);enterTrip(id);});}}
 function joinTrip(){const i=prompt("Code:");if(i)db.ref('trips/'+i.toUpperCase()).once('value',s=>{if(s.exists()){addHist(i.toUpperCase());joinTripDataFix(i.toUpperCase());}else alert("Invalid");});}
 function addHist(id){db.ref('users/'+user.mobile+'/history').once('value',s=>{let h=safe(s.val());if(!h.includes(id)){h.push(id);db.ref('users/'+user.mobile+'/history').set(h);}});}
 function loadTrips(){db.ref('users/'+user.mobile+'/history').on('value',async s=>{const l=document.getElementById('userTripList');l.innerHTML="";const c=safe(s.val());if(!c.length){l.innerHTML="<p class='text-center text-white small'>No trips.</p>";return;}for(const i of c){const sp=await db.ref('trips/'+i).once('value');if(sp.exists())l.innerHTML+=`<div class="vibrant-card d-flex justify-content-between p-2 mb-2" onclick="enterTrip('${i}')"><b>${sp.val().name}</b><small>${i}</small></div>`;}});}
-
-// FIXED JOIN LOGIC
-function joinTripDataFix(id) {
-    db.ref('trips/'+id).once('value', s => {
-        let t = s.val();
-        if(t) {
-            let m = safe(t.members);
-            if(!m.includes(user.name)) { m.push(user.name); db.ref('trips/'+id+'/members').set(m); }
-            enterTrip(id);
-        }
-    });
-}
+function joinTripDataFix(id) { db.ref('trips/'+id).once('value', s => { let t = s.val(); if(t) { let m = safe(t.members); if(!m.includes(user.name)) { m.push(user.name); db.ref('trips/'+id+'/members').set(m); } enterTrip(id); } }); }
 
 // BACK / EXIT LOGIC
 function goBackLogic() { showHome(); }
@@ -429,14 +408,12 @@ function renderUI(){
     const l=document.getElementById('actList'); l.innerHTML="";
     let totalExp = 0;
 
-    // Deposits
     safe(trip.deposits).slice().reverse().forEach(d=>{
         if(filter === 'All') {
             const del=(d.who===user.name||isHead)?`<i class="bi bi-trash text-danger action-icon" onclick="delD(${d.t})"></i>`:"";
             l.innerHTML+=`<div class="list-item" style="border-left:4px solid #2ecc71"><div><small>${d.who}</small><br><b>+₹${d.amt}</b></div>${del}</div>`;
         }
     });
-    // Expenses
     safe(trip.expenses).slice().reverse().forEach(e=>{
         totalExp += parseFloat(e.a);
         if(filter === 'All' || filter === e.cat) {
@@ -460,7 +437,6 @@ function renderUI(){
     document.getElementById('bal').innerText=tin-totalExp; 
     document.getElementById('ph').innerText=trip.members ? Math.round(totalExp/trip.members.length) : 0;
     
-    // Settlement with Total Deposit Column
     const fl=document.getElementById('finalList'); fl.innerHTML=`<div class="d-flex justify-content-between small fw-bold border-bottom"><span>Member</span><span>Deposited</span><span>Settlement</span></div>`; 
     if(trip.members) {
         let avg=Math.round(totalExp/trip.members.length), pd={};
@@ -475,17 +451,8 @@ function renderUI(){
     renderFeed();
 }
 
-function editTripName() {
-    const n = prompt("Enter new Trip Name:", trip.name);
-    if(n) db.ref('trips/'+tid+'/name').set(n);
-}
-
-function addExp(){
-    const cat = document.getElementById('exCat').value;
-    const r=document.getElementById('exR').value || cat; 
-    const a=parseFloat(document.getElementById('exA').value);
-    if(a){db.ref('trips/'+tid+'/expenses').set([...safe(trip.expenses),{r,a,cat,who:user.name,date:Date.now(),t:Date.now()}]);toggle('formExp');}
-}
+function editTripName() { const n = prompt("Enter new Trip Name:", trip.name); if(n) db.ref('trips/'+tid+'/name').set(n); }
+function addExp(){const cat = document.getElementById('exCat').value; const r=document.getElementById('exR').value || cat; const a=parseFloat(document.getElementById('exA').value); if(a){db.ref('trips/'+tid+'/expenses').set([...safe(trip.expenses),{r,a,cat,who:user.name,date:Date.now(),t:Date.now()}]);toggle('formExp');}}
 function addDep(){const w=document.getElementById('dpM').value,a=parseFloat(document.getElementById('dpA').value);if(w&&a){db.ref('trips/'+tid+'/deposits').set([...safe(trip.deposits),{who:w,amt:a,t:Date.now()}]);toggle('formDep');}}
 function delE(t){if(confirm("Delete?"))db.ref('trips/'+tid+'/expenses').set(safe(trip.expenses).filter(x=>x.t!==t));}
 function delD(t){if(confirm("Delete Deposit?"))db.ref('trips/'+tid+'/deposits').set(safe(trip.deposits).filter(x=>x.t!==t));}
