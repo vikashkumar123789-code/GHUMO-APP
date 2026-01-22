@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GHUMO PRO - Chat & Members</title>
+    <title>GHUMO PRO - Privacy Chat</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -44,36 +44,33 @@
         
         .list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; position: relative; }
         
-        /* MEMBER CHIP (UPDATED) */
         .member-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; }
-        .member-chip {
-            display: flex; flex-direction: column; align-items: center; min-width: 70px;
-            cursor: pointer;
-        }
-        .member-chip img { 
-            width: 50px; height: 50px; border-radius: 50%; object-fit: cover; 
-            border: 2px solid white; box-shadow: 0 3px 8px rgba(0,0,0,0.2); margin-bottom: 5px; 
-        }
+        .member-chip { display: flex; flex-direction: column; align-items: center; min-width: 70px; cursor: pointer; }
+        .member-chip img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 3px 8px rgba(0,0,0,0.2); margin-bottom: 5px; }
         .member-chip span { font-size: 0.75rem; font-weight: bold; background: white; padding: 2px 8px; border-radius: 10px; }
         .head-border img { border: 3px solid gold; }
 
-        .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        /* MODALS */
+        .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 5000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
         .modal-box { background: white; padding: 25px; border-radius: 25px; width: 90%; max-width: 350px; text-align: center; position: relative; max-height: 85vh; overflow-y: auto; }
         .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #aaa; }
 
+        /* CHAT STYLES */
+        .chat-container { height: 300px; overflow-y: auto; background: #f0f2f5; border-radius: 10px; padding: 10px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .msg-bubble { padding: 8px 12px; border-radius: 15px; max-width: 80%; font-size: 0.9rem; word-wrap: break-word; }
+        .msg-left { align-self: flex-start; background: white; border-bottom-left-radius: 2px; }
+        .msg-right { align-self: flex-end; background: #dcf8c6; border-bottom-right-radius: 2px; }
+        .msg-meta { font-size: 0.65rem; color: #888; display: block; margin-top: 2px; }
+
         .hidden { display: none !important; }
-        .full-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); }
-        
-        /* FIXED IMAGE STYLE (NO CROP) */
+        .full-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 4000; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); }
         .feed-img { width: 100%; height: auto; border-radius: 10px; margin-top: 5px; display: block; }
-        
         .profile-pic-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid white; margin-bottom: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .action-icon { cursor: pointer; margin-left: 10px; font-size: 1.1rem; }
         
         .offer-btn { min-width: 90px; text-align: center; margin-right: 10px; cursor: pointer; }
         .offer-icon { font-size: 1.5rem; background: #fff; padding: 10px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 5px; display: inline-block; }
         
-        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 5000; left: 50%; transform: translateX(-50%); bottom: 30px; }
+        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 6000; left: 50%; transform: translateX(-50%); bottom: 30px; }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
@@ -85,13 +82,48 @@
 </head>
 <body>
 
-<div id="toast">Press BACK again to Exit</div>
+<div id="toast">Notification</div>
+
+<div id="customPromptModal" class="custom-modal">
+    <div class="modal-box">
+        <h5 id="cpTitle" class="fw-bold mb-3">Edit</h5>
+        <input type="text" id="cpInput" class="vib-input" placeholder="Enter value...">
+        <div class="d-flex gap-2 mt-2">
+            <button class="btn-grad bg-dark" onclick="closeModal('customPromptModal')">Cancel</button>
+            <button class="btn-grad bg-blue" id="cpSaveBtn">Save</button>
+        </div>
+    </div>
+</div>
+
+<div id="customConfirmModal" class="custom-modal">
+    <div class="modal-box">
+        <h5 class="fw-bold mb-2">Are you sure?</h5>
+        <p id="ccMsg" class="text-muted small">This action cannot be undone.</p>
+        <div class="d-flex gap-2 mt-3">
+            <button class="btn-grad bg-dark" onclick="closeModal('customConfirmModal')">No</button>
+            <button class="btn-grad bg-red" id="ccYesBtn">Yes</button>
+        </div>
+    </div>
+</div>
+
+<div id="chatModal" class="custom-modal">
+    <div class="modal-box" style="height: 500px; display: flex; flex-direction: column;">
+        <span class="close-btn" onclick="closeModal('chatModal')">×</span>
+        <h5 class="fw-bold text-start mb-2"><i class="bi bi-chat-dots-fill text-primary"></i> Chat</h5>
+        <div id="chatContainer" class="chat-container flex-grow-1">
+            </div>
+        <div class="d-flex gap-2 mt-2">
+            <input type="text" id="chatInput" class="vib-input mb-0" placeholder="Type a message...">
+            <button class="btn btn-primary rounded-circle" onclick="sendChatMessage()"><i class="bi bi-send-fill"></i></button>
+        </div>
+    </div>
+</div>
 
 <div id="estModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('estModal')">×</span><h4 class="text-primary fw-bold">📊 Budget Calculator</h4><div class="text-start small fw-bold text-muted">Estimated Travel Cost</div><input type="number" id="eTravel" class="vib-input" placeholder="Fare/Fuel Total"><div class="text-start small fw-bold text-muted mt-2">Estimated Stay</div><input type="number" id="eHotel" class="vib-input" placeholder="Hotel Cost"><input type="number" id="eOther" class="vib-input" placeholder="Food/Misc"><div class="text-start small fw-bold text-muted mt-2">Members</div><input type="number" id="ePpl" class="vib-input" placeholder="No. of People" value="1"><button class="btn-grad bg-blue mt-2" onclick="calcEst()">Save Budget</button></div></div>
 <div id="headSetupModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('headSetupModal')">×</span><h5>🏦 Head UPI Setup</h5><input type="text" id="headUPIInput" class="vib-input mt-3" placeholder="Enter UPI ID"><button class="btn-grad bg-blue" onclick="saveHeadUPI()">Save</button></div></div>
 <div id="payHeadModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('payHeadModal')">×</span><h5 class="text-primary">Pay to Head</h5><p id="hName" class="small text-muted">--</p><div id="hQr" class="my-2"></div><h3 class="mt-2">₹<span id="hAmt">0</span></h3><a id="hLink" class="btn-grad bg-green mb-2" href="#">Pay Now</a><button class="btn-grad bg-dark" onclick="confPay()">✅ I Paid</button></div></div>
 <div id="qrModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('qrModal')">×</span><h5 class="text-success">Support Dev</h5><div id="dQr" class="my-2"></div><h3 class="mt-2">₹<span id="dAmt">0</span></h3><a id="dLink" class="btn-grad bg-dark" href="#">Pay via UPI</a></div></div>
-<div id="aboutModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('aboutModal')">×</span><h4>GHUMO PRO</h4><p class="small text-muted">Version 16.0 (Chat & Members)</p><hr><p class="small"><b>Dev:</b> <span id="devNameAbout">--</span></p></div></div>
+<div id="aboutModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('aboutModal')">×</span><h4>GHUMO PRO</h4><p class="small text-muted">Version 17.0 (Privacy & UI)</p><hr><p class="small"><b>Dev:</b> <span id="devNameAbout">--</span></p></div></div>
 
 <div id="authScreen" class="full-screen">
     <div class="vibrant-card text-center" style="width:340px; background:white;">
@@ -152,9 +184,9 @@
 
 <div id="mainApp" class="hidden">
     <div class="app-header">
-        <i class="bi bi-arrow-left fs-3" style="cursor:pointer;" onclick="goBackLogic()"></i>
+        <i class="bi bi-arrow-left fs-3" style="cursor:pointer;" onclick="handleBackButton()"></i>
         <div class="text-center">
-            <span class="fw-bold" id="tName">Trip</span> <i class="bi bi-pencil-square text-white ms-1" style="cursor:pointer; font-size:0.8rem;" onclick="editTripName()"></i>
+            <span class="fw-bold" id="tName">Trip</span> <i class="bi bi-pencil-square text-white ms-1" style="cursor:pointer; font-size:0.8rem;" onclick="triggerTripNameEdit()"></i>
             <br><small id="tCode" style="opacity:0.8"></small>
         </div>
         <div></div>
@@ -172,7 +204,7 @@
 
         <div class="row g-2 mb-2">
             <div class="col-6">
-                <div class="vibrant-card text-center py-2" style="background:rgba(255,255,255,0.9); margin-bottom:0; cursor:pointer;" onclick="editDashEst()">
+                <div class="vibrant-card text-center py-2" style="background:rgba(255,255,255,0.9); margin-bottom:0; cursor:pointer;" onclick="triggerEstEdit()">
                     <div class="d-flex justify-content-between px-2">
                         <small class="text-muted fw-bold" style="font-size:0.65rem;">ESTIMATE</small>
                         <i class="bi bi-pencil-square text-primary" style="font-size:0.8rem;"></i>
@@ -289,11 +321,36 @@ firebase.initializeApp(firebaseConfig); const db=firebase.database();
 let user=null, tid="", trip={}, imgs=[], hPay=0, tripRef=null, regImgBase64="";
 let allUsersCache = {};
 let lastBackPressTime = 0; 
+let currentChatPostId = null;
 
 function safe(d){return d?(Array.isArray(d)?d:Object.values(d)):[];}
 function closeModal(id){document.getElementById(id).style.display='none';}
 function toggle(id){const e=document.getElementById(id);e.classList.toggle('hidden');}
 function win(url){ window.open(url, '_blank'); }
+function showToast(msg) { const x=document.getElementById("toast"); x.innerText=msg; x.className="show"; setTimeout(()=>{x.className=x.className.replace("show","");},3000); }
+
+// CUSTOM MODAL HELPERS
+function openCustomPrompt(title, onSave) {
+    document.getElementById('cpTitle').innerText = title;
+    document.getElementById('cpInput').value = "";
+    document.getElementById('customPromptModal').style.display = 'flex';
+    document.getElementById('cpSaveBtn').onclick = () => {
+        const val = document.getElementById('cpInput').value;
+        if(val) { onSave(val); closeModal('customPromptModal'); }
+    };
+}
+
+function openCustomConfirm(msg, onYes) {
+    document.getElementById('ccMsg').innerText = msg;
+    document.getElementById('customConfirmModal').style.display = 'flex';
+    document.getElementById('ccYesBtn').onclick = () => {
+        onYes(); closeModal('customConfirmModal');
+    };
+}
+
+// EDIT HANDLERS
+function triggerTripNameEdit() { openCustomPrompt("Edit Trip Name", (val) => db.ref('trips/'+tid+'/name').set(val)); }
+function triggerEstEdit() { openCustomPrompt("Edit Estimate Amount", (val) => db.ref('trips/'+tid).update({estBudget: parseFloat(val)})); }
 
 // AUTH & NAV
 window.onload=()=>{
@@ -368,9 +425,11 @@ function doRegister(){
     const n=document.getElementById('r_name').value,m=document.getElementById('r_mobile').value,p=document.getElementById('r_pass').value;
     const add=document.getElementById('r_address').value, gen=document.getElementById('r_gender').value;
     if(!n||!m||!p) { setStatus("Name, Mobile & Pass Required"); return; }
+    
     setStatus("Creating Account...");
     const finalPhoto = regImgBase64 || "";
     const newUser = {name:n, mobile:m, password:p, address:add, gender:gen, photo:finalPhoto, history:[]};
+    
     db.ref('users/'+m).set(newUser)
     .then(()=>{
         user=newUser;
@@ -404,36 +463,35 @@ function handleBackButton() {
     } else {
         const currentTime = new Date().getTime();
         if (currentTime - lastBackPressTime < 2000) {
-            if(confirm("Do you want to exit the app?")) {
+            openCustomConfirm("Do you want to exit the app?", () => {
                 document.body.innerHTML = "<div style='height:100vh;display:flex;align-items:center;justify-content:center;color:white;background:#333;'><h1>Goodbye! 👋</h1></div>";
-            }
+            });
         } else {
             lastBackPressTime = currentTime;
-            showToast();
+            showToast("Press BACK again to Exit");
         }
     }
 }
-function showToast() { const x = document.getElementById("toast"); x.className = "show"; setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000); }
 function goBackLogic() { showHome(); }
 
 // TRIP
-function createTrip(){const n=prompt("Name:");if(n){const id="T"+Math.floor(10000+Math.random()*90000);db.ref('trips/'+id).set({name:n,members:[user.name]}).then(()=>{addHist(id);enterTrip(id);});}}
-function joinTrip(){const i=prompt("Code:");if(i)db.ref('trips/'+i.toUpperCase()).once('value',s=>{if(s.exists()){addHist(i.toUpperCase());joinTripDataFix(i.toUpperCase());}else alert("Invalid");});}
+function createTrip(){ openCustomPrompt("Trip Name:", (n)=>{ if(n){const id="T"+Math.floor(10000+Math.random()*90000);db.ref('trips/'+id).set({name:n,members:[user.name]}).then(()=>{addHist(id);enterTrip(id);});} }); }
+function joinTrip(){ openCustomPrompt("Trip Code:", (i)=>{ if(i)db.ref('trips/'+i.toUpperCase()).once('value',s=>{if(s.exists()){addHist(i.toUpperCase());joinTripDataFix(i.toUpperCase());}else alert("Invalid");}); }); }
 function addHist(id){db.ref('users/'+user.mobile+'/history').once('value',s=>{let h=safe(s.val());if(!h.includes(id)){h.push(id);db.ref('users/'+user.mobile+'/history').set(h);}});}
 function loadTrips(){db.ref('users/'+user.mobile+'/history').on('value',async s=>{const l=document.getElementById('userTripList');l.innerHTML="";const c=safe(s.val());if(!c.length){l.innerHTML="<p class='text-center text-white small'>No trips.</p>";return;}for(const i of c){const sp=await db.ref('trips/'+i).once('value');if(sp.exists())l.innerHTML+=`<div class="vibrant-card d-flex justify-content-between p-2 mb-2" onclick="enterTrip('${i}')"><b>${sp.val().name}</b><small>${i}</small></div>`;}});}
 function joinTripDataFix(id) { db.ref('trips/'+id).once('value', s => { let t = s.val(); if(t) { let m = safe(t.members); if(!m.includes(user.name)) { m.push(user.name); db.ref('trips/'+id+'/members').set(m); } enterTrip(id); } }); }
 function exitTripLogic() {
-    if(confirm("⚠ EXIT TRIP?")) {
+    openCustomConfirm("EXIT TRIP?", () => {
         if(trip.head === user.name) { alert("Assign new Head first!"); return; }
         if(tripRef) tripRef.off();
         db.ref('trips/'+tid+'/members').set(safe(trip.members).filter(m => m !== user.name));
         db.ref('users/'+user.mobile+'/history').once('value', s => { db.ref('users/'+user.mobile+'/history').set(safe(s.val()).filter(x => x !== tid)).then(() => { alert("Exited!"); showHome(); }); });
-    }
+    });
 }
 
 function enterTrip(id){
     tid=id; hideAll(); document.getElementById('mainApp').classList.remove('hidden');
-    db.ref('users').once('value', s => { allUsersCache = s.val() || {}; }); // Cache users for photos
+    db.ref('users').once('value', s => { allUsersCache = s.val() || {}; }); 
     if(tripRef) tripRef.off(); tripRef = db.ref('trips/'+tid);
     tripRef.on('value',s=>{ trip=s.val(); if(!trip) return; renderUI(); });
 }
@@ -451,14 +509,14 @@ function renderUI(){
 
     safe(trip.deposits).slice().reverse().forEach(d=>{
         if(filter === 'All') {
-            const del=(d.who===user.name||isHead)?`<i class="bi bi-trash text-danger action-icon" onclick="delD(${d.t})"></i>`:"";
+            const del=(d.who===user.name||isHead)?`<i class="bi bi-trash text-danger action-icon" onclick="openCustomConfirm('Delete Deposit?', ()=>delD(${d.t}))"></i>`:"";
             l.innerHTML+=`<div class="list-item" style="border-left:4px solid #2ecc71"><div><small>${d.who}</small><br><b>+₹${d.amt}</b></div>${del}</div>`;
         }
     });
     safe(trip.expenses).slice().reverse().forEach(e=>{
         totalExp += parseFloat(e.a);
         if(filter === 'All' || filter === e.cat) {
-            const del=(isHead||e.who===user.name)?`<div class="d-flex gap-2"><i class="bi bi-pencil text-primary action-icon" onclick="edE(${e.t},'${e.r}','${e.a}')"></i><i class="bi bi-trash text-danger action-icon" onclick="delE(${e.t})"></i></div>`:"";
+            const del=(isHead||e.who===user.name)?`<div class="d-flex gap-2"><i class="bi bi-pencil text-primary action-icon" onclick="edE(${e.t},'${e.r}','${e.a}')"></i><i class="bi bi-trash text-danger action-icon" onclick="openCustomConfirm('Delete Expense?', ()=>delE(${e.t}))"></i></div>`:"";
             const date = e.date ? new Date(e.date).toLocaleString() : "";
             l.innerHTML+=`<div class="list-item" style="border-left:4px solid #e74c3c"><div><small>${e.r || e.cat}</small><br><small style="font-size:0.7rem;">${date}</small><br><b>-₹${e.a}</b></div>${del}</div>`;
         }
@@ -466,7 +524,6 @@ function renderUI(){
 
     document.getElementById('netExp').innerText = totalExp;
 
-    // MEMBERS WITH PHOTOS
     const ml=document.getElementById('memList'); ml.innerHTML=""; const sl=document.getElementById('dpM'); sl.innerHTML="";
     if(trip.members) trip.members.forEach(m=>{
         const isH=(trip.head&&m.toLowerCase()===trip.head.toLowerCase());
@@ -496,15 +553,13 @@ function renderUI(){
     renderFeed();
 }
 
-function editTripName() { const n = prompt("Enter new Trip Name:", trip.name); if(n) db.ref('trips/'+tid+'/name').set(n); }
-function editDashEst() { const newTot = prompt("Edit Estimate:", trip.estBudget || 0); if(newTot) db.ref('trips/'+tid).update({estBudget: parseFloat(newTot)}); }
 function checkCarMode() { const m = document.getElementById('trMode').value; const p = document.getElementById('trFare'); if(m==='Own Car') p.placeholder = "Fuel/Toll Cost"; else p.placeholder = "Fare/Rent ₹"; }
 function addExp(){const cat = document.getElementById('exCat').value; const r=document.getElementById('exR').value || cat; const a=parseFloat(document.getElementById('exA').value); if(a){db.ref('trips/'+tid+'/expenses').set([...safe(trip.expenses),{r,a,cat,who:user.name,date:Date.now(),t:Date.now()}]);toggle('formExp');}}
 function addDep(){const w=document.getElementById('dpM').value,a=parseFloat(document.getElementById('dpA').value);if(w&&a){db.ref('trips/'+tid+'/deposits').set([...safe(trip.deposits),{who:w,amt:a,t:Date.now()}]);toggle('formDep');}}
-function delE(t){if(confirm("Delete?"))db.ref('trips/'+tid+'/expenses').set(safe(trip.expenses).filter(x=>x.t!==t));}
-function delD(t){if(confirm("Delete Deposit?"))db.ref('trips/'+tid+'/deposits').set(safe(trip.deposits).filter(x=>x.t!==t));}
-function edE(t,or,oa){const nr=prompt("Item:",or),na=prompt("Amount:",oa);if(nr&&na)db.ref('trips/'+tid+'/expenses').set(safe(trip.expenses).map(x=>x.t===t?{...x,r:nr,a:parseFloat(na)}:x));}
-function mkHead(n){if(confirm("Make "+n+" Head?"))db.ref('trips/'+tid+'/head').set(n);}
+function delE(t){db.ref('trips/'+tid+'/expenses').set(safe(trip.expenses).filter(x=>x.t!==t));}
+function delD(t){db.ref('trips/'+tid+'/deposits').set(safe(trip.deposits).filter(x=>x.t!==t));}
+function edE(t,or,oa){openCustomPrompt("New Amount:", (na)=>{ if(na) db.ref('trips/'+tid+'/expenses').set(safe(trip.expenses).map(x=>x.t===t?{...x,a:parseFloat(na)}:x)); }); }
+function mkHead(n){openCustomConfirm("Make "+n+" Head?", ()=>{ db.ref('trips/'+tid+'/head').set(n); }); }
 function saveHeadUPI(){const u=document.getElementById('headUPIInput').value;if(u){db.ref('trips/'+tid+'/headUPI').set(u);closeModal('headSetupModal');}}
 function payH(){const a=prompt("Amount:");if(a){if(!trip.headUPI){alert("No UPI");return;}hPay=parseFloat(a);const l=`upi://pay?pa=${trip.headUPI}&pn=${trip.head}&am=${a}&cu=INR`;document.getElementById('payHeadModal').style.display='flex';document.getElementById('hName').innerText="To: "+trip.head;document.getElementById('hAmt').innerText=a;document.getElementById('hLink').href=l;document.getElementById('hQr').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(l)}">`;}}
 function confPay(){db.ref('trips/'+tid+'/deposits').set([...safe(trip.deposits),{who:user.name,amt:hPay,t:Date.now()}]);closeModal('payHeadModal');alert("Added!");}
@@ -512,14 +567,45 @@ function addTrans(){const m=document.getElementById('trMode').value,f=document.g
 function shareRoute(){const r=safe(trip.expenses).filter(e=>e.r.includes("➔"));if(!r.length)return alert("No routes");let m=`🚀 *TRIP PLAN: ${trip.name}*\n\n`,t=0;r.forEach((x,i)=>{m+=`✅ ${x.r} (₹${x.a})\n`;t+=x.a;});m+=`\n💰 Total: ₹${t}`;window.open(`https://wa.me/?text=${encodeURIComponent(m)}`,'_blank');}
 function calcEst(){const t=parseFloat(document.getElementById('eTravel').value)||0;const h=parseFloat(document.getElementById('eHotel').value)||0;const o=parseFloat(document.getElementById('eOther').value)||0;const p=parseFloat(document.getElementById('ePpl').value)||1;const tot = t + h + o;const ph = Math.round(tot / p);db.ref('trips/'+tid).update({estBudget: tot, estPerHead: ph});alert("Saved!");closeModal('estModal');}
 function encImg(i){imgs=[];if(i.files)Array.from(i.files).forEach(f=>{const r=new FileReader();r.onload=e=>{const c=document.createElement('canvas'),x=c.getContext('2d'),w=500,i=new Image();i.src=e.target.result;i.onload=()=>{const sc=w/i.width;c.width=w;c.height=i.height*sc;x.drawImage(i,0,0,w,c.height);imgs.push(c.toDataURL('image/jpeg',0.6));}};r.readAsDataURL(f);});}
-function saveMem(type){const t=document.getElementById('mTxt').value, l=document.getElementById('mLoc').value; if(!t)return; const p={who:user.name,mob:user.mobile,txt:t,loc:l,imgs:imgs,t:Date.now()}; if(type==='trip') db.ref('trips/'+tid+'/highlights').set([...safe(trip.highlights),p]); else db.ref('global_public_feed').push(p); alert("Posted!"); toggle('formMem'); imgs=[];}
-function renderFeed(){const d=document.getElementById('feedArea'); d.innerHTML=""; safe(trip.highlights).reverse().forEach(h=>{let im=""; if(h.imgs)h.imgs.forEach(i=>im+=`<img src="${i}" class="feed-img">`); 
-    const del = (h.who===user.name || user.name===trip.head) ? `<i class="bi bi-trash text-danger position-absolute top-0 end-0 m-2 bg-white p-1 rounded action-icon" onclick="delPost('${h.t}')"></i>` : ""; 
-    const chatBtn = (h.mob && h.who !== user.name) ? `<button class="btn btn-sm btn-success mt-2" onclick="win('https://wa.me/${h.mob}?text=Hi ${h.who}, regarding your post: ${h.txt}')"><i class="bi bi-whatsapp"></i> Chat</button>` : "";
-    d.innerHTML+=`<div class="vibrant-card p-0 overflow-hidden position-relative">${del}<div class="p-3"><b>${h.who}</b> <small class="text-muted">at ${h.loc||"Unknown"}</small><p>${h.txt}</p>${im}${chatBtn}</div></div>`;
-});}
-function delPost(t){if(confirm("Delete?"))db.ref('trips/'+tid+'/highlights').set(safe(trip.highlights).filter(h=>h.t!=t));}
-function loadWorld(){db.ref('global_public_feed').limitToLast(10).on('value',s=>{const d=document.getElementById('globalFeed');d.innerHTML=""; const data = s.val() || {}; Object.keys(data).reverse().forEach(key=>{const k = data[key]; let im="";if(k.imgs)k.imgs.forEach(i=>im+=`<img src="${i}" class="feed-img">`); let ctrls = (k.who === user.name) ? `<div class="d-flex justify-content-end gap-2 p-2"><button class="btn btn-sm btn-light border" onclick="editW('${key}','${k.txt}')">✏️ Edit</button><button class="btn btn-sm btn-danger" onclick="delW('${key}')">🗑️ Delete</button></div>` : ""; const chatBtn = (k.mob && k.who !== user.name) ? `<button class="btn btn-sm btn-success mt-2 ms-3 mb-2" onclick="win('https://wa.me/${k.mob}?text=Hi ${k.who}, regarding your post: ${k.txt}')"><i class="bi bi-whatsapp"></i> Chat</button>` : ""; d.innerHTML+=`<div class="vibrant-card p-0 overflow-hidden bg-white"><div class="p-3"><b>${k.who}</b> <small class="text-muted">at ${k.loc||"Unknown"}</small><p>${k.txt}</p></div>${im}${chatBtn}${ctrls}</div>`;});});}
+function saveMem(type){const t=document.getElementById('mTxt').value, l=document.getElementById('mLoc').value; if(!t)return; const p={id:Date.now(), who:user.name,mob:user.mobile,txt:t,loc:l,imgs:imgs,t:Date.now()}; if(type==='trip') db.ref('trips/'+tid+'/highlights').set([...safe(trip.highlights),p]); else db.ref('global_public_feed').push(p); alert("Posted!"); toggle('formMem'); imgs=[];}
+
+// NEW CHAT FUNCTION
+function openChat(postId) {
+    currentChatPostId = postId;
+    document.getElementById('chatContainer').innerHTML = "<p class='text-center small'>Loading chats...</p>";
+    document.getElementById('chatModal').style.display = 'flex';
+    
+    // Listen for messages
+    db.ref('comments/'+postId).on('value', s => {
+        const chats = safe(s.val());
+        const div = document.getElementById('chatContainer');
+        div.innerHTML = "";
+        chats.forEach(c => {
+            const isMe = c.who === user.name;
+            div.innerHTML += `<div class="msg-bubble ${isMe?'msg-right':'msg-left'}">
+                <span style="font-weight:bold; font-size:0.75rem;">${isMe?'You':c.who}</span><br>
+                ${c.msg} <span class="msg-meta">${new Date(c.t).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+            </div>`;
+        });
+        div.scrollTop = div.scrollHeight;
+    });
+}
+
+function sendChatMessage() {
+    const msg = document.getElementById('chatInput').value;
+    if(!msg) return;
+    db.ref('comments/'+currentChatPostId).push({who: user.name, msg: msg, t: Date.now()});
+    document.getElementById('chatInput').value = "";
+}
+
+function renderFeed(){
+    const d=document.getElementById('feedArea'); d.innerHTML=""; safe(trip.highlights).reverse().forEach(h=>{let im=""; if(h.imgs)h.imgs.forEach(i=>im+=`<img src="${i}" class="feed-img">`); 
+    const del = (h.who===user.name || user.name===trip.head) ? `<i class="bi bi-trash text-danger position-absolute top-0 end-0 m-2 bg-white p-1 rounded action-icon" onclick="openCustomConfirm('Delete Post?', ()=>delPost('${h.t}'))"></i>` : ""; 
+    const chatBtn = `<button class="btn btn-sm btn-light border mt-2 w-100" onclick="openChat('${h.id || h.t}')"><i class="bi bi-chat-text"></i> Chat (Private)</button>`;
+    d.innerHTML+=`<div class="vibrant-card p-0 overflow-hidden position-relative">${del}<div class="p-3"><b>${h.who}</b> <small class="text-muted">at ${h.loc||"Unknown"}</small><p>${h.txt}</p></div>${im}<div class="p-2">${chatBtn}</div></div>`;});
+}
+function delPost(t){db.ref('trips/'+tid+'/highlights').set(safe(trip.highlights).filter(h=>h.t!=t));}
+function loadWorld(){db.ref('global_public_feed').limitToLast(10).on('value',s=>{const d=document.getElementById('globalFeed');d.innerHTML=""; const data = s.val() || {}; Object.keys(data).reverse().forEach(key=>{const k = data[key]; let im="";if(k.imgs)k.imgs.forEach(i=>im+=`<img src="${i}" class="feed-img">`); let ctrls = (k.who === user.name) ? `<div class="d-flex justify-content-end gap-2 p-2"><button class="btn btn-sm btn-light border" onclick="editW('${key}','${k.txt}')">✏️ Edit</button><button class="btn btn-sm btn-danger" onclick="delW('${key}')">🗑️ Delete</button></div>` : ""; const chatBtn = `<button class="btn btn-sm btn-light border mt-2 w-100" onclick="openChat('${key}')"><i class="bi bi-chat-text"></i> Chat</button>`; d.innerHTML+=`<div class="vibrant-card p-0 overflow-hidden bg-white"><div class="p-3"><b>${k.who}</b> <small class="text-muted">at ${k.loc||"Unknown"}</small><p>${k.txt}</p></div>${im}<div class="p-2">${chatBtn}</div>${ctrls}</div>`;});});}
 function delW(k){ if(confirm("Delete?")) db.ref('global_public_feed/'+k).remove(); }
 function editW(k, old){ const n = prompt("Update:", old); if(n) db.ref('global_public_feed/'+k).update({txt:n}); }
 function donate(){ const a=prompt("Amount:"); if(a){ const l=`upi://pay?pa=${UPI_ID}&pn=${DEV_NAME}&am=${a}&cu=INR`; document.getElementById('qrModal').style.display='flex'; document.getElementById('dAmt').innerText=a; document.getElementById('dLink').href=l; document.getElementById('dQr').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(l)}">`; } }
