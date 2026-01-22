@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GHUMO PRO - Privacy Chat</title>
+    <title>GHUMO PRO - Inline Edit & QR</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -42,13 +42,13 @@
 
         .vib-input { border: 1px solid #ddd; background: #fff; padding: 10px; border-radius: 12px; width: 100%; margin-bottom: 8px; outline: none; }
         
-        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; position: relative; }
-        
-        .member-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; }
-        .member-chip { display: flex; flex-direction: column; align-items: center; min-width: 70px; cursor: pointer; }
-        .member-chip img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 3px 8px rgba(0,0,0,0.2); margin-bottom: 5px; }
-        .member-chip span { font-size: 0.75rem; font-weight: bold; background: white; padding: 2px 8px; border-radius: 10px; }
-        .head-border img { border: 3px solid gold; }
+        /* HEADER AVATARS */
+        .header-avatars { display: flex; margin-left: 10px; }
+        .header-avatars img { width: 25px; height: 25px; border-radius: 50%; border: 2px solid white; margin-left: -8px; object-fit: cover; }
+        .header-avatars img:first-child { margin-left: 0; }
+
+        /* INLINE EDIT INPUT */
+        .edit-input { background: transparent; border: none; border-bottom: 2px solid white; color: white; font-weight: bold; text-align: center; width: 150px; outline: none; }
 
         /* MODALS */
         .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 5000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
@@ -60,12 +60,16 @@
         .msg-bubble { padding: 8px 12px; border-radius: 15px; max-width: 80%; font-size: 0.9rem; word-wrap: break-word; }
         .msg-left { align-self: flex-start; background: white; border-bottom-left-radius: 2px; }
         .msg-right { align-self: flex-end; background: #dcf8c6; border-bottom-right-radius: 2px; }
-        .msg-meta { font-size: 0.65rem; color: #888; display: block; margin-top: 2px; }
 
         .hidden { display: none !important; }
         .full-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 4000; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); }
         .feed-img { width: 100%; height: auto; border-radius: 10px; margin-top: 5px; display: block; }
         .profile-pic-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid white; margin-bottom: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        
+        .member-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; }
+        .member-chip { display: flex; flex-direction: column; align-items: center; min-width: 70px; cursor: pointer; }
+        .member-chip img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 3px 8px rgba(0,0,0,0.2); margin-bottom: 5px; }
+        .member-chip span { font-size: 0.75rem; font-weight: bold; background: white; padding: 2px 8px; border-radius: 10px; }
         
         .offer-btn { min-width: 90px; text-align: center; margin-right: 10px; cursor: pointer; }
         .offer-icon { font-size: 1.5rem; background: #fff; padding: 10px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 5px; display: inline-block; }
@@ -84,46 +88,20 @@
 
 <div id="toast">Notification</div>
 
-<div id="customPromptModal" class="custom-modal">
+<div id="qrShowModal" class="custom-modal">
     <div class="modal-box">
-        <h5 id="cpTitle" class="fw-bold mb-3">Edit</h5>
-        <input type="text" id="cpInput" class="vib-input" placeholder="Enter value...">
-        <div class="d-flex gap-2 mt-2">
-            <button class="btn-grad bg-dark" onclick="closeModal('customPromptModal')">Cancel</button>
-            <button class="btn-grad bg-blue" id="cpSaveBtn">Save</button>
-        </div>
+        <span class="close-btn" onclick="closeModal('qrShowModal')">×</span>
+        <h5 class="fw-bold">Scan to Join</h5>
+        <div id="qrCodeImg" class="my-3"></div>
+        <p class="small text-muted">Show this code to your friends</p>
     </div>
 </div>
 
-<div id="customConfirmModal" class="custom-modal">
-    <div class="modal-box">
-        <h5 class="fw-bold mb-2">Are you sure?</h5>
-        <p id="ccMsg" class="text-muted small">This action cannot be undone.</p>
-        <div class="d-flex gap-2 mt-3">
-            <button class="btn-grad bg-dark" onclick="closeModal('customConfirmModal')">No</button>
-            <button class="btn-grad bg-red" id="ccYesBtn">Yes</button>
-        </div>
-    </div>
-</div>
-
-<div id="chatModal" class="custom-modal">
-    <div class="modal-box" style="height: 500px; display: flex; flex-direction: column;">
-        <span class="close-btn" onclick="closeModal('chatModal')">×</span>
-        <h5 class="fw-bold text-start mb-2"><i class="bi bi-chat-dots-fill text-primary"></i> Chat</h5>
-        <div id="chatContainer" class="chat-container flex-grow-1">
-            </div>
-        <div class="d-flex gap-2 mt-2">
-            <input type="text" id="chatInput" class="vib-input mb-0" placeholder="Type a message...">
-            <button class="btn btn-primary rounded-circle" onclick="sendChatMessage()"><i class="bi bi-send-fill"></i></button>
-        </div>
-    </div>
-</div>
-
-<div id="estModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('estModal')">×</span><h4 class="text-primary fw-bold">📊 Budget Calculator</h4><div class="text-start small fw-bold text-muted">Estimated Travel Cost</div><input type="number" id="eTravel" class="vib-input" placeholder="Fare/Fuel Total"><div class="text-start small fw-bold text-muted mt-2">Estimated Stay</div><input type="number" id="eHotel" class="vib-input" placeholder="Hotel Cost"><input type="number" id="eOther" class="vib-input" placeholder="Food/Misc"><div class="text-start small fw-bold text-muted mt-2">Members</div><input type="number" id="ePpl" class="vib-input" placeholder="No. of People" value="1"><button class="btn-grad bg-blue mt-2" onclick="calcEst()">Save Budget</button></div></div>
+<div id="estModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('estModal')">×</span><h4 class="text-primary fw-bold">📊 Edit Budget</h4><div class="text-start small fw-bold text-muted">Estimated Travel Cost</div><input type="number" id="eTravel" class="vib-input" placeholder="Fare/Fuel Total"><div class="text-start small fw-bold text-muted mt-2">Estimated Stay</div><input type="number" id="eHotel" class="vib-input" placeholder="Hotel Cost"><input type="number" id="eOther" class="vib-input" placeholder="Food/Misc"><div class="text-start small fw-bold text-muted mt-2">Members</div><input type="number" id="ePpl" class="vib-input" placeholder="No. of People" value="1"><button class="btn-grad bg-blue mt-2" onclick="calcEst()">Update Budget</button></div></div>
 <div id="headSetupModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('headSetupModal')">×</span><h5>🏦 Head UPI Setup</h5><input type="text" id="headUPIInput" class="vib-input mt-3" placeholder="Enter UPI ID"><button class="btn-grad bg-blue" onclick="saveHeadUPI()">Save</button></div></div>
 <div id="payHeadModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('payHeadModal')">×</span><h5 class="text-primary">Pay to Head</h5><p id="hName" class="small text-muted">--</p><div id="hQr" class="my-2"></div><h3 class="mt-2">₹<span id="hAmt">0</span></h3><a id="hLink" class="btn-grad bg-green mb-2" href="#">Pay Now</a><button class="btn-grad bg-dark" onclick="confPay()">✅ I Paid</button></div></div>
 <div id="qrModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('qrModal')">×</span><h5 class="text-success">Support Dev</h5><div id="dQr" class="my-2"></div><h3 class="mt-2">₹<span id="dAmt">0</span></h3><a id="dLink" class="btn-grad bg-dark" href="#">Pay via UPI</a></div></div>
-<div id="aboutModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('aboutModal')">×</span><h4>GHUMO PRO</h4><p class="small text-muted">Version 17.0 (Privacy & UI)</p><hr><p class="small"><b>Dev:</b> <span id="devNameAbout">--</span></p></div></div>
+<div id="chatModal" class="custom-modal"><div class="modal-box" style="height:500px; display:flex; flex-direction:column;"><span class="close-btn" onclick="closeModal('chatModal')">×</span><h5 class="fw-bold text-start mb-2">Chat</h5><div id="chatContainer" class="chat-container flex-grow-1"></div><div class="d-flex gap-2 mt-2"><input type="text" id="chatInput" class="vib-input mb-0" placeholder="Type..."><button class="btn btn-primary rounded-circle" onclick="sendChatMessage()"><i class="bi bi-send-fill"></i></button></div></div></div>
 
 <div id="authScreen" class="full-screen">
     <div class="vibrant-card text-center" style="width:340px; background:white;">
@@ -165,7 +143,7 @@
     <div class="container py-3">
         <div class="row g-3 mb-3">
             <div class="col-6"><button class="btn-grad bg-blue" onclick="createTrip()"><i class="bi bi-plus-circle"></i> Create</button></div>
-            <div class="col-6"><button class="btn-grad bg-dark" onclick="joinTrip()"><i class="bi bi-rocket-takeoff"></i> Join</button></div>
+            <div class="col-6"><button class="btn-grad bg-dark" onclick="joinTripPrompt()"><i class="bi bi-rocket-takeoff"></i> Join</button></div>
         </div>
         <div class="vibrant-card p-2">
             <h6 class="fw-bold ps-2 mb-3">🔥 OFFERS</h6>
@@ -185,11 +163,15 @@
 <div id="mainApp" class="hidden">
     <div class="app-header">
         <i class="bi bi-arrow-left fs-3" style="cursor:pointer;" onclick="handleBackButton()"></i>
-        <div class="text-center">
-            <span class="fw-bold" id="tName">Trip</span> <i class="bi bi-pencil-square text-white ms-1" style="cursor:pointer; font-size:0.8rem;" onclick="triggerTripNameEdit()"></i>
-            <br><small id="tCode" style="opacity:0.8"></small>
+        <div class="text-center d-flex flex-column align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <span id="tName" class="fw-bold">Trip</span>
+                <i class="bi bi-pencil-square text-white" style="cursor:pointer; font-size:0.8rem;" onclick="inlineEditTripName()"></i>
+            </div>
+            <div class="header-avatars mt-1" id="headerAvatars"></div>
+            <small id="tCode" style="opacity:0.8"></small>
         </div>
-        <div></div>
+        <i class="bi bi-qr-code fs-4" style="cursor:pointer;" onclick="showTripQR()"></i>
     </div>
 
     <div class="container py-3">
@@ -204,7 +186,7 @@
 
         <div class="row g-2 mb-2">
             <div class="col-6">
-                <div class="vibrant-card text-center py-2" style="background:rgba(255,255,255,0.9); margin-bottom:0; cursor:pointer;" onclick="triggerEstEdit()">
+                <div class="vibrant-card text-center py-2" style="background:rgba(255,255,255,0.9); margin-bottom:0; cursor:pointer;" onclick="inlineEditBudget()">
                     <div class="d-flex justify-content-between px-2">
                         <small class="text-muted fw-bold" style="font-size:0.65rem;">ESTIMATE</small>
                         <i class="bi bi-pencil-square text-primary" style="font-size:0.8rem;"></i>
@@ -232,21 +214,22 @@
         <div id="headArea" class="mb-3"></div>
 
         <div class="row g-2 mb-3">
-            <div class="col-6"><button class="btn-grad bg-orange small" onclick="toggle('formExp')">💸 Expense</button></div>
+            <div class="col-6"><button class="btn-grad bg-orange small" onclick="toggle('formExp'); clearExpForm();">💸 Expense</button></div>
             <div class="col-6"><button class="btn-grad bg-green small" onclick="toggle('formDep')">💰 Deposit</button></div>
             <div class="col-6"><button class="btn-grad bg-blue small" onclick="document.getElementById('estModal').style.display='flex'">📊 Calculator</button></div>
             <div class="col-6"><button class="btn-grad bg-dark small" onclick="toggle('formMem')">📸 Post</button></div>
         </div>
 
         <div id="formExp" class="vibrant-card hidden">
-            <h6 class="text-danger fw-bold">Add Expense</h6>
-            <select id="exCat" class="vib-input">
+            <h6 class="text-danger fw-bold" id="expFormTitle">Add Expense</h6>
+            <input type="hidden" id="editExpId"> <select id="exCat" class="vib-input">
                 <option value="Food">Food</option><option value="Hotel">Hotel</option><option value="Fare">Travel Fare</option><option value="Petrol">Petrol</option><option value="Other">Other</option>
             </select>
             <input type="text" id="exR" class="vib-input" placeholder="Details (Optional)">
             <input type="number" id="exA" class="vib-input" placeholder="Amount ₹">
-            <button class="btn-grad bg-orange" onclick="addExp()">Add</button>
+            <button class="btn-grad bg-orange" id="expBtnAction" onclick="addExp()">Add</button>
         </div>
+
         <div id="formDep" class="vibrant-card hidden">
             <h6 class="text-success fw-bold">Deposit</h6>
             <select id="dpM" class="vib-input"></select>
@@ -329,36 +312,31 @@ function toggle(id){const e=document.getElementById(id);e.classList.toggle('hidd
 function win(url){ window.open(url, '_blank'); }
 function showToast(msg) { const x=document.getElementById("toast"); x.innerText=msg; x.className="show"; setTimeout(()=>{x.className=x.className.replace("show","");},3000); }
 
-// CUSTOM MODAL HELPERS
-function openCustomPrompt(title, onSave) {
-    document.getElementById('cpTitle').innerText = title;
-    document.getElementById('cpInput').value = "";
-    document.getElementById('customPromptModal').style.display = 'flex';
-    document.getElementById('cpSaveBtn').onclick = () => {
-        const val = document.getElementById('cpInput').value;
-        if(val) { onSave(val); closeModal('customPromptModal'); }
-    };
-}
-
-function openCustomConfirm(msg, onYes) {
-    document.getElementById('ccMsg').innerText = msg;
-    document.getElementById('customConfirmModal').style.display = 'flex';
-    document.getElementById('ccYesBtn').onclick = () => {
-        onYes(); closeModal('customConfirmModal');
-    };
-}
-
-// EDIT HANDLERS
-function triggerTripNameEdit() { openCustomPrompt("Edit Trip Name", (val) => db.ref('trips/'+tid+'/name').set(val)); }
-function triggerEstEdit() { openCustomPrompt("Edit Estimate Amount", (val) => db.ref('trips/'+tid).update({estBudget: parseFloat(val)})); }
-
 // AUTH & NAV
 window.onload=()=>{
+    // CHECK URL FOR JOIN CODE
+    const urlParams = new URLSearchParams(window.location.search);
+    const joinCode = urlParams.get('join');
+
     document.querySelectorAll('#devNameAbout').forEach(e=>e.innerText=DEV_NAME);
     const s=localStorage.getItem('yatra_user');
-    if(s){ user=JSON.parse(s); updateUserDisplay(); showHome(); } 
-    else { hideAll(); document.getElementById('authScreen').classList.remove('hidden'); }
+    if(s){ 
+        user=JSON.parse(s); 
+        updateUserDisplay(); 
+        if(joinCode) {
+            // Auto Join if logged in
+            joinTripDataFix(joinCode);
+            window.history.replaceState({}, document.title, "/"); // Clear URL
+        } else {
+            showHome(); 
+        }
+    } 
+    else { 
+        hideAll(); document.getElementById('authScreen').classList.remove('hidden'); 
+        if(joinCode) alert("Please Login to Join Trip: " + joinCode);
+    }
 };
+
 function updateUserDisplay(){
     document.getElementById('uName').innerText=user.name;
     const ph = user.photo || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
@@ -425,11 +403,9 @@ function doRegister(){
     const n=document.getElementById('r_name').value,m=document.getElementById('r_mobile').value,p=document.getElementById('r_pass').value;
     const add=document.getElementById('r_address').value, gen=document.getElementById('r_gender').value;
     if(!n||!m||!p) { setStatus("Name, Mobile & Pass Required"); return; }
-    
     setStatus("Creating Account...");
     const finalPhoto = regImgBase64 || "";
     const newUser = {name:n, mobile:m, password:p, address:add, gender:gen, photo:finalPhoto, history:[]};
-    
     db.ref('users/'+m).set(newUser)
     .then(()=>{
         user=newUser;
@@ -457,15 +433,14 @@ function updProf(){
 function handleBackButton() {
     const mainApp = document.getElementById('mainApp');
     const settingsScreen = document.getElementById('settingsScreen');
-    
     if (!mainApp.classList.contains('hidden') || !settingsScreen.classList.contains('hidden')) {
-        goBackLogic(); // Go to Home
+        goBackLogic();
     } else {
         const currentTime = new Date().getTime();
         if (currentTime - lastBackPressTime < 2000) {
-            openCustomConfirm("Do you want to exit the app?", () => {
+            if(confirm("Do you want to exit?")) {
                 document.body.innerHTML = "<div style='height:100vh;display:flex;align-items:center;justify-content:center;color:white;background:#333;'><h1>Goodbye! 👋</h1></div>";
-            });
+            }
         } else {
             lastBackPressTime = currentTime;
             showToast("Press BACK again to Exit");
@@ -474,19 +449,30 @@ function handleBackButton() {
 }
 function goBackLogic() { showHome(); }
 
-// TRIP
-function createTrip(){ openCustomPrompt("Trip Name:", (n)=>{ if(n){const id="T"+Math.floor(10000+Math.random()*90000);db.ref('trips/'+id).set({name:n,members:[user.name]}).then(()=>{addHist(id);enterTrip(id);});} }); }
-function joinTrip(){ openCustomPrompt("Trip Code:", (i)=>{ if(i)db.ref('trips/'+i.toUpperCase()).once('value',s=>{if(s.exists()){addHist(i.toUpperCase());joinTripDataFix(i.toUpperCase());}else alert("Invalid");}); }); }
+// TRIP LOGIC
+function createTrip(){ const n=prompt("Trip Name:"); if(n){const id="T"+Math.floor(10000+Math.random()*90000);db.ref('trips/'+id).set({name:n,members:[user.name]}).then(()=>{addHist(id);enterTrip(id);});} }
+
+// JOIN PROMPT (CODE OR QR)
+function joinTripPrompt(){ 
+    const code = prompt("Enter Trip Code (or Scan QR):"); 
+    if(code) {
+        db.ref('trips/'+code.toUpperCase()).once('value',s=>{
+            if(s.exists()){addHist(code.toUpperCase());joinTripDataFix(code.toUpperCase());}
+            else alert("Invalid Code");
+        }); 
+    }
+}
+
 function addHist(id){db.ref('users/'+user.mobile+'/history').once('value',s=>{let h=safe(s.val());if(!h.includes(id)){h.push(id);db.ref('users/'+user.mobile+'/history').set(h);}});}
 function loadTrips(){db.ref('users/'+user.mobile+'/history').on('value',async s=>{const l=document.getElementById('userTripList');l.innerHTML="";const c=safe(s.val());if(!c.length){l.innerHTML="<p class='text-center text-white small'>No trips.</p>";return;}for(const i of c){const sp=await db.ref('trips/'+i).once('value');if(sp.exists())l.innerHTML+=`<div class="vibrant-card d-flex justify-content-between p-2 mb-2" onclick="enterTrip('${i}')"><b>${sp.val().name}</b><small>${i}</small></div>`;}});}
 function joinTripDataFix(id) { db.ref('trips/'+id).once('value', s => { let t = s.val(); if(t) { let m = safe(t.members); if(!m.includes(user.name)) { m.push(user.name); db.ref('trips/'+id+'/members').set(m); } enterTrip(id); } }); }
 function exitTripLogic() {
-    openCustomConfirm("EXIT TRIP?", () => {
+    if(confirm("⚠ EXIT TRIP?")) {
         if(trip.head === user.name) { alert("Assign new Head first!"); return; }
         if(tripRef) tripRef.off();
         db.ref('trips/'+tid+'/members').set(safe(trip.members).filter(m => m !== user.name));
         db.ref('users/'+user.mobile+'/history').once('value', s => { db.ref('users/'+user.mobile+'/history').set(safe(s.val()).filter(x => x !== tid)).then(() => { alert("Exited!"); showHome(); }); });
-    });
+    }
 }
 
 function enterTrip(id){
@@ -494,6 +480,41 @@ function enterTrip(id){
     db.ref('users').once('value', s => { allUsersCache = s.val() || {}; }); 
     if(tripRef) tripRef.off(); tripRef = db.ref('trips/'+tid);
     tripRef.on('value',s=>{ trip=s.val(); if(!trip) return; renderUI(); });
+}
+
+// INLINE TRIP EDIT
+function inlineEditTripName() {
+    const span = document.getElementById('tName');
+    const oldVal = span.innerText;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = oldVal;
+    input.className = 'edit-input';
+    input.onblur = function() { saveTripName(this.value, oldVal); };
+    input.onkeypress = function(e) { if(e.key === 'Enter') saveTripName(this.value, oldVal); };
+    span.replaceWith(input);
+    input.focus();
+}
+function saveTripName(newVal, oldVal) {
+    if(newVal && newVal !== oldVal) { db.ref('trips/'+tid+'/name').set(newVal); }
+    // Render UI will fix the DOM back to span
+}
+
+// INLINE BUDGET EDIT (REUSE MODAL)
+function inlineEditBudget() {
+    // Pre-fill modal
+    document.getElementById('eTravel').value = ""; // Or logic to split budget if stored separately
+    // Since we store total budget, we can just show a prompt OR open modal to overwrite
+    // Let's open modal to allow detailed re-entry
+    document.getElementById('estModal').style.display='flex';
+}
+
+// QR SHOW
+function showTripQR() {
+    const url = window.location.href.split('?')[0] + "?join=" + tid;
+    const qrImg = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+    document.getElementById('qrCodeImg').innerHTML = `<img src="${qrImg}" style="width:200px;">`;
+    document.getElementById('qrShowModal').style.display = 'flex';
 }
 
 function renderUI(){
@@ -509,14 +530,14 @@ function renderUI(){
 
     safe(trip.deposits).slice().reverse().forEach(d=>{
         if(filter === 'All') {
-            const del=(d.who===user.name||isHead)?`<i class="bi bi-trash text-danger action-icon" onclick="openCustomConfirm('Delete Deposit?', ()=>delD(${d.t}))"></i>`:"";
+            const del=(d.who===user.name||isHead)?`<i class="bi bi-trash text-danger action-icon" onclick="delD(${d.t})"></i>`:"";
             l.innerHTML+=`<div class="list-item" style="border-left:4px solid #2ecc71"><div><small>${d.who}</small><br><b>+₹${d.amt}</b></div>${del}</div>`;
         }
     });
     safe(trip.expenses).slice().reverse().forEach(e=>{
         totalExp += parseFloat(e.a);
         if(filter === 'All' || filter === e.cat) {
-            const del=(isHead||e.who===user.name)?`<div class="d-flex gap-2"><i class="bi bi-pencil text-primary action-icon" onclick="edE(${e.t},'${e.r}','${e.a}')"></i><i class="bi bi-trash text-danger action-icon" onclick="openCustomConfirm('Delete Expense?', ()=>delE(${e.t}))"></i></div>`:"";
+            const del=(isHead||e.who===user.name)?`<div class="d-flex gap-2"><i class="bi bi-pencil text-primary action-icon" onclick="inlineEditExp(${e.t}, '${e.r}', '${e.a}', '${e.cat}')"></i><i class="bi bi-trash text-danger action-icon" onclick="delE(${e.t})"></i></div>`:"";
             const date = e.date ? new Date(e.date).toLocaleString() : "";
             l.innerHTML+=`<div class="list-item" style="border-left:4px solid #e74c3c"><div><small>${e.r || e.cat}</small><br><small style="font-size:0.7rem;">${date}</small><br><b>-₹${e.a}</b></div>${del}</div>`;
         }
@@ -524,6 +545,9 @@ function renderUI(){
 
     document.getElementById('netExp').innerText = totalExp;
 
+    // HEADER MEMBERS
+    const hAv = document.getElementById('headerAvatars'); hAv.innerHTML = "";
+    // MEMBER LIST
     const ml=document.getElementById('memList'); ml.innerHTML=""; const sl=document.getElementById('dpM'); sl.innerHTML="";
     if(trip.members) trip.members.forEach(m=>{
         const isH=(trip.head&&m.toLowerCase()===trip.head.toLowerCase());
@@ -531,6 +555,10 @@ function renderUI(){
         const foundUserKey = Object.keys(allUsersCache).find(key => allUsersCache[key].name === m);
         if(foundUserKey && allUsersCache[foundUserKey].photo) photoUrl = allUsersCache[foundUserKey].photo;
 
+        // Populate Header
+        hAv.innerHTML += `<img src="${photoUrl}">`;
+
+        // Populate List
         ml.innerHTML+=`<div class="member-chip ${isH?'head-border':''}" onclick="mkHead('${m}')"><img src="${photoUrl}"><span>${m} ${isH?'👑':''}</span></div>`;
         sl.innerHTML+=`<option value="${m}">${m}</option>`;
     });
@@ -554,43 +582,76 @@ function renderUI(){
 }
 
 function checkCarMode() { const m = document.getElementById('trMode').value; const p = document.getElementById('trFare'); if(m==='Own Car') p.placeholder = "Fuel/Toll Cost"; else p.placeholder = "Fare/Rent ₹"; }
-function addExp(){const cat = document.getElementById('exCat').value; const r=document.getElementById('exR').value || cat; const a=parseFloat(document.getElementById('exA').value); if(a){db.ref('trips/'+tid+'/expenses').set([...safe(trip.expenses),{r,a,cat,who:user.name,date:Date.now(),t:Date.now()}]);toggle('formExp');}}
+
+// INLINE EXPENSE EDIT
+function clearExpForm() {
+    document.getElementById('expFormTitle').innerText = "Add Expense";
+    document.getElementById('editExpId').value = "";
+    document.getElementById('exR').value = "";
+    document.getElementById('exA').value = "";
+    document.getElementById('expBtnAction').innerText = "Add";
+}
+
+function inlineEditExp(id, r, a, cat) {
+    document.getElementById('formExp').classList.remove('hidden');
+    document.getElementById('expFormTitle').innerText = "Edit Expense";
+    document.getElementById('editExpId').value = id;
+    document.getElementById('exR').value = r;
+    document.getElementById('exA').value = a;
+    document.getElementById('exCat').value = cat || 'Other';
+    document.getElementById('expBtnAction').innerText = "Update";
+    document.getElementById('formExp').scrollIntoView({behavior: 'smooth'});
+}
+
+function addExp(){
+    const cat = document.getElementById('exCat').value; 
+    const r=document.getElementById('exR').value || cat; 
+    const a=parseFloat(document.getElementById('exA').value);
+    const editId = document.getElementById('editExpId').value;
+
+    if(a){
+        if (editId) {
+            // Update Existing
+            db.ref('trips/'+tid+'/expenses').set(safe(trip.expenses).map(x=>x.t==editId ? {...x, r:r, a:a, cat:cat} : x));
+            alert("Updated!");
+        } else {
+            // Add New
+            db.ref('trips/'+tid+'/expenses').set([...safe(trip.expenses),{r,a,cat,who:user.name,date:Date.now(),t:Date.now()}]);
+        }
+        toggle('formExp');
+        clearExpForm();
+    }
+}
+
 function addDep(){const w=document.getElementById('dpM').value,a=parseFloat(document.getElementById('dpA').value);if(w&&a){db.ref('trips/'+tid+'/deposits').set([...safe(trip.deposits),{who:w,amt:a,t:Date.now()}]);toggle('formDep');}}
-function delE(t){db.ref('trips/'+tid+'/expenses').set(safe(trip.expenses).filter(x=>x.t!==t));}
-function delD(t){db.ref('trips/'+tid+'/deposits').set(safe(trip.deposits).filter(x=>x.t!==t));}
-function edE(t,or,oa){openCustomPrompt("New Amount:", (na)=>{ if(na) db.ref('trips/'+tid+'/expenses').set(safe(trip.expenses).map(x=>x.t===t?{...x,a:parseFloat(na)}:x)); }); }
-function mkHead(n){openCustomConfirm("Make "+n+" Head?", ()=>{ db.ref('trips/'+tid+'/head').set(n); }); }
+function delE(t){if(confirm("Delete?"))db.ref('trips/'+tid+'/expenses').set(safe(trip.expenses).filter(x=>x.t!==t));}
+function delD(t){if(confirm("Delete Deposit?"))db.ref('trips/'+tid+'/deposits').set(safe(trip.deposits).filter(x=>x.t!==t));}
+function mkHead(n){if(confirm("Make "+n+" Head?"))db.ref('trips/'+tid+'/head').set(n);}
 function saveHeadUPI(){const u=document.getElementById('headUPIInput').value;if(u){db.ref('trips/'+tid+'/headUPI').set(u);closeModal('headSetupModal');}}
 function payH(){const a=prompt("Amount:");if(a){if(!trip.headUPI){alert("No UPI");return;}hPay=parseFloat(a);const l=`upi://pay?pa=${trip.headUPI}&pn=${trip.head}&am=${a}&cu=INR`;document.getElementById('payHeadModal').style.display='flex';document.getElementById('hName').innerText="To: "+trip.head;document.getElementById('hAmt').innerText=a;document.getElementById('hLink').href=l;document.getElementById('hQr').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(l)}">`;}}
 function confPay(){db.ref('trips/'+tid+'/deposits').set([...safe(trip.deposits),{who:user.name,amt:hPay,t:Date.now()}]);closeModal('payHeadModal');alert("Added!");}
-function addTrans(){const m=document.getElementById('trMode').value,f=document.getElementById('trFrom').value,t=document.getElementById('trTo').value,a=parseFloat(document.getElementById('trFare').value);if(f&&t&&a){db.ref('trips/'+tid+'/expenses').set([...safe(trip.expenses),{r:`${m}: ${f} ➔ ${t}`,a,cat:'Fare',who:user.name,date:Date.now(),t:Date.now()}]);alert("Added!");}}
+function addTrans(){const m=document.getElementById('trMode').value,f=document.getElementById('trFrom').value,t=document.getElementById('trTo').value,a=parseFloat(document.getElementById('trFare').value);if(f&&t&&a){db.ref('trips/'+tid+'/expenses').set([...safe(trip.expenses),{r:`${m}: ${f} ➔ ${t}`,a,cat:'Fare',who:user.name,date:Date.now(),t:Date.now()}]); document.getElementById('smDest').innerText="for "+t; const b=document.getElementById('smButtons'); b.innerHTML=`<button class="btn btn-sm btn-light border" onclick="win('https://www.booking.com/searchresults.html?ss=${t}')">🏨 Hotels</button>`; if(m==='Bus')b.innerHTML+=`<button class="btn btn-sm btn-danger ms-1" onclick="win('https://www.redbus.in')">🚌 Bus</button>`; document.getElementById('smartOfferBox').classList.remove('hidden'); alert("Added!");}}
 function shareRoute(){const r=safe(trip.expenses).filter(e=>e.r.includes("➔"));if(!r.length)return alert("No routes");let m=`🚀 *TRIP PLAN: ${trip.name}*\n\n`,t=0;r.forEach((x,i)=>{m+=`✅ ${x.r} (₹${x.a})\n`;t+=x.a;});m+=`\n💰 Total: ₹${t}`;window.open(`https://wa.me/?text=${encodeURIComponent(m)}`,'_blank');}
 function calcEst(){const t=parseFloat(document.getElementById('eTravel').value)||0;const h=parseFloat(document.getElementById('eHotel').value)||0;const o=parseFloat(document.getElementById('eOther').value)||0;const p=parseFloat(document.getElementById('ePpl').value)||1;const tot = t + h + o;const ph = Math.round(tot / p);db.ref('trips/'+tid).update({estBudget: tot, estPerHead: ph});alert("Saved!");closeModal('estModal');}
 function encImg(i){imgs=[];if(i.files)Array.from(i.files).forEach(f=>{const r=new FileReader();r.onload=e=>{const c=document.createElement('canvas'),x=c.getContext('2d'),w=500,i=new Image();i.src=e.target.result;i.onload=()=>{const sc=w/i.width;c.width=w;c.height=i.height*sc;x.drawImage(i,0,0,w,c.height);imgs.push(c.toDataURL('image/jpeg',0.6));}};r.readAsDataURL(f);});}
 function saveMem(type){const t=document.getElementById('mTxt').value, l=document.getElementById('mLoc').value; if(!t)return; const p={id:Date.now(), who:user.name,mob:user.mobile,txt:t,loc:l,imgs:imgs,t:Date.now()}; if(type==='trip') db.ref('trips/'+tid+'/highlights').set([...safe(trip.highlights),p]); else db.ref('global_public_feed').push(p); alert("Posted!"); toggle('formMem'); imgs=[];}
 
-// NEW CHAT FUNCTION
+// CHAT
 function openChat(postId) {
     currentChatPostId = postId;
-    document.getElementById('chatContainer').innerHTML = "<p class='text-center small'>Loading chats...</p>";
+    document.getElementById('chatContainer').innerHTML = "<p class='text-center small'>Loading...</p>";
     document.getElementById('chatModal').style.display = 'flex';
-    
-    // Listen for messages
     db.ref('comments/'+postId).on('value', s => {
         const chats = safe(s.val());
         const div = document.getElementById('chatContainer');
         div.innerHTML = "";
         chats.forEach(c => {
             const isMe = c.who === user.name;
-            div.innerHTML += `<div class="msg-bubble ${isMe?'msg-right':'msg-left'}">
-                <span style="font-weight:bold; font-size:0.75rem;">${isMe?'You':c.who}</span><br>
-                ${c.msg} <span class="msg-meta">${new Date(c.t).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-            </div>`;
+            div.innerHTML += `<div class="msg-bubble ${isMe?'msg-right':'msg-left'}"><b>${isMe?'You':c.who}</b><br>${c.msg}</div>`;
         });
         div.scrollTop = div.scrollHeight;
     });
 }
-
 function sendChatMessage() {
     const msg = document.getElementById('chatInput').value;
     if(!msg) return;
@@ -600,11 +661,11 @@ function sendChatMessage() {
 
 function renderFeed(){
     const d=document.getElementById('feedArea'); d.innerHTML=""; safe(trip.highlights).reverse().forEach(h=>{let im=""; if(h.imgs)h.imgs.forEach(i=>im+=`<img src="${i}" class="feed-img">`); 
-    const del = (h.who===user.name || user.name===trip.head) ? `<i class="bi bi-trash text-danger position-absolute top-0 end-0 m-2 bg-white p-1 rounded action-icon" onclick="openCustomConfirm('Delete Post?', ()=>delPost('${h.t}'))"></i>` : ""; 
-    const chatBtn = `<button class="btn btn-sm btn-light border mt-2 w-100" onclick="openChat('${h.id || h.t}')"><i class="bi bi-chat-text"></i> Chat (Private)</button>`;
+    const del = (h.who===user.name || user.name===trip.head) ? `<i class="bi bi-trash text-danger position-absolute top-0 end-0 m-2 bg-white p-1 rounded action-icon" onclick="delPost('${h.t}')"></i>` : ""; 
+    const chatBtn = `<button class="btn btn-sm btn-light border mt-2 w-100" onclick="openChat('${h.id || h.t}')"><i class="bi bi-chat-text"></i> Chat</button>`;
     d.innerHTML+=`<div class="vibrant-card p-0 overflow-hidden position-relative">${del}<div class="p-3"><b>${h.who}</b> <small class="text-muted">at ${h.loc||"Unknown"}</small><p>${h.txt}</p></div>${im}<div class="p-2">${chatBtn}</div></div>`;});
 }
-function delPost(t){db.ref('trips/'+tid+'/highlights').set(safe(trip.highlights).filter(h=>h.t!=t));}
+function delPost(t){if(confirm("Delete?"))db.ref('trips/'+tid+'/highlights').set(safe(trip.highlights).filter(h=>h.t!=t));}
 function loadWorld(){db.ref('global_public_feed').limitToLast(10).on('value',s=>{const d=document.getElementById('globalFeed');d.innerHTML=""; const data = s.val() || {}; Object.keys(data).reverse().forEach(key=>{const k = data[key]; let im="";if(k.imgs)k.imgs.forEach(i=>im+=`<img src="${i}" class="feed-img">`); let ctrls = (k.who === user.name) ? `<div class="d-flex justify-content-end gap-2 p-2"><button class="btn btn-sm btn-light border" onclick="editW('${key}','${k.txt}')">✏️ Edit</button><button class="btn btn-sm btn-danger" onclick="delW('${key}')">🗑️ Delete</button></div>` : ""; const chatBtn = `<button class="btn btn-sm btn-light border mt-2 w-100" onclick="openChat('${key}')"><i class="bi bi-chat-text"></i> Chat</button>`; d.innerHTML+=`<div class="vibrant-card p-0 overflow-hidden bg-white"><div class="p-3"><b>${k.who}</b> <small class="text-muted">at ${k.loc||"Unknown"}</small><p>${k.txt}</p></div>${im}<div class="p-2">${chatBtn}</div>${ctrls}</div>`;});});}
 function delW(k){ if(confirm("Delete?")) db.ref('global_public_feed/'+k).remove(); }
 function editW(k, old){ const n = prompt("Update:", old); if(n) db.ref('global_public_feed/'+k).update({txt:n}); }
