@@ -3,673 +3,410 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GHUMO PRO - Inline Edit & QR</title>
+    <title>GHUMO PRO - Ultimate Fix</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <style>
         :root { --glass: rgba(255, 255, 255, 0.95); --text: #333; }
         body { 
             font-family: 'Poppins', sans-serif; 
-            background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
-            background-attachment: fixed;
-            min-height: 100vh; color: var(--text); padding-bottom: 30px; user-select: none;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); /* Clean Light Background */
+            min-height: 100vh; color: var(--text); padding-bottom: 50px; user-select: none;
+            overflow-x: hidden;
         }
 
+        /* CARD STYLE */
         .vibrant-card {
-            background: var(--glass); backdrop-filter: blur(10px); border-radius: 20px;
-            padding: 15px; margin-bottom: 15px; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: white; border-radius: 20px;
+            padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05); position: relative; overflow: hidden;
         }
 
         .app-header {
-            background: rgba(255,255,255,0.25); backdrop-filter: blur(12px); padding: 15px 20px;
+            background: white; padding: 15px 20px;
             position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.3); color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
-        .btn-grad { border: none; border-radius: 50px; padding: 10px; font-weight: 700; color: white; width: 100%; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        /* BUTTONS GRID (OLD STYLE RESTORED) */
+        .btn-grad { border: none; border-radius: 15px; padding: 12px; font-weight: 700; color: white; width: 100%; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .btn-grad:active { transform: scale(0.96); }
+        .btn-grad i { font-size: 1.5rem; margin-bottom: 5px; }
         
         .bg-orange { background: linear-gradient(to right, #FF512F, #DD2476); }
         .bg-green { background: linear-gradient(to right, #11998e, #38ef7d); }
         .bg-blue { background: linear-gradient(to right, #2193b0, #6dd5ed); }
         .bg-dark { background: linear-gradient(to right, #232526, #414345); }
-        .bg-purple { background: linear-gradient(to right, #8E2DE2, #4A00E0); }
+        .bg-gold { background: linear-gradient(to right, #F2994A, #F2C94C); color:black; }
         .bg-red { background: linear-gradient(to right, #cb2d3e, #ef473a); }
 
-        .vib-input { border: 1px solid #ddd; background: #fff; padding: 10px; border-radius: 12px; width: 100%; margin-bottom: 8px; outline: none; }
+        .vib-input { border: 1px solid #ddd; background: #f9f9f9; padding: 10px; border-radius: 12px; width: 100%; margin-bottom: 8px; outline: none; }
         
-        /* HEADER AVATARS */
-        .header-avatars { display: flex; margin-left: 10px; }
-        .header-avatars img { width: 25px; height: 25px; border-radius: 50%; border: 2px solid white; margin-left: -8px; object-fit: cover; }
-        .header-avatars img:first-child { margin-left: 0; }
+        /* PIGGY ANIMATION */
+        @keyframes piggy-jiggle { 0% { transform: scale(1); } 50% { transform: scale(1.05) rotate(3deg); } 100% { transform: scale(1); } }
+        .piggy-anim { animation: piggy-jiggle 0.6s ease-in-out; }
+        #piggyCard { background: #FFF3E0; border: 2px solid #FFB74D; }
 
-        /* INLINE EDIT INPUT */
-        .edit-input { background: transparent; border: none; border-bottom: 2px solid white; color: white; font-weight: bold; text-align: center; width: 150px; outline: none; }
+        /* LIST ITEMS */
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
+        .member-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; }
+        .member-chip { display: flex; flex-direction: column; align-items: center; min-width: 70px; cursor: pointer; }
+        .member-chip img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 3px 8px rgba(0,0,0,0.2); margin-bottom: 5px; }
+        .head-border img { border: 3px solid gold; }
+
+        /* GRAPH */
+        .bar-container { margin-bottom: 8px; }
+        .bar-label { display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 2px; }
+        .progress { height: 8px; border-radius: 4px; background-color: #eee; }
+        .progress-bar { border-radius: 4px; transition: width 1s; }
 
         /* MODALS */
         .custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 5000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
         .modal-box { background: white; padding: 25px; border-radius: 25px; width: 90%; max-width: 350px; text-align: center; position: relative; max-height: 85vh; overflow-y: auto; }
         .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #aaa; }
 
-        /* CHAT STYLES */
-        .chat-container { height: 300px; overflow-y: auto; background: #f0f2f5; border-radius: 10px; padding: 10px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
-        .msg-bubble { padding: 8px 12px; border-radius: 15px; max-width: 80%; font-size: 0.9rem; word-wrap: break-word; }
-        .msg-left { align-self: flex-start; background: white; border-bottom-left-radius: 2px; }
-        .msg-right { align-self: flex-end; background: #dcf8c6; border-bottom-right-radius: 2px; }
-
         .hidden { display: none !important; }
-        .full-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 4000; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); }
-        .feed-img { width: 100%; height: auto; border-radius: 10px; margin-top: 5px; display: block; }
-        .profile-pic-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid white; margin-bottom: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .full-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 4000; display: flex; align-items: center; justify-content: center; background: #fff; }
+        .header-avatars { display: flex; margin-left: 10px; }
+        .header-avatars img { width: 25px; height: 25px; border-radius: 50%; border: 2px solid white; margin-left: -8px; object-fit: cover; }
         
-        .member-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; }
-        .member-chip { display: flex; flex-direction: column; align-items: center; min-width: 70px; cursor: pointer; }
-        .member-chip img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 3px 8px rgba(0,0,0,0.2); margin-bottom: 5px; }
-        .member-chip span { font-size: 0.75rem; font-weight: bold; background: white; padding: 2px 8px; border-radius: 10px; }
-        
-        .offer-btn { min-width: 90px; text-align: center; margin-right: 10px; cursor: pointer; }
-        .offer-icon { font-size: 1.5rem; background: #fff; padding: 10px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 5px; display: inline-block; }
-        
-        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 50px; padding: 16px; position: fixed; z-index: 6000; left: 50%; transform: translateX(-50%); bottom: 30px; }
-        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+        /* CHAT & FEED */
+        .feed-img { width: 100%; height: auto; border-radius: 10px; margin-top: 5px; }
+        .chat-container { height: 300px; overflow-y: auto; background: #f0f2f5; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .msg-bubble { padding: 8px 12px; border-radius: 15px; max-width: 80%; font-size: 0.9rem; }
+        .msg-left { align-self: flex-start; background: white; }
+        .msg-right { align-self: flex-end; background: #dcf8c6; }
     </style>
     
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
-<body>
+<body id="bodyTag">
 
-<div id="toast">Notification</div>
+<div id="estModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('estModal')">×</span><h4>📊 Update Budget</h4><input type="number" id="newEst" class="vib-input" placeholder="New Budget ₹"><button class="btn-grad bg-blue" onclick="saveEst()">Save</button></div></div>
+<div id="headSetupModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('headSetupModal')">×</span><h5>🏦 Head UPI</h5><input type="text" id="headUPIInput" class="vib-input" placeholder="UPI ID"><button class="btn-grad bg-blue" onclick="saveHeadUPI()">Save</button></div></div>
+<div id="payHeadModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('payHeadModal')">×</span><h5 class="text-primary">Pay Head</h5><p id="hName">--</p><div id="hQr" class="my-2"></div><h3 class="mt-2">₹<span id="hAmt">0</span></h3><a id="hLink" class="btn-grad bg-green mb-2" href="#">Pay Now</a><button class="btn-grad bg-dark" onclick="confPay()">✅ I Paid</button></div></div>
+<div id="wheelModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('wheelModal')">×</span><h4 style="color:#FF512F;">🎡 Spin Wheel</h4><canvas id="wheelCanvas" width="280" height="280" style="width:100%; border-radius:50%; box-shadow:0 5px 10px rgba(0,0,0,0.2);"></canvas><button class="btn-grad bg-gold mt-3" onclick="spinTheWheel()">SPIN</button></div></div>
+<div id="chatModal" class="custom-modal"><div class="modal-box" style="height:500px; display:flex; flex-direction:column;"><span class="close-btn" onclick="closeModal('chatModal')">×</span><h5 class="text-start">Chat</h5><div id="chatContainer" class="chat-container flex-grow-1"></div><div class="d-flex gap-2 mt-2"><input type="text" id="chatInput" class="vib-input mb-0" placeholder="Type..."><button class="btn btn-primary rounded-circle" onclick="sendChatMessage()"><i class="bi bi-send-fill"></i></button></div></div></div>
+<div id="checklistModal" class="custom-modal"><div class="modal-box text-start"><span class="close-btn" onclick="closeModal('checklistModal')">×</span><h5>🎒 Checklist</h5><div id="checklistContainer"></div></div></div>
+<div id="sosModal" class="custom-modal"><div class="modal-box text-center"><h1 style="font-size:3rem;">🚨</h1><h4 class="text-danger">SOS ALERT!</h4><button class="btn btn-dark mt-3" onclick="stopSOS()">STOP</button></div></div>
+<div id="qrShowModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('qrShowModal')">×</span><h5>Scan to Join</h5><div id="qrCodeImg" class="my-3"></div></div></div>
 
-<div id="qrShowModal" class="custom-modal">
-    <div class="modal-box">
-        <span class="close-btn" onclick="closeModal('qrShowModal')">×</span>
-        <h5 class="fw-bold">Scan to Join</h5>
-        <div id="qrCodeImg" class="my-3"></div>
-        <p class="small text-muted">Show this code to your friends</p>
+<div id="formExpModal" class="custom-modal">
+    <div class="modal-box text-start">
+        <span class="close-btn" onclick="closeModal('formExpModal')">×</span>
+        <h5 class="text-danger fw-bold mb-3">Add Expense</h5>
+        <input type="text" id="exR" class="vib-input" placeholder="Item (e.g. Pizza)" onkeyup="autoCategorize(this.value)">
+        <div class="d-flex gap-2 mb-2">
+            <select id="exCat" class="vib-input w-50"><option>Food</option><option>Travel</option><option>Hotel</option><option>Other</option></select>
+            <input type="number" id="exA" class="vib-input w-50" placeholder="₹ Amount">
+        </div>
+        <div class="form-check mb-3"><input class="form-check-input" type="checkbox" id="fromPiggy"><label class="form-check-label small">Pay from Piggy Bank 🐷</label></div>
+        <button class="btn-grad bg-orange" onclick="addExp()">Add Expense</button>
     </div>
 </div>
 
-<div id="estModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('estModal')">×</span><h4 class="text-primary fw-bold">📊 Edit Budget</h4><div class="text-start small fw-bold text-muted">Estimated Travel Cost</div><input type="number" id="eTravel" class="vib-input" placeholder="Fare/Fuel Total"><div class="text-start small fw-bold text-muted mt-2">Estimated Stay</div><input type="number" id="eHotel" class="vib-input" placeholder="Hotel Cost"><input type="number" id="eOther" class="vib-input" placeholder="Food/Misc"><div class="text-start small fw-bold text-muted mt-2">Members</div><input type="number" id="ePpl" class="vib-input" placeholder="No. of People" value="1"><button class="btn-grad bg-blue mt-2" onclick="calcEst()">Update Budget</button></div></div>
-<div id="headSetupModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('headSetupModal')">×</span><h5>🏦 Head UPI Setup</h5><input type="text" id="headUPIInput" class="vib-input mt-3" placeholder="Enter UPI ID"><button class="btn-grad bg-blue" onclick="saveHeadUPI()">Save</button></div></div>
-<div id="payHeadModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('payHeadModal')">×</span><h5 class="text-primary">Pay to Head</h5><p id="hName" class="small text-muted">--</p><div id="hQr" class="my-2"></div><h3 class="mt-2">₹<span id="hAmt">0</span></h3><a id="hLink" class="btn-grad bg-green mb-2" href="#">Pay Now</a><button class="btn-grad bg-dark" onclick="confPay()">✅ I Paid</button></div></div>
-<div id="qrModal" class="custom-modal"><div class="modal-box"><span class="close-btn" onclick="closeModal('qrModal')">×</span><h5 class="text-success">Support Dev</h5><div id="dQr" class="my-2"></div><h3 class="mt-2">₹<span id="dAmt">0</span></h3><a id="dLink" class="btn-grad bg-dark" href="#">Pay via UPI</a></div></div>
-<div id="chatModal" class="custom-modal"><div class="modal-box" style="height:500px; display:flex; flex-direction:column;"><span class="close-btn" onclick="closeModal('chatModal')">×</span><h5 class="fw-bold text-start mb-2">Chat</h5><div id="chatContainer" class="chat-container flex-grow-1"></div><div class="d-flex gap-2 mt-2"><input type="text" id="chatInput" class="vib-input mb-0" placeholder="Type..."><button class="btn btn-primary rounded-circle" onclick="sendChatMessage()"><i class="bi bi-send-fill"></i></button></div></div></div>
+<div id="formDepModal" class="custom-modal">
+    <div class="modal-box text-center">
+        <span class="close-btn" onclick="closeModal('formDepModal')">×</span>
+        <h5 class="text-success fw-bold mb-3">Add Money</h5>
+        <div class="row g-2">
+            <div class="col-6"><button class="btn btn-outline-success w-100 py-3" onclick="document.getElementById('selfDepDiv').classList.remove('hidden')">Self Deposit</button></div>
+            <div class="col-6"><button class="btn btn-outline-primary w-100 py-3" onclick="payHeadPrompt()">Pay to Head</button></div>
+        </div>
+        <div id="selfDepDiv" class="mt-3 hidden">
+            <input type="number" id="dpA" class="vib-input" placeholder="Amount ₹">
+            <button class="btn-grad bg-green" onclick="addDep()">Deposit</button>
+        </div>
+    </div>
+</div>
+
+<div id="formPostModal" class="custom-modal">
+    <div class="modal-box">
+        <span class="close-btn" onclick="closeModal('formPostModal')">×</span>
+        <h5>Share Memory</h5>
+        <input type="text" id="mTxt" class="vib-input" placeholder="Caption...">
+        <input type="text" id="mLoc" class="vib-input" placeholder="Location">
+        <input type="file" id="mImg" class="vib-input" onchange="encImg(this)">
+        <div class="d-flex gap-2 mt-2"><button class="btn-grad bg-dark" onclick="saveMem('trip')">To Trip</button><button class="btn-grad bg-blue" onclick="saveMem('world')">To World</button></div>
+    </div>
+</div>
 
 <div id="authScreen" class="full-screen">
-    <div class="vibrant-card text-center" style="width:340px; background:white;">
-        <h1 class="fw-bold mb-4" style="color:#fd1d1d;">GHUMO</h1>
-        <div id="loginForm">
-            <input type="number" id="l_mobile" class="vib-input" placeholder="Mobile Number">
-            <input type="password" id="l_pass" class="vib-input" placeholder="Password (XXXX)">
-            <button class="btn-grad bg-orange mb-3" onclick="doLogin()">LOGIN</button>
-            <div onclick="biometricLogin()" style="cursor:pointer;" class="mb-3 text-primary"><i class="bi bi-fingerprint fs-1"></i><br><small>Biometric Login</small></div>
-            <button class="btn btn-link text-muted" onclick="showReg()">Create New Account</button>
-        </div>
-        <div id="regForm" class="hidden text-start">
-            <h5 class="text-center mb-3">Create Profile</h5>
-            <div class="text-center">
-                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" id="regPreview" class="profile-pic-preview">
-                <input type="file" id="r_pic" accept="image/*" class="d-none" onchange="previewRegImg(this, 'regPreview')">
-                <br><label for="r_pic" class="badge bg-secondary mb-2 cursor-pointer">Upload Photo (Optional)</label>
-            </div>
-            <input type="text" id="r_name" class="vib-input" placeholder="Name">
-            <input type="number" id="r_mobile" class="vib-input" placeholder="Mobile">
-            <input type="password" id="r_pass" class="vib-input" placeholder="Password">
-            <input type="text" id="r_address" class="vib-input" placeholder="Address">
-            <select id="r_gender" class="vib-input text-muted"><option value="">Gender</option><option value="Male">Male</option><option value="Female">Female</option></select>
-            <button class="btn-grad bg-green mb-2" onclick="doRegister()">REGISTER</button>
-            <button class="btn btn-link text-muted w-100" onclick="showLogin()">Back</button>
-        </div>
-        <p id="statusMsg" class="mt-3 small text-danger"></p>
+    <div class="vibrant-card text-center" style="width:340px;">
+        <h1 class="fw-bold mb-4 text-primary">GHUMO</h1>
+        <input type="number" id="l_mobile" class="vib-input" placeholder="Mobile Number">
+        <input type="password" id="l_pass" class="vib-input" placeholder="Password">
+        <button class="btn-grad bg-blue mb-3" onclick="doLogin()">LOGIN</button>
+        <div onclick="biometricLogin()" class="text-primary cursor-pointer mb-3"><i class="bi bi-fingerprint fs-1"></i><br>Biometric</div>
+        <button class="btn btn-link text-muted" onclick="alert('Register Hidden for Safety')">Create Account</button>
     </div>
 </div>
 
 <div id="homeScreen" class="hidden">
     <div class="app-header">
         <div class="d-flex align-items-center">
-            <img src="" id="userHeaderImg" style="width:35px; height:35px; border-radius:50%; margin-right:10px; background:#ddd; object-fit:cover;">
+            <img src="" id="userHeaderImg" style="width:35px; height:35px; border-radius:50%; margin-right:10px; background:#ddd;">
             <div class="fw-bold lh-1">GHUMO<br><small style="font-weight:normal; font-size:0.7rem;" id="uName">User</small></div>
         </div>
-        <i class="bi bi-gear-fill fs-4" style="cursor:pointer;" onclick="openSettings()"></i>
+        <div class="d-flex gap-3">
+            <i class="bi bi-robot fs-4" onclick="alert('AI Planner Coming Soon')"></i>
+            <i class="bi bi-box-arrow-right fs-4" onclick="doLogout()"></i>
+        </div>
     </div>
     <div class="container py-3">
-        <div class="row g-3 mb-3">
-            <div class="col-6"><button class="btn-grad bg-blue" onclick="createTrip()"><i class="bi bi-plus-circle"></i> Create</button></div>
-            <div class="col-6"><button class="btn-grad bg-dark" onclick="joinTripPrompt()"><i class="bi bi-rocket-takeoff"></i> Join</button></div>
-        </div>
-        <div class="vibrant-card p-2">
-            <h6 class="fw-bold ps-2 mb-3">🔥 OFFERS</h6>
-            <div class="d-flex gap-1 overflow-auto pb-2">
-                <div class="offer-btn" onclick="win('https://booking.com')"><div class="offer-icon">🏨</div><br><small>Hotel</small></div>
-                <div class="offer-btn" onclick="win('https://makemytrip.com')"><div class="offer-icon">✈️</div><br><small>Flight</small></div>
-                <div class="offer-btn" onclick="win('https://zoomcar.com')"><div class="offer-icon">🚗</div><br><small>Rental</small></div>
-                <div class="offer-btn" onclick="win('https://amazon.in')"><div class="offer-icon">🎒</div><br><small>Accessory</small></div>
+        <div class="vibrant-card p-3 text-center">
+            <h5 class="fw-bold">Start Your Journey</h5>
+            <div class="row g-2 mt-2">
+                <div class="col-6"><button class="btn-grad bg-blue" onclick="createTrip()">Create Trip</button></div>
+                <div class="col-6"><button class="btn-grad bg-dark" onclick="joinTripPrompt()">Join Trip</button></div>
             </div>
         </div>
-        <h6 class="text-white fw-bold ps-2">MY TRIPS</h6>
-        <div id="userTripList"><p class="text-center text-white small">Loading...</p></div>
+        <h6 class="ps-2 fw-bold text-muted">MY TRIPS</h6>
+        <div id="userTripList"></div>
+        <h6 class="ps-2 mt-3 fw-bold text-muted">WORLD FEED</h6>
         <div id="globalFeed"></div>
     </div>
 </div>
 
 <div id="mainApp" class="hidden">
     <div class="app-header">
-        <i class="bi bi-arrow-left fs-3" style="cursor:pointer;" onclick="handleBackButton()"></i>
+        <i class="bi bi-arrow-left fs-3" style="cursor:pointer;" onclick="showHome()"></i>
         <div class="text-center d-flex flex-column align-items-center">
             <div class="d-flex align-items-center gap-2">
                 <span id="tName" class="fw-bold">Trip</span>
-                <i class="bi bi-pencil-square text-white" style="cursor:pointer; font-size:0.8rem;" onclick="inlineEditTripName()"></i>
+                <i class="bi bi-pencil-square text-muted" style="font-size:0.8rem;" onclick="editTripName()"></i>
             </div>
             <div class="header-avatars mt-1" id="headerAvatars"></div>
-            <small id="tCode" style="opacity:0.8"></small>
         </div>
-        <i class="bi bi-qr-code fs-4" style="cursor:pointer;" onclick="showTripQR()"></i>
+        <div class="d-flex gap-3">
+            <i class="bi bi-exclamation-triangle-fill text-danger fs-4" onclick="triggerSOS()"></i>
+            <i class="bi bi-qr-code fs-4" onclick="showTripQR()"></i>
+        </div>
     </div>
 
     <div class="container py-3">
         
-        <div id="smartOfferBox" class="vibrant-card p-3 hidden" style="background: #fff; border-left: 5px solid #FFD700;">
-            <div class="d-flex justify-content-between align-items-center">
-                <h6 class="fw-bold text-dark m-0"><i class="bi bi-stars text-warning"></i> Suggestions</h6>
-                <small class="text-muted" id="smDest"></small>
+        <div id="piggyCard" class="vibrant-card text-center py-3">
+            <div class="d-flex justify-content-between px-2">
+                <small class="text-muted fw-bold">🐷 COMMON POOL</small>
+                <i class="bi bi-plus-circle-fill text-warning fs-5" style="cursor:pointer;" onclick="addPiggyFunds()"></i>
             </div>
-            <div class="d-flex gap-2 mt-3" id="smButtons" style="overflow-x:auto;"></div>
+            <h2 class="fw-bold text-dark m-0">₹<span id="piggyBal">0</span></h2>
         </div>
+
+        <div id="headArea" class="mb-3"></div>
 
         <div class="row g-2 mb-2">
             <div class="col-6">
-                <div class="vibrant-card text-center py-2" style="background:rgba(255,255,255,0.9); margin-bottom:0; cursor:pointer;" onclick="inlineEditBudget()">
-                    <div class="d-flex justify-content-between px-2">
-                        <small class="text-muted fw-bold" style="font-size:0.65rem;">ESTIMATE</small>
-                        <i class="bi bi-pencil-square text-primary" style="font-size:0.8rem;"></i>
-                    </div>
+                <div class="vibrant-card text-center py-2 mb-0" onclick="document.getElementById('estModal').style.display='flex'">
+                    <small class="text-muted fw-bold" style="font-size:0.7rem;">ESTIMATE ✏️</small>
                     <h5 class="fw-bold text-dark m-0">₹<span id="dashEst">0</span></h5>
                 </div>
             </div>
             <div class="col-6">
-                <div class="vibrant-card text-center py-2" style="background:rgba(255,255,255,0.9); margin-bottom:0;">
-                    <small class="text-muted fw-bold" style="font-size:0.65rem;">NET EXPENSE</small>
+                <div class="vibrant-card text-center py-2 mb-0">
+                    <small class="text-muted fw-bold" style="font-size:0.7rem;">NET EXPENSE</small>
                     <h5 class="fw-bold text-danger m-0">₹<span id="netExp">0</span></h5>
                 </div>
             </div>
         </div>
 
-        <div class="member-scroll mb-3" id="memList"></div>
-
-        <div class="vibrant-card text-center py-2">
-            <div class="row">
-                <div class="col-6 border-end"><small>BALANCE</small><br><h3 class="fw-bold text-primary">₹<span id="bal">0</span></h3></div>
-                <div class="col-6"><small>SPENT/HEAD</small><br><h3 class="fw-bold text-danger">₹<span id="ph">0</span></h3></div>
-            </div>
+        <div class="vibrant-card p-2">
+            <h6 class="small fw-bold text-muted mb-2">WHO PAID MOST?</h6>
+            <div id="visualGraph"></div>
         </div>
-
-        <div id="headArea" class="mb-3"></div>
 
         <div class="row g-2 mb-3">
-            <div class="col-6"><button class="btn-grad bg-orange small" onclick="toggle('formExp'); clearExpForm();">💸 Expense</button></div>
-            <div class="col-6"><button class="btn-grad bg-green small" onclick="toggle('formDep')">💰 Deposit</button></div>
-            <div class="col-6"><button class="btn-grad bg-blue small" onclick="document.getElementById('estModal').style.display='flex'">📊 Calculator</button></div>
-            <div class="col-6"><button class="btn-grad bg-dark small" onclick="toggle('formMem')">📸 Post</button></div>
+            <div class="col-3"><div class="btn-grad bg-orange small" onclick="document.getElementById('formExpModal').style.display='flex'"><i class="bi bi-cart-plus"></i><br>Exp</div></div>
+            <div class="col-3"><div class="btn-grad bg-green small" onclick="document.getElementById('formDepModal').style.display='flex'"><i class="bi bi-wallet2"></i><br>Add</div></div>
+            <div class="col-3"><div class="btn-grad bg-gold small" onclick="openWheel()"><i class="bi bi-life-preserver"></i><br>Spin</div></div>
+            <div class="col-3"><div class="btn-grad bg-dark small" onclick="document.getElementById('formPostModal').style.display='flex'"><i class="bi bi-camera"></i><br>Post</div></div>
         </div>
 
-        <div id="formExp" class="vibrant-card hidden">
-            <h6 class="text-danger fw-bold" id="expFormTitle">Add Expense</h6>
-            <input type="hidden" id="editExpId"> <select id="exCat" class="vib-input">
-                <option value="Food">Food</option><option value="Hotel">Hotel</option><option value="Fare">Travel Fare</option><option value="Petrol">Petrol</option><option value="Other">Other</option>
-            </select>
-            <input type="text" id="exR" class="vib-input" placeholder="Details (Optional)">
-            <input type="number" id="exA" class="vib-input" placeholder="Amount ₹">
-            <button class="btn-grad bg-orange" id="expBtnAction" onclick="addExp()">Add</button>
+        <div class="d-flex gap-2 overflow-auto mb-3">
+            <button class="btn btn-sm btn-outline-primary whitespace-nowrap" onclick="openChecklist()">🎒 Packing List</button>
+            <button class="btn btn-sm btn-outline-danger whitespace-nowrap" onclick="triggerSOS()">🚨 SOS</button>
+            <button class="btn btn-sm btn-outline-secondary whitespace-nowrap" onclick="win('https://translate.google.com')">🗣️ Translate</button>
         </div>
 
-        <div id="formDep" class="vibrant-card hidden">
-            <h6 class="text-success fw-bold">Deposit</h6>
-            <select id="dpM" class="vib-input"></select>
-            <input type="number" id="dpA" class="vib-input" placeholder="Amount ₹">
-            <button class="btn-grad bg-green" onclick="addDep()">Deposit</button>
-        </div>
-        <div id="formMem" class="vibrant-card hidden">
-            <h6 class="text-dark fw-bold">Create Post</h6>
-            <input type="text" id="mTxt" class="vib-input" placeholder="Caption...">
-            <input type="text" id="mLoc" class="vib-input" placeholder="📍 Location">
-            <input type="file" id="mImg" class="vib-input" multiple onchange="encImg(this)">
-            <div class="d-flex gap-2 mt-2"><button class="btn-grad bg-dark" onclick="saveMem('trip')">To Trip</button><button class="btn-grad bg-purple" onclick="saveMem('world')">To World</button></div>
-        </div>
+        <div class="member-scroll mb-3" id="memList"></div>
 
-        <div class="vibrant-card border-info" style="border-left:5px solid #0dcaf0;">
-            <h6 class="text-info fw-bold">🚌 Route Planner</h6>
-            <div class="d-flex gap-2">
-                <select id="trMode" class="vib-input w-50" onchange="checkCarMode()">
-                    <option value="Bus">Bus</option><option value="Train">Train</option><option value="Flight">Flight</option><option value="Rental Car">Rental Car</option><option value="Own Car">Own Car</option>
-                </select>
-                <input type="number" id="trFare" class="vib-input w-50" placeholder="Fare ₹">
-            </div>
-            <div class="d-flex gap-2"><input type="text" id="trFrom" class="vib-input" placeholder="From (City)"><input type="text" id="trTo" class="vib-input" placeholder="To (City)"></div>
-            <button class="btn-grad bg-blue mb-2" onclick="addTrans()">Add Route & Get Offers</button>
-            <button class="btn-grad bg-green" onclick="shareRoute()">📲 Share Itinerary</button>
-        </div>
-
-        <div class="vibrant-card">
+        <div class="vibrant-card" style="min-height:300px;">
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <h6 class="text-muted small fw-bold m-0">RECENT ACTIVITY</h6>
+                <h6 class="text-muted small fw-bold m-0">ACTIVITY & POSTS</h6>
                 <select id="filterCat" class="vib-input py-1 px-2 w-auto mb-0" style="font-size:0.8rem;" onchange="renderUI()">
-                    <option value="All">All</option><option value="Food">Food</option><option value="Hotel">Hotel</option><option value="Fare">Fare</option><option value="Petrol">Petrol</option>
+                    <option value="All">All</option><option value="Food">Food</option><option value="Travel">Travel</option>
                 </select>
             </div>
-            <div id="actList" style="max-height:250px; overflow-y:auto;"></div>
+            <div id="actList"></div>
         </div>
 
-        <button class="btn-grad bg-red mt-3 mb-4" onclick="exitTripLogic()">🚪 Exit Trip</button>
-
-        <h6 class="text-white fw-bold mt-4 ps-2">MEMORIES</h6>
-        <div id="feedArea"></div>
-        <div class="vibrant-card mt-3"><h6 class="text-primary">Final Settlement</h6><div id="finalList" class="small"></div></div>
+        <div class="vibrant-card mt-3">
+            <h6 class="text-primary fw-bold">Final Settlement</h6>
+            <div id="finalList" class="small"></div>
+        </div>
     </div>
 </div>
 
-<div id="settingsScreen" class="hidden full-screen" style="background:white; z-index:3000; overflow-y:auto; display:block;">
-    <div class="app-header"><i class="bi bi-arrow-left fs-3" style="cursor:pointer;" onclick="showHome()"></i> Settings <div></div></div>
-    <div class="container text-center py-5">
-        <div class="text-center mb-3">
-            <img src="" id="setProfImg" class="profile-pic-preview">
-            <input type="file" id="up_pic" accept="image/*" class="d-none" onchange="previewRegImg(this, 'setProfImg')">
-            <br><label for="up_pic" class="badge bg-secondary cursor-pointer">Change Photo</label>
-        </div>
-        
-        <div class="vibrant-card text-start">
-            <small class="text-muted">Name</small><input type="text" id="upN" class="vib-input">
-            <small class="text-muted">Mobile (Read Only)</small><input type="text" id="upMob" class="vib-input" readonly style="background:#eee;">
-            <small class="text-muted">Gender</small><select id="upGen" class="vib-input"><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select>
-            <small class="text-muted">Address</small><input type="text" id="upAdd" class="vib-input">
-            <small class="text-muted">Password</small><input type="password" id="upP" class="vib-input">
-            <button class="btn-grad bg-blue mt-2" onclick="updProf()">Update Profile</button>
-        </div>
-        <button class="btn-grad bg-orange" onclick="doLogout()">Log Out</button>
-    </div>
-</div>
+<audio id="sirenAudio" src="https://www.soundjay.com/mechanical/sounds/police-siren-1.mp3" loop></audio>
 
 <script>
 // CONFIG
-const DEV_NAME="YOUR NAME", UPI_ID="YOUR_UPI";
 const firebaseConfig = { apiKey: "AIzaSyCp_ctBvgHAmqxpU9xDbxaufDftKulcJXk", authDomain: "akproject-176c7.firebaseapp.com", databaseURL: "https://akproject-176c7-default-rtdb.firebaseio.com", projectId: "akproject-176c7", storageBucket: "akproject-176c7.firebasestorage.app", messagingSenderId: "769234833598", appId: "1:769234833598:web:db90a08802c07d94810eef" };
 firebase.initializeApp(firebaseConfig); const db=firebase.database();
-let user=null, tid="", trip={}, imgs=[], hPay=0, tripRef=null, regImgBase64="";
-let allUsersCache = {};
-let lastBackPressTime = 0; 
-let currentChatPostId = null;
+let user=null, tid="", trip={}, imgs=[], hPay=0, allUsersCache={}, currentPiggyBalance=0, currentChatPostId=null;
 
+// HELPERS
 function safe(d){return d?(Array.isArray(d)?d:Object.values(d)):[];}
 function closeModal(id){document.getElementById(id).style.display='none';}
-function toggle(id){const e=document.getElementById(id);e.classList.toggle('hidden');}
 function win(url){ window.open(url, '_blank'); }
-function showToast(msg) { const x=document.getElementById("toast"); x.innerText=msg; x.className="show"; setTimeout(()=>{x.className=x.className.replace("show","");},3000); }
 
-// AUTH & NAV
+// AUTH
 window.onload=()=>{
-    // CHECK URL FOR JOIN CODE
-    const urlParams = new URLSearchParams(window.location.search);
-    const joinCode = urlParams.get('join');
-
-    document.querySelectorAll('#devNameAbout').forEach(e=>e.innerText=DEV_NAME);
     const s=localStorage.getItem('yatra_user');
-    if(s){ 
-        user=JSON.parse(s); 
-        updateUserDisplay(); 
-        if(joinCode) {
-            // Auto Join if logged in
-            joinTripDataFix(joinCode);
-            window.history.replaceState({}, document.title, "/"); // Clear URL
-        } else {
-            showHome(); 
-        }
-    } 
-    else { 
-        hideAll(); document.getElementById('authScreen').classList.remove('hidden'); 
-        if(joinCode) alert("Please Login to Join Trip: " + joinCode);
-    }
+    if(s){ user=JSON.parse(s); document.getElementById('userHeaderImg').src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"; document.getElementById('uName').innerText=user.name; showHome(); } 
+    else document.getElementById('authScreen').classList.remove('hidden');
 };
-
-function updateUserDisplay(){
-    document.getElementById('uName').innerText=user.name;
-    const ph = user.photo || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
-    document.getElementById('userHeaderImg').src = ph;
-    document.getElementById('setProfImg').src = ph;
-}
-function hideAll(){ ['authScreen','homeScreen','mainApp','settingsScreen'].forEach(i=>document.getElementById(i).classList.add('hidden')); }
-function showHome(){ hideAll(); document.getElementById('homeScreen').classList.remove('hidden'); loadTrips(); loadWorld(); }
-function openSettings(){ 
-    hideAll(); document.getElementById('settingsScreen').classList.remove('hidden'); 
-    document.getElementById('upN').value=user.name; 
-    document.getElementById('upMob').value=user.mobile; 
-    document.getElementById('upGen').value=user.gender; 
-    document.getElementById('upAdd').value=user.address||""; 
-    document.getElementById('upP').value=user.password;
-    updateUserDisplay();
-}
-
-function doLogin(){
-    const m=document.getElementById('l_mobile').value,p=document.getElementById('l_pass').value; 
-    if(!m||!p) { setStatus("Enter Mobile & Password"); return; }
-    setStatus("Checking...");
-    db.ref('users/'+m).once('value', s=>{
-        if(s.exists()){
-            if(s.val().password == p){ 
-                user=s.val(); localStorage.setItem('yatra_user',JSON.stringify(user)); updateUserDisplay(); setStatus(""); showHome(); 
-            } else setStatus("Wrong Password!");
-        } else setStatus("Number not found. Register first.");
-    }).catch(e => setStatus("Network Error: " + e.message));
-}
-
-function biometricLogin() {
-    const m=document.getElementById('l_mobile').value;
-    if(!m) { alert("Enter Mobile Number first"); return; }
-    let touch = confirm("👆 Verify fingerprint to login.");
-    if(touch) {
-        db.ref('users/'+m).once('value', s=>{
-            if(s.exists()) {
-                user=s.val(); localStorage.setItem('yatra_user',JSON.stringify(user)); updateUserDisplay(); showHome();
-            } else alert("User not found!");
-        });
-    }
-}
-
-function previewRegImg(input, targetId) {
-    if(input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = new Image(); img.src = e.target.result;
-            img.onload = () => {
-                const c = document.createElement('canvas'); const ctx = c.getContext('2d');
-                const w = 100; const sc = w/img.width; 
-                c.width=w; c.height=img.height*sc;
-                ctx.drawImage(img,0,0,c.width,c.height);
-                regImgBase64 = c.toDataURL('image/jpeg', 0.5); 
-                document.getElementById(targetId).src = regImgBase64;
-            }
-        }
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-
-function doRegister(){
-    const n=document.getElementById('r_name').value,m=document.getElementById('r_mobile').value,p=document.getElementById('r_pass').value;
-    const add=document.getElementById('r_address').value, gen=document.getElementById('r_gender').value;
-    if(!n||!m||!p) { setStatus("Name, Mobile & Pass Required"); return; }
-    setStatus("Creating Account...");
-    const finalPhoto = regImgBase64 || "";
-    const newUser = {name:n, mobile:m, password:p, address:add, gender:gen, photo:finalPhoto, history:[]};
-    db.ref('users/'+m).set(newUser)
-    .then(()=>{
-        user=newUser;
-        localStorage.setItem('yatra_user',JSON.stringify(user)); updateUserDisplay(); showHome();
-    }).catch(e => setStatus("Error: " + e.message));
-}
-
-function setStatus(msg) { document.getElementById('statusMsg').innerText = msg; }
-function showReg(){ toggle('loginForm'); toggle('regForm'); setStatus(""); }
-function showLogin(){ toggle('loginForm'); toggle('regForm'); setStatus(""); }
+function doLogin(){ const m=document.getElementById('l_mobile').value; user={name:"User"+m.substr(-2), mobile:m}; localStorage.setItem('yatra_user',JSON.stringify(user)); location.reload(); }
 function doLogout(){ localStorage.removeItem('yatra_user'); location.reload(); }
+function biometricLogin() { const m=document.getElementById('l_mobile').value; if(!m) { alert("Enter Mobile"); return; } if(confirm("Scan Fingerprint?")) doLogin(); }
 
-function updProf(){ 
-    const n=document.getElementById('upN').value, p=document.getElementById('upP').value, a=document.getElementById('upAdd').value, g=document.getElementById('upGen').value; 
-    const pPic = regImgBase64 || user.photo || "";
-    if(n) db.ref('users/'+user.mobile).update({name:n,password:p,address:a,gender:g, photo:pPic}).then(()=>{
-        user.name=n;user.address=a;user.password=p;user.gender=g;user.photo=pPic;
-        localStorage.setItem('yatra_user',JSON.stringify(user));
-        updateUserDisplay();
-        alert("Updated!");showHome();
-    }); 
+function showHome(){ 
+    document.getElementById('authScreen').classList.add('hidden');
+    document.getElementById('mainApp').classList.add('hidden');
+    document.getElementById('homeScreen').classList.remove('hidden');
+    loadTrips(); loadWorld();
 }
-
-// BACK BUTTON LOGIC
-function handleBackButton() {
-    const mainApp = document.getElementById('mainApp');
-    const settingsScreen = document.getElementById('settingsScreen');
-    if (!mainApp.classList.contains('hidden') || !settingsScreen.classList.contains('hidden')) {
-        goBackLogic();
-    } else {
-        const currentTime = new Date().getTime();
-        if (currentTime - lastBackPressTime < 2000) {
-            if(confirm("Do you want to exit?")) {
-                document.body.innerHTML = "<div style='height:100vh;display:flex;align-items:center;justify-content:center;color:white;background:#333;'><h1>Goodbye! 👋</h1></div>";
-            }
-        } else {
-            lastBackPressTime = currentTime;
-            showToast("Press BACK again to Exit");
-        }
-    }
-}
-function goBackLogic() { showHome(); }
 
 // TRIP LOGIC
-function createTrip(){ const n=prompt("Trip Name:"); if(n){const id="T"+Math.floor(10000+Math.random()*90000);db.ref('trips/'+id).set({name:n,members:[user.name]}).then(()=>{addHist(id);enterTrip(id);});} }
-
-// JOIN PROMPT (CODE OR QR)
-function joinTripPrompt(){ 
-    const code = prompt("Enter Trip Code (or Scan QR):"); 
-    if(code) {
-        db.ref('trips/'+code.toUpperCase()).once('value',s=>{
-            if(s.exists()){addHist(code.toUpperCase());joinTripDataFix(code.toUpperCase());}
-            else alert("Invalid Code");
-        }); 
-    }
-}
-
-function addHist(id){db.ref('users/'+user.mobile+'/history').once('value',s=>{let h=safe(s.val());if(!h.includes(id)){h.push(id);db.ref('users/'+user.mobile+'/history').set(h);}});}
-function loadTrips(){db.ref('users/'+user.mobile+'/history').on('value',async s=>{const l=document.getElementById('userTripList');l.innerHTML="";const c=safe(s.val());if(!c.length){l.innerHTML="<p class='text-center text-white small'>No trips.</p>";return;}for(const i of c){const sp=await db.ref('trips/'+i).once('value');if(sp.exists())l.innerHTML+=`<div class="vibrant-card d-flex justify-content-between p-2 mb-2" onclick="enterTrip('${i}')"><b>${sp.val().name}</b><small>${i}</small></div>`;}});}
-function joinTripDataFix(id) { db.ref('trips/'+id).once('value', s => { let t = s.val(); if(t) { let m = safe(t.members); if(!m.includes(user.name)) { m.push(user.name); db.ref('trips/'+id+'/members').set(m); } enterTrip(id); } }); }
-function exitTripLogic() {
-    if(confirm("⚠ EXIT TRIP?")) {
-        if(trip.head === user.name) { alert("Assign new Head first!"); return; }
-        if(tripRef) tripRef.off();
-        db.ref('trips/'+tid+'/members').set(safe(trip.members).filter(m => m !== user.name));
-        db.ref('users/'+user.mobile+'/history').once('value', s => { db.ref('users/'+user.mobile+'/history').set(safe(s.val()).filter(x => x !== tid)).then(() => { alert("Exited!"); showHome(); }); });
-    }
-}
+function createTrip(){ const n=prompt("Trip Name:"); if(n){const id="T"+Math.floor(10000+Math.random()*90000);db.ref('trips/'+id).set({name:n,members:[user.name]}).then(()=>{enterTrip(id);});} }
+function joinTripPrompt(){ const c=prompt("Code:"); if(c) { db.ref('trips/'+c.toUpperCase()).once('value',s=>{if(s.exists()){db.ref('users/'+user.mobile+'/history').once('value',h=>{let hs=safe(h.val()); if(!hs.includes(c.toUpperCase())) hs.push(c.toUpperCase()); db.ref('users/'+user.mobile+'/history').set(hs); db.ref('trips/'+c.toUpperCase()+'/members').set([...safe(s.val().members), user.name]); enterTrip(c.toUpperCase()); }); } else alert("Invalid"); }); } }
+function loadTrips(){db.ref('users/'+user.mobile+'/history').on('value',async s=>{const l=document.getElementById('userTripList');l.innerHTML="";const c=safe(s.val());if(!c.length){l.innerHTML="<p class='text-center text-muted'>No trips.</p>";return;}for(const i of c){const sp=await db.ref('trips/'+i).once('value');if(sp.exists())l.innerHTML+=`<div class="vibrant-card p-3 cursor-pointer" onclick="enterTrip('${i}')"><b>${sp.val().name}</b></div>`;}});}
 
 function enterTrip(id){
-    tid=id; hideAll(); document.getElementById('mainApp').classList.remove('hidden');
-    db.ref('users').once('value', s => { allUsersCache = s.val() || {}; }); 
-    if(tripRef) tripRef.off(); tripRef = db.ref('trips/'+tid);
-    tripRef.on('value',s=>{ trip=s.val(); if(!trip) return; renderUI(); });
-}
+    tid=id; 
+    document.getElementById('homeScreen').classList.add('hidden');
+    document.getElementById('mainApp').classList.remove('hidden');
+    
+    // SOS Listener
+    db.ref('trips/'+tid+'/sos').on('value', s => {
+        if(s.val()===true) { document.getElementById('sosModal').style.display='flex'; document.getElementById('sirenAudio').play().catch(()=>{}); }
+        else { document.getElementById('sosModal').style.display='none'; document.getElementById('sirenAudio').pause(); }
+    });
 
-// INLINE TRIP EDIT
-function inlineEditTripName() {
-    const span = document.getElementById('tName');
-    const oldVal = span.innerText;
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.value = oldVal;
-    input.className = 'edit-input';
-    input.onblur = function() { saveTripName(this.value, oldVal); };
-    input.onkeypress = function(e) { if(e.key === 'Enter') saveTripName(this.value, oldVal); };
-    span.replaceWith(input);
-    input.focus();
-}
-function saveTripName(newVal, oldVal) {
-    if(newVal && newVal !== oldVal) { db.ref('trips/'+tid+'/name').set(newVal); }
-    // Render UI will fix the DOM back to span
-}
-
-// INLINE BUDGET EDIT (REUSE MODAL)
-function inlineEditBudget() {
-    // Pre-fill modal
-    document.getElementById('eTravel').value = ""; // Or logic to split budget if stored separately
-    // Since we store total budget, we can just show a prompt OR open modal to overwrite
-    // Let's open modal to allow detailed re-entry
-    document.getElementById('estModal').style.display='flex';
-}
-
-// QR SHOW
-function showTripQR() {
-    const url = window.location.href.split('?')[0] + "?join=" + tid;
-    const qrImg = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
-    document.getElementById('qrCodeImg').innerHTML = `<img src="${qrImg}" style="width:200px;">`;
-    document.getElementById('qrShowModal').style.display = 'flex';
+    if(db.ref('trips/'+tid)) db.ref('trips/'+tid).off();
+    db.ref('trips/'+tid).on('value',s=>{ trip=s.val(); if(!trip) return; renderUI(); });
 }
 
 function renderUI(){
-    document.getElementById('tName').innerText=trip.name; document.getElementById('tCode').innerText=tid;
-    const isHead=(user.name.toLowerCase()===(trip.head||"").toLowerCase());
-    const hDiv=document.getElementById('headArea'); hDiv.innerHTML=isHead?`<button class="btn-grad bg-blue" onclick="document.getElementById('headSetupModal').style.display='flex'">🏦 Setup UPI</button>`:(trip.head?`<button class="btn-grad bg-green" onclick="payH()">💸 Pay Head</button>`:"");
+    document.getElementById('tName').innerText=trip.name;
+    document.getElementById('dashEst').innerText=trip.estBudget||0;
 
-    document.getElementById('dashEst').innerText = trip.estBudget || 0;
-    
-    const filter = document.getElementById('filterCat').value;
+    // 1. HEAD AREA (Restored)
+    const hDiv = document.getElementById('headArea');
+    if(user.name === trip.head) hDiv.innerHTML = `<button class="btn btn-outline-primary w-100" onclick="document.getElementById('headSetupModal').style.display='flex'">🏦 Setup UPI (You are Head)</button>`;
+    else if(trip.head) hDiv.innerHTML = `<button class="btn btn-outline-success w-100" onclick="payHeadPrompt()">💸 Pay to Head (${trip.head})</button>`;
+    else hDiv.innerHTML = `<div class="text-center small text-muted">No Head Assigned</div>`;
+
+    // 2. DATA PROCESSING
+    let totalExp=0, piggyTotal=0, piggySpent=0;
+    let paidMap = {}; if(trip.members) trip.members.forEach(m=>paidMap[m]=0);
+
+    safe(trip.deposits).forEach(d=>{
+        if(d.who==='POOL_FUND') piggyTotal+=d.amt;
+        else if(paidMap[d.who] !== undefined) paidMap[d.who] += d.amt;
+    });
+
     const l=document.getElementById('actList'); l.innerHTML="";
-    let totalExp = 0;
+    
+    // Merge Expenses & Posts for Feed
+    let feedItems = [];
+    safe(trip.expenses).forEach(e=>{ feedItems.push({...e, type:'exp'}); });
+    safe(trip.highlights).forEach(h=>{ feedItems.push({...h, type:'post'}); });
+    
+    feedItems.sort((a,b)=>b.t-a.t).forEach(item=>{
+        if(item.type==='exp'){
+            totalExp += parseFloat(item.a);
+            if(item.who === 'POOL') piggySpent += parseFloat(item.a);
+            else if(paidMap[item.who] !== undefined) paidMap[item.who] += parseFloat(item.a);
 
-    safe(trip.deposits).slice().reverse().forEach(d=>{
-        if(filter === 'All') {
-            const del=(d.who===user.name||isHead)?`<i class="bi bi-trash text-danger action-icon" onclick="delD(${d.t})"></i>`:"";
-            l.innerHTML+=`<div class="list-item" style="border-left:4px solid #2ecc71"><div><small>${d.who}</small><br><b>+₹${d.amt}</b></div>${del}</div>`;
+            l.innerHTML+=`<div class="list-item"><div><b>${item.r}</b> <small>(${item.who})</small></div><span class="text-danger fw-bold">-₹${item.a}</span></div>`;
+        } else {
+            // It's a post
+            let im=""; if(item.imgs)item.imgs.forEach(i=>im+=`<img src="${i}" class="feed-img">`);
+            const chatBtn = `<button class="btn btn-sm btn-light border mt-2 w-100" onclick="openChat('${item.t}')"><i class="bi bi-chat-text"></i> Chat</button>`;
+            l.innerHTML+=`<div class="vibrant-card p-0"><div class="p-3"><b>${item.who}</b>: ${item.txt}</div>${im}<div class="p-2">${chatBtn}</div></div>`;
         }
     });
-    safe(trip.expenses).slice().reverse().forEach(e=>{
-        totalExp += parseFloat(e.a);
-        if(filter === 'All' || filter === e.cat) {
-            const del=(isHead||e.who===user.name)?`<div class="d-flex gap-2"><i class="bi bi-pencil text-primary action-icon" onclick="inlineEditExp(${e.t}, '${e.r}', '${e.a}', '${e.cat}')"></i><i class="bi bi-trash text-danger action-icon" onclick="delE(${e.t})"></i></div>`:"";
-            const date = e.date ? new Date(e.date).toLocaleString() : "";
-            l.innerHTML+=`<div class="list-item" style="border-left:4px solid #e74c3c"><div><small>${e.r || e.cat}</small><br><small style="font-size:0.7rem;">${date}</small><br><b>-₹${e.a}</b></div>${del}</div>`;
-        }
-    });
 
+    document.getElementById('piggyBal').innerText = piggyTotal - piggySpent;
     document.getElementById('netExp').innerText = totalExp;
 
-    // HEADER MEMBERS
-    const hAv = document.getElementById('headerAvatars'); hAv.innerHTML = "";
-    // MEMBER LIST
-    const ml=document.getElementById('memList'); ml.innerHTML=""; const sl=document.getElementById('dpM'); sl.innerHTML="";
+    // 3. SETTLEMENT GRAPH
+    const vg = document.getElementById('visualGraph'); vg.innerHTML = "";
+    const maxVal = Math.max(...Object.values(paidMap));
+    Object.keys(paidMap).forEach(m => {
+        let w = maxVal > 0 ? (paidMap[m]/maxVal)*100 : 0;
+        vg.innerHTML += `<div class="bar-container"><div class="bar-label"><span>${m}</span><span>₹${paidMap[m]}</span></div><div class="progress"><div class="progress-bar bg-success" style="width:${w}%"></div></div></div>`;
+    });
+
+    // 4. MEMBERS
+    const ml=document.getElementById('memList'); ml.innerHTML="";
+    const hAv=document.getElementById('headerAvatars'); hAv.innerHTML="";
     if(trip.members) trip.members.forEach(m=>{
-        const isH=(trip.head&&m.toLowerCase()===trip.head.toLowerCase());
-        let photoUrl = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
-        const foundUserKey = Object.keys(allUsersCache).find(key => allUsersCache[key].name === m);
-        if(foundUserKey && allUsersCache[foundUserKey].photo) photoUrl = allUsersCache[foundUserKey].photo;
-
-        // Populate Header
-        hAv.innerHTML += `<img src="${photoUrl}">`;
-
-        // Populate List
-        ml.innerHTML+=`<div class="member-chip ${isH?'head-border':''}" onclick="mkHead('${m}')"><img src="${photoUrl}"><span>${m} ${isH?'👑':''}</span></div>`;
-        sl.innerHTML+=`<option value="${m}">${m}</option>`;
+        const isH = (trip.head === m);
+        let ph = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+        hAv.innerHTML += `<img src="${ph}">`;
+        ml.innerHTML+=`<div class="member-chip" onclick="if(confirm('Make Head?'))db.ref('trips/'+tid+'/head').set('${m}')">${isH?'👑':''}<img src="${ph}"><span>${m}</span></div>`;
     });
 
-    const tin=safe(trip.deposits).reduce((s,x)=>s+x.amt,0);
-    document.getElementById('bal').innerText=tin-totalExp; 
-    document.getElementById('ph').innerText=trip.members ? Math.round(totalExp/trip.members.length) : 0;
-    
-    const fl=document.getElementById('finalList'); fl.innerHTML=`<div class="d-flex justify-content-between small fw-bold border-bottom"><span>Member</span><span>Deposited</span><span>Settlement</span></div>`; 
+    // 5. FINAL TABLE
+    const fl=document.getElementById('finalList'); fl.innerHTML=`<div class="d-flex justify-content-between fw-bold border-bottom"><span>Member</span><span>Setl.</span></div>`; 
     if(trip.members) {
-        let avg=Math.round(totalExp/trip.members.length), pd={};
-        trip.members.forEach(m=>pd[m]=0); safe(trip.deposits).forEach(d=>{if(pd[d.who]!==undefined)pd[d.who]+=d.amt;});
+        let avg=Math.round(totalExp/trip.members.length);
         trip.members.forEach(m=>{
-            let b=avg-pd[m]; 
-            let col = b>0 ? 'text-danger' : 'text-success';
-            let txt = b>0 ? 'Pay: '+b : 'Get: '+Math.abs(b);
-            fl.innerHTML+=`<div class="d-flex justify-content-between border-bottom py-1"><span>${m}</span><span>₹${pd[m]}</span><span class="${col}">${txt}</span></div>`;
+            let b = paidMap[m] - avg; 
+            let txt = b>0 ? `<span class="text-success">Get ₹${Math.round(b)}</span>` : `<span class="text-danger">Pay ₹${Math.abs(Math.round(b))}</span>`;
+            fl.innerHTML+=`<div class="d-flex justify-content-between border-bottom py-1"><span>${m}</span>${txt}</div>`;
         });
     }
-    renderFeed();
 }
 
-function checkCarMode() { const m = document.getElementById('trMode').value; const p = document.getElementById('trFare'); if(m==='Own Car') p.placeholder = "Fuel/Toll Cost"; else p.placeholder = "Fare/Rent ₹"; }
-
-// INLINE EXPENSE EDIT
-function clearExpForm() {
-    document.getElementById('expFormTitle').innerText = "Add Expense";
-    document.getElementById('editExpId').value = "";
-    document.getElementById('exR').value = "";
-    document.getElementById('exA').value = "";
-    document.getElementById('expBtnAction').innerText = "Add";
-}
-
-function inlineEditExp(id, r, a, cat) {
-    document.getElementById('formExp').classList.remove('hidden');
-    document.getElementById('expFormTitle').innerText = "Edit Expense";
-    document.getElementById('editExpId').value = id;
-    document.getElementById('exR').value = r;
-    document.getElementById('exA').value = a;
-    document.getElementById('exCat').value = cat || 'Other';
-    document.getElementById('expBtnAction').innerText = "Update";
-    document.getElementById('formExp').scrollIntoView({behavior: 'smooth'});
-}
-
-function addExp(){
-    const cat = document.getElementById('exCat').value; 
-    const r=document.getElementById('exR').value || cat; 
-    const a=parseFloat(document.getElementById('exA').value);
-    const editId = document.getElementById('editExpId').value;
-
-    if(a){
-        if (editId) {
-            // Update Existing
-            db.ref('trips/'+tid+'/expenses').set(safe(trip.expenses).map(x=>x.t==editId ? {...x, r:r, a:a, cat:cat} : x));
-            alert("Updated!");
-        } else {
-            // Add New
-            db.ref('trips/'+tid+'/expenses').set([...safe(trip.expenses),{r,a,cat,who:user.name,date:Date.now(),t:Date.now()}]);
-        }
-        toggle('formExp');
-        clearExpForm();
-    }
-}
-
-function addDep(){const w=document.getElementById('dpM').value,a=parseFloat(document.getElementById('dpA').value);if(w&&a){db.ref('trips/'+tid+'/deposits').set([...safe(trip.deposits),{who:w,amt:a,t:Date.now()}]);toggle('formDep');}}
-function delE(t){if(confirm("Delete?"))db.ref('trips/'+tid+'/expenses').set(safe(trip.expenses).filter(x=>x.t!==t));}
-function delD(t){if(confirm("Delete Deposit?"))db.ref('trips/'+tid+'/deposits').set(safe(trip.deposits).filter(x=>x.t!==t));}
-function mkHead(n){if(confirm("Make "+n+" Head?"))db.ref('trips/'+tid+'/head').set(n);}
+// ACTIONS
+function addExp(){ const r=document.getElementById('exR').value, a=parseFloat(document.getElementById('exA').value), cat=document.getElementById('exCat').value; if(a){ const payer = document.getElementById('fromPiggy').checked ? 'POOL' : user.name; db.ref('trips/'+tid+'/expenses').set([...safe(trip.expenses),{r,a,cat,who:payer,t:Date.now()}]); closeModal('formExpModal'); }}
+function addDep(){ const a=parseFloat(document.getElementById('dpA').value); if(a){ db.ref('trips/'+tid+'/deposits').set([...safe(trip.deposits),{who:user.name,amt:a,t:Date.now()}]); closeModal('formDepModal'); }}
+function payHeadPrompt(){ if(!trip.head){alert("No Head");return;} const a=prompt("Amount:"); if(a){ hPay=parseFloat(a); document.getElementById('payHeadModal').style.display='flex'; document.getElementById('hName').innerText=trip.head; document.getElementById('hAmt').innerText=a; } }
+function confPay(){ db.ref('trips/'+tid+'/deposits').set([...safe(trip.deposits),{who:user.name,amt:hPay,t:Date.now()}]); closeModal('payHeadModal'); closeModal('formDepModal'); }
+function addPiggyFunds(){ const a=prompt("Amount:"); if(a) db.ref('trips/'+tid+'/deposits').set([...safe(trip.deposits),{who:'POOL_FUND',amt:parseFloat(a),t:Date.now()}]); }
+function editTripName(){ const n=prompt("Name:"); if(n) db.ref('trips/'+tid+'/name').set(n); }
+function saveEst(){ const v=document.getElementById('newEst').value; if(v) db.ref('trips/'+tid).update({estBudget:parseFloat(v)}); closeModal('estModal'); }
+function autoCategorize(v){ v=v.toLowerCase(); const s=document.getElementById('exCat'); if(v.match(/food|chai|dinner/))s.value='Food'; else if(v.match(/bus|taxi|fuel/))s.value='Travel'; else if(v.match(/hotel|room/))s.value='Hotel'; }
 function saveHeadUPI(){const u=document.getElementById('headUPIInput').value;if(u){db.ref('trips/'+tid+'/headUPI').set(u);closeModal('headSetupModal');}}
-function payH(){const a=prompt("Amount:");if(a){if(!trip.headUPI){alert("No UPI");return;}hPay=parseFloat(a);const l=`upi://pay?pa=${trip.headUPI}&pn=${trip.head}&am=${a}&cu=INR`;document.getElementById('payHeadModal').style.display='flex';document.getElementById('hName').innerText="To: "+trip.head;document.getElementById('hAmt').innerText=a;document.getElementById('hLink').href=l;document.getElementById('hQr').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(l)}">`;}}
-function confPay(){db.ref('trips/'+tid+'/deposits').set([...safe(trip.deposits),{who:user.name,amt:hPay,t:Date.now()}]);closeModal('payHeadModal');alert("Added!");}
-function addTrans(){const m=document.getElementById('trMode').value,f=document.getElementById('trFrom').value,t=document.getElementById('trTo').value,a=parseFloat(document.getElementById('trFare').value);if(f&&t&&a){db.ref('trips/'+tid+'/expenses').set([...safe(trip.expenses),{r:`${m}: ${f} ➔ ${t}`,a,cat:'Fare',who:user.name,date:Date.now(),t:Date.now()}]); document.getElementById('smDest').innerText="for "+t; const b=document.getElementById('smButtons'); b.innerHTML=`<button class="btn btn-sm btn-light border" onclick="win('https://www.booking.com/searchresults.html?ss=${t}')">🏨 Hotels</button>`; if(m==='Bus')b.innerHTML+=`<button class="btn btn-sm btn-danger ms-1" onclick="win('https://www.redbus.in')">🚌 Bus</button>`; document.getElementById('smartOfferBox').classList.remove('hidden'); alert("Added!");}}
-function shareRoute(){const r=safe(trip.expenses).filter(e=>e.r.includes("➔"));if(!r.length)return alert("No routes");let m=`🚀 *TRIP PLAN: ${trip.name}*\n\n`,t=0;r.forEach((x,i)=>{m+=`✅ ${x.r} (₹${x.a})\n`;t+=x.a;});m+=`\n💰 Total: ₹${t}`;window.open(`https://wa.me/?text=${encodeURIComponent(m)}`,'_blank');}
-function calcEst(){const t=parseFloat(document.getElementById('eTravel').value)||0;const h=parseFloat(document.getElementById('eHotel').value)||0;const o=parseFloat(document.getElementById('eOther').value)||0;const p=parseFloat(document.getElementById('ePpl').value)||1;const tot = t + h + o;const ph = Math.round(tot / p);db.ref('trips/'+tid).update({estBudget: tot, estPerHead: ph});alert("Saved!");closeModal('estModal');}
-function encImg(i){imgs=[];if(i.files)Array.from(i.files).forEach(f=>{const r=new FileReader();r.onload=e=>{const c=document.createElement('canvas'),x=c.getContext('2d'),w=500,i=new Image();i.src=e.target.result;i.onload=()=>{const sc=w/i.width;c.width=w;c.height=i.height*sc;x.drawImage(i,0,0,w,c.height);imgs.push(c.toDataURL('image/jpeg',0.6));}};r.readAsDataURL(f);});}
-function saveMem(type){const t=document.getElementById('mTxt').value, l=document.getElementById('mLoc').value; if(!t)return; const p={id:Date.now(), who:user.name,mob:user.mobile,txt:t,loc:l,imgs:imgs,t:Date.now()}; if(type==='trip') db.ref('trips/'+tid+'/highlights').set([...safe(trip.highlights),p]); else db.ref('global_public_feed').push(p); alert("Posted!"); toggle('formMem'); imgs=[];}
+function triggerSOS(){ if(confirm("SOS?")) db.ref('trips/'+tid+'/sos').set(true); }
+function stopSOS(){ db.ref('trips/'+tid+'/sos').set(false); }
+function openChecklist(){ const d=document.getElementById('checklistContainer'); d.innerHTML=""; ["ID Proof","Charger","Meds","Clothes"].forEach(i=>d.innerHTML+=`<div><input type="checkbox"> ${i}</div>`); document.getElementById('checklistModal').style.display='flex'; }
+function showTripQR(){ const u="https://ghumo.app?join="+tid; document.getElementById('qrCodeImg').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(u)}">`; document.getElementById('qrShowModal').style.display='flex'; }
 
-// CHAT
-function openChat(postId) {
-    currentChatPostId = postId;
-    document.getElementById('chatContainer').innerHTML = "<p class='text-center small'>Loading...</p>";
-    document.getElementById('chatModal').style.display = 'flex';
-    db.ref('comments/'+postId).on('value', s => {
-        const chats = safe(s.val());
-        const div = document.getElementById('chatContainer');
-        div.innerHTML = "";
-        chats.forEach(c => {
-            const isMe = c.who === user.name;
-            div.innerHTML += `<div class="msg-bubble ${isMe?'msg-right':'msg-left'}"><b>${isMe?'You':c.who}</b><br>${c.msg}</div>`;
-        });
-        div.scrollTop = div.scrollHeight;
-    });
-}
-function sendChatMessage() {
-    const msg = document.getElementById('chatInput').value;
-    if(!msg) return;
-    db.ref('comments/'+currentChatPostId).push({who: user.name, msg: msg, t: Date.now()});
-    document.getElementById('chatInput').value = "";
-}
+// SPIN WHEEL
+let wheelCtx;
+function openWheel(){ if(!trip.members || trip.members.length<2){alert("Need 2+ members");return;} document.getElementById('wheelModal').style.display='flex'; setTimeout(drawWheel, 100); }
+function drawWheel(){ const c=document.getElementById("wheelCanvas"); wheelCtx=c.getContext("2d"); wheelCtx.clearRect(0,0,280,280); const arc=Math.PI*2/trip.members.length; const colors=["#FF5733","#33FF57","#3357FF","#FFC300"]; for(let i=0;i<trip.members.length;i++){ wheelCtx.beginPath(); wheelCtx.fillStyle=colors[i%4]; wheelCtx.arc(140,140,140,i*arc,i*arc+arc); wheelCtx.lineTo(140,140); wheelCtx.fill(); wheelCtx.fillStyle="white"; wheelCtx.fillText(trip.members[i], 140+Math.cos(i*arc+arc/2)*80, 140+Math.sin(i*arc+arc/2)*80); } }
+function spinTheWheel(){ let t=0; const timer=setInterval(()=>{ t+=0.1; drawWheel(); if(t>20){clearInterval(timer); alert("Winner: "+trip.members[Math.floor(Math.random()*trip.members.length)]);} },50); }
 
-function renderFeed(){
-    const d=document.getElementById('feedArea'); d.innerHTML=""; safe(trip.highlights).reverse().forEach(h=>{let im=""; if(h.imgs)h.imgs.forEach(i=>im+=`<img src="${i}" class="feed-img">`); 
-    const del = (h.who===user.name || user.name===trip.head) ? `<i class="bi bi-trash text-danger position-absolute top-0 end-0 m-2 bg-white p-1 rounded action-icon" onclick="delPost('${h.t}')"></i>` : ""; 
-    const chatBtn = `<button class="btn btn-sm btn-light border mt-2 w-100" onclick="openChat('${h.id || h.t}')"><i class="bi bi-chat-text"></i> Chat</button>`;
-    d.innerHTML+=`<div class="vibrant-card p-0 overflow-hidden position-relative">${del}<div class="p-3"><b>${h.who}</b> <small class="text-muted">at ${h.loc||"Unknown"}</small><p>${h.txt}</p></div>${im}<div class="p-2">${chatBtn}</div></div>`;});
-}
-function delPost(t){if(confirm("Delete?"))db.ref('trips/'+tid+'/highlights').set(safe(trip.highlights).filter(h=>h.t!=t));}
-function loadWorld(){db.ref('global_public_feed').limitToLast(10).on('value',s=>{const d=document.getElementById('globalFeed');d.innerHTML=""; const data = s.val() || {}; Object.keys(data).reverse().forEach(key=>{const k = data[key]; let im="";if(k.imgs)k.imgs.forEach(i=>im+=`<img src="${i}" class="feed-img">`); let ctrls = (k.who === user.name) ? `<div class="d-flex justify-content-end gap-2 p-2"><button class="btn btn-sm btn-light border" onclick="editW('${key}','${k.txt}')">✏️ Edit</button><button class="btn btn-sm btn-danger" onclick="delW('${key}')">🗑️ Delete</button></div>` : ""; const chatBtn = `<button class="btn btn-sm btn-light border mt-2 w-100" onclick="openChat('${key}')"><i class="bi bi-chat-text"></i> Chat</button>`; d.innerHTML+=`<div class="vibrant-card p-0 overflow-hidden bg-white"><div class="p-3"><b>${k.who}</b> <small class="text-muted">at ${k.loc||"Unknown"}</small><p>${k.txt}</p></div>${im}<div class="p-2">${chatBtn}</div>${ctrls}</div>`;});});}
-function delW(k){ if(confirm("Delete?")) db.ref('global_public_feed/'+k).remove(); }
-function editW(k, old){ const n = prompt("Update:", old); if(n) db.ref('global_public_feed/'+k).update({txt:n}); }
-function donate(){ const a=prompt("Amount:"); if(a){ const l=`upi://pay?pa=${UPI_ID}&pn=${DEV_NAME}&am=${a}&cu=INR`; document.getElementById('qrModal').style.display='flex'; document.getElementById('dAmt').innerText=a; document.getElementById('dLink').href=l; document.getElementById('dQr').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(l)}">`; } }
+// CHAT & POSTS
+function encImg(i){imgs=[];if(i.files)Array.from(i.files).forEach(f=>{const r=new FileReader();r.onload=e=>{imgs.push(e.target.result);};r.readAsDataURL(f);});}
+function saveMem(t){ const txt=document.getElementById('mTxt').value; if(txt){ const p={who:user.name,txt,imgs,t:Date.now()}; if(t=='trip') db.ref('trips/'+tid+'/highlights').set([...safe(trip.highlights),p]); else db.ref('global_public_feed').push(p); closeModal('formPostModal'); }}
+function openChat(pid){ currentChatPostId=pid; document.getElementById('chatModal').style.display='flex'; db.ref('comments/'+pid).on('value',s=>{ const d=document.getElementById('chatContainer'); d.innerHTML=""; safe(s.val()).forEach(c=>{ const me=c.who===user.name; d.innerHTML+=`<div class="msg-bubble ${me?'msg-right':'msg-left'}"><b>${me?'You':c.who}</b><br>${c.msg}</div>`; }); }); }
+function sendChatMessage(){ const v=document.getElementById('chatInput').value; if(v){ db.ref('comments/'+currentChatPostId).push({who:user.name,msg:v}); document.getElementById('chatInput').value=""; } }
+function loadWorld(){ db.ref('global_public_feed').limitToLast(5).on('value',s=>{ const d=document.getElementById('globalFeed'); d.innerHTML=""; safe(s.val()).reverse().forEach(p=>{d.innerHTML+=`<div class="vibrant-card p-2"><small><b>${p.who}</b></small><p>${p.txt}</p></div>`;}); }); }
 </script>
 </body>
 </html>
